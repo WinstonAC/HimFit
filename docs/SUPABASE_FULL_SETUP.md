@@ -77,7 +77,7 @@ Supabase sends **different** emails from **different** templates. If your inbox 
 
 5. **Same dashboard** → **Confirm signup** (or **Confirm your email**): paste the **same** HTML body and a matching subject (e.g. `HimFit — confirm your email`). **Do not remove** `{{ .ConfirmationURL }}` on the button.
 
-**Do not remove** `{{ .ConfirmationURL }}` or `{{ .Email }}` in any template that uses them. Support line uses plain `info@williamacampbell.com` — edit that file if you want a different address.
+**Do not remove** `{{ .ConfirmationURL }}` on the button link — that is required. The HimFit template uses a static footer line instead of `{{ .Email }}` so the address never shows up as raw `{{ .Email }}` if the dashboard escapes HTML or the merge fails. (You can add `{{ .Email }}` back in **Source/HTML** mode if your project substitutes it correctly.)
 
 **Phone vs desktop inbox:** Mobile Gmail/Apple Mail often scale or strip CSS. This repo’s `email-magic-link-body.html` uses **tables + inline styles + larger type (16px body)** so phone and desktop look closer. After pulling updates, **paste the file into Supabase again** — the dashboard does not auto-sync from GitHub.
 

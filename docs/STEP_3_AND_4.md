@@ -9,7 +9,7 @@
 5. In Supabase, paste into the **Magic link** template body (use **Source** / raw HTML mode if the editor offers it).
 6. **Save**.
 
-**Do not change** `{{ .ConfirmationURL }}` or `{{ .Email }}`.  
+**Do not change** `{{ .ConfirmationURL }}` on the sign-in button.  
 To use a different support address, edit the `mailto:` and visible email in `email-magic-link-body.html` only (plain text / `href`, not `{{ }}`).
 
 **Preview note:** Supabase’s preview is often narrow; real inboxes (Gmail, etc.) usually look closer to a full-width layout.
