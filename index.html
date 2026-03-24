@@ -431,7 +431,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div id="cloud-auth-status" class="auth-gate-status"></div>
     <input type="email" class="log-input" id="cloud-email" placeholder="Email address" autocomplete="email" inputmode="email">
     <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-send-btn" onclick="sendHimfitMagicLink()">Send link</button>
-    <p class="auth-gate-foot"><strong>Already signed in?</strong> Open the app → <strong>Overview</strong> (bottom) → scroll down → <strong>Sign out</strong>. To return here: add <strong>#signin</strong> to the end of this page’s address (you’ll be signed out first if needed).</p>
+    <p class="auth-gate-foot"><strong>Stay signed in:</strong> use the same browser and avoid private/incognito for day-to-day use — your session is saved on this device. <strong>Sign out</strong> is at the bottom of <strong>Overview</strong> after you’re in. <strong>#signin</strong> in the URL returns to this screen (signs you out first if needed).</p>
   </div>
 </div>
 
@@ -1995,7 +1995,8 @@ function himfitStravaOwnerId(){
 function himfitStravaToggleAllowed(){
   const owner=himfitStravaOwnerId();
   if(!owner||!himfitCloudConfigured)return false;
-  return !!(himfitAuthUser&&himfitAuthUser.id===owner);
+  const uid=(himfitAuthUser&&himfitAuthUser.id)||'';
+  return !!uid&&uid.toLowerCase()===owner.toLowerCase();
 }
 function refreshStravaOwnerUI(){
   const allowed=himfitStravaToggleAllowed();
@@ -2089,14 +2090,28 @@ async function initHimfitCloud(){
   if(send){send.disabled=false;send.style.opacity='';}
   try{
     const mod=await import('https://esm.sh/@supabase/supabase-js@2.49.8');
-    himfitSupabase=mod.createClient(url,key,{auth:{detectSessionInUrl:true,flowType:'pkce',storage:window.localStorage}});
+    himfitSupabase=mod.createClient(url,key,{auth:{
+      detectSessionInUrl:true,
+      flowType:'pkce',
+      storage:window.localStorage,
+      persistSession:true,
+      autoRefreshToken:true,
+    }});
   }catch(e){
     console.warn('HimFit cloud init failed',e);
     if(st)st.textContent='Could not load sign-in. Check network or Supabase keys.';
     return;
   }
+  function stripAuthQueryFromUrl(){
+    if(!window.location.search)return;
+    const q=new URLSearchParams(window.location.search);
+    if(!q.has('code')&&!q.has('error_description'))return;
+    const clean=window.location.pathname+(window.location.hash||'');
+    try{history.replaceState({},'',clean);}catch(e){}
+  }
   himfitSupabase.auth.onAuthStateChange(async (event,session)=>{
     himfitAuthUser=session?.user||null;
+    if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session?.user)stripAuthQueryFromUrl();
     updateCloudSettingsUI(himfitAuthUser);
     updateAuthShellVisibility();
     refreshStravaOwnerUI();
@@ -2105,8 +2120,21 @@ async function initHimfitCloud(){
       if(!merged)await pushStateToCloud();
     }
   });
-  const {data:{session}}=await himfitSupabase.auth.getSession();
+  let {data:{session}}=await himfitSupabase.auth.getSession();
+  if(!session&&window.location.search.includes('code=')){
+    await new Promise(r=>setTimeout(r,120));
+    ({data:{session}}=await himfitSupabase.auth.getSession());
+  }
+  if(!session&&window.location.search.includes('code=')){
+    const code=new URLSearchParams(window.location.search).get('code');
+    if(code){
+      const{error:exErr}=await himfitSupabase.auth.exchangeCodeForSession(code);
+      if(exErr)console.warn('HimFit PKCE exchange',exErr);
+      else ({data:{session}}=await himfitSupabase.auth.getSession());
+    }
+  }
   himfitAuthUser=session?.user||null;
+  if(himfitAuthUser)stripAuthQueryFromUrl();
   updateCloudSettingsUI(himfitAuthUser);
   if(session?.user){
     const merged=await pullCloudStateIntoApp();
@@ -2176,7 +2204,14 @@ async function sendHimfitMagicLink(){
     return;
   }
   const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:redirectTo}});
-  if(st)st.textContent=error?('Error: '+error.message):'Email sent. Open the link in that message on this device to finish signing in.';
+  if(st){
+    if(error){
+      const msg=(error.message||'').toLowerCase();
+      if(msg.includes('rate')||msg.includes('too many')||(error.status|0)===429){
+        st.textContent='Too many sign-in emails from Supabase — wait several minutes. If you already signed in on this browser, try a normal refresh; your session is usually saved.';
+      }else st.textContent='Error: '+error.message;
+    }else st.textContent='Email sent. Open the link in that message on this device to finish signing in.';
+  }
 }
 async function himfitSignOut(){
   if(himfitSupabase)await himfitSupabase.auth.signOut();
