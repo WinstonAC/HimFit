@@ -261,6 +261,12 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .intake-field{margin-bottom:12px}
 .intake-field label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hint);margin-bottom:5px}
 .intake-field textarea.log-input{min-height:56px;resize:vertical}
+.unit-toggle{display:flex;gap:6px;margin-bottom:2px}
+.unit-btn{flex:1;padding:9px 8px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:transparent;color:var(--mut);font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.unit-btn.on{border-color:var(--gold);color:var(--gold)}
+.in-goals-grid{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.in-goal-row{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--mut);line-height:1.35;cursor:pointer}
+.in-goal-row input{flex-shrink:0;margin-top:3px;accent-color:var(--gold)}
 .intake-actions{display:flex;flex-direction:column;gap:8px;margin-top:18px}
 .intake-skip{background:transparent;border:.5px solid var(--bdr2);color:var(--mut)}
 .strava-placeholder{padding:20px 16px;text-align:center;border:.5px solid var(--bdr);border-radius:var(--rad);background:var(--sur);margin-bottom:12px}
@@ -296,19 +302,39 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
         <option value="other">Other / prefer not to use for programming</option>
       </select>
     </div>
+    <div class="intake-field"><label>Units</label>
+      <div class="unit-toggle">
+        <button type="button" class="unit-btn on" id="unit-btn-metric" onclick="setIntakeUnitPref('metric')">kg · cm</button>
+        <button type="button" class="unit-btn" id="unit-btn-imperial" onclick="setIntakeUnitPref('imperial')">lb · ft / in</button>
+      </div>
+      <input type="hidden" id="in-unit-pref" value="metric">
+      <p class="sub" style="margin-top:4px;margin-bottom:0;font-size:10px">Stored as metric internally; display matches your choice.</p>
+    </div>
     <div class="log-row">
       <div class="intake-field"><label>Age</label><input class="log-input" id="in-age" type="number" min="16" max="90" placeholder="e.g. 35"></div>
-      <div class="intake-field"><label>Weight (kg)</label><input class="log-input" id="in-weight" type="number" min="35" max="200" step="0.1" placeholder="e.g. 68"></div>
+      <div class="intake-field"><label id="in-weight-lbl">Weight (kg)</label><input class="log-input" id="in-weight" type="number" min="1" max="440" step="0.1" placeholder="e.g. 68"></div>
     </div>
-    <div class="intake-field"><label>Height (cm)</label><input class="log-input" id="in-height" type="number" min="120" max="220" placeholder="Optional"></div>
-    <div class="intake-field"><label>Primary goal</label>
-      <select class="log-input" id="in-goal">
-        <option value="general">General fitness</option>
-        <option value="lose_fat">Lose fat</option>
-        <option value="build_muscle">Build muscle</option>
-        <option value="stay_lean">Stay lean / maintain</option>
-        <option value="endurance">Endurance / cardio focus</option>
-      </select>
+    <div class="intake-field" id="in-height-metric-row"><label>Height (cm)</label>
+      <input class="log-input" id="in-height-cm" type="number" min="120" max="220" step="0.1" placeholder="e.g. 175">
+    </div>
+    <div class="intake-field" id="in-height-imperial-row" style="display:none"><label>Height (ft / in)</label>
+      <div class="log-row">
+        <div class="intake-field" style="margin-bottom:0"><input class="log-input" id="in-height-ft" type="number" min="4" max="7" step="1" placeholder="ft"></div>
+        <div class="intake-field" style="margin-bottom:0"><input class="log-input" id="in-height-in" type="number" min="0" max="11.99" step="0.1" placeholder="in"></div>
+      </div>
+    </div>
+    <div class="intake-field"><label>Goals (choose up to 3)</label>
+      <p class="sub" style="margin-bottom:8px;font-size:10px">Mix what matters — reps, rests, Zone 2 duration, and run notes shift with these. Fertility shows below only if sex is female.</p>
+      <div id="in-goals-wrap" class="in-goals-grid">
+        <label class="in-goal-row"><input type="checkbox" class="in-goal-chk" value="general" onchange="clampIntakeGoals(this)"> General fitness</label>
+        <label class="in-goal-row"><input type="checkbox" class="in-goal-chk" value="lose_fat" onchange="clampIntakeGoals(this)"> Lose fat</label>
+        <label class="in-goal-row"><input type="checkbox" class="in-goal-chk" value="build_muscle" onchange="clampIntakeGoals(this)"> Build muscle</label>
+        <label class="in-goal-row"><input type="checkbox" class="in-goal-chk" value="stay_lean" onchange="clampIntakeGoals(this)"> Stay lean / maintain</label>
+        <label class="in-goal-row"><input type="checkbox" class="in-goal-chk" value="endurance" onchange="clampIntakeGoals(this)"> Endurance / cardio focus</label>
+      </div>
+      <div id="in-goal-fertility-wrap" class="in-goals-grid" style="display:none;margin-top:6px">
+        <label class="in-goal-row"><input type="checkbox" class="in-goal-chk" value="fertility" onchange="clampIntakeGoals(this)"> Fertility journey wellness (non-medical)</label>
+      </div>
     </div>
     <div class="intake-field"><label>Training experience</label>
       <select class="log-input" id="in-exp">
@@ -331,6 +357,21 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
         <option value="home">Home</option>
         <option value="both">Both</option>
       </select>
+    </div>
+    <div class="intake-field"><label>Eating style</label>
+      <select class="log-input" id="in-diet">
+        <option value="omnivore">Omnivore (meat, fish, dairy, eggs)</option>
+        <option value="pescatarian">Pescatarian (fish + dairy/eggs, no meat)</option>
+        <option value="vegetarian">Vegetarian (dairy/eggs ok, no meat/fish)</option>
+        <option value="vegan">Vegan (plant-based only)</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Meal preference</label>
+      <select class="log-input" id="in-meal-style">
+        <option value="balanced">Balanced plates (default)</option>
+        <option value="salad_forward">Mostly salads / very veg-heavy lunches</option>
+      </select>
+      <p class="sub" style="margin-top:6px;margin-bottom:0;font-size:10px">Same meal rotation, but Fuel adds swap ideas for big salads when you want them.</p>
     </div>
     <div class="intake-field"><label>Running comfort (honest — we scale Tue/Sat)</label>
       <select class="log-input" id="in-run">
@@ -395,7 +436,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <div class="card-s" id="profile-strip-wrap" style="margin-bottom:14px;display:none">
     <div class="slbl" style="margin-bottom:8px">Your profile</div>
     <div id="profile-strip"></div>
-    <button type="button" class="mcard-expand" style="margin-top:10px" onclick="openIntake(true)">Edit profile</button>
+    <p class="sub" style="margin-top:10px;margin-bottom:0;font-size:10px">Edit in <strong>Settings</strong> below.</p>
   </div>
 
   <div class="slbl">Three Phases</div>
@@ -435,9 +476,21 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="settings-row">
       <div class="settings-copy">
         <div class="settings-title">Profile</div>
-        <div class="settings-desc">Intake is stored on this device only. Edit to update goals, running level, or demographics.</div>
+        <div class="settings-desc">Stored on this device. Optional cloud sign-in (below) can back up the same data to your account.</div>
       </div>
       <button type="button" class="log-save" style="width:auto;padding:8px 14px;margin:0" onclick="openIntake(true)">Edit</button>
+    </div>
+    <div class="settings-row" id="cloud-account-settings" style="display:none">
+      <div class="settings-copy" style="max-width:100%">
+        <div class="settings-title">Cloud account</div>
+        <div class="settings-desc">Email magic link — backs up progress to your row in Supabase (maintainer must enable; see repo docs).</div>
+        <div id="cloud-auth-status" style="font-size:11px;color:var(--hint);margin-top:8px;line-height:1.45"></div>
+        <input type="email" class="log-input" id="cloud-email" placeholder="you@email.com" autocomplete="email" style="margin-top:8px">
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button type="button" class="log-save" style="width:auto;padding:8px 14px;margin:0" onclick="sendHimfitMagicLink()">Email sign-in link</button>
+          <button type="button" class="log-save intake-skip" style="width:auto;padding:8px 14px;margin:0;display:none" id="cloud-signout-btn" onclick="himfitSignOut()">Sign out</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -461,6 +514,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 
 <!-- ── PLAN ───────────────────────────────────── -->
 <div id="view-plan" class="view">
+  <div id="plan-goal-hint" class="card-s" style="margin-top:4px;margin-bottom:10px;display:none;font-size:12px;color:var(--mut);line-height:1.55"></div>
   <div class="slbl" style="margin-top:4px">All 12 Weeks</div>
   <div class="wg" id="wg"></div>
 </div>
@@ -498,6 +552,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="h-eye">Daily Nutrition</div>
     <div class="h-name" style="font-size:40px;margin-bottom:10px">FUEL<em>PLAN</em></div>
     <div id="fuel-day" style="font-size:11px;color:var(--mut)">Based on today's session</div>
+    <div id="fuel-variant-lbl" style="font-size:10px;color:var(--hint);margin-top:6px;line-height:1.4"></div>
   </div>
   <div class="slbl" id="fuel-macro-slbl">Your Numbers — 68kg · 45yo · Build Muscle</div>
   <div class="mc-row">
@@ -548,6 +603,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <div id="shop-list-items"></div>
 </div>
 
+<script src="himfit-config.js"></script>
 <script>
 // ─────────────────────────────────────────────
 // DAYS
@@ -786,7 +842,7 @@ function getSatRunEntry(idx){
 // ─────────────────────────────────────────────
 // NUTRITION
 // ─────────────────────────────────────────────
-const MEALS={
+const MEALS_OMNI_0={
   lift:[
     {t:'06:45 — Wake',n:'Hydration Start',i:'500ml water immediately on waking\nOptional: black coffee'},
     {t:'07:15 — Pre-Workout',n:'Activation',i:'1 banana + 30g oats\nOptional: pre-workout supplement',note:'~250 kcal · 8g protein · fast carbs'},
@@ -819,6 +875,404 @@ const MEALS={
   ],
 };
 
+const MEALS_OMNI_1={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'500ml water on waking\nBlack coffee optional'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'3 rice cakes + 1 tbsp honey + half banana',note:'~200 kcal · quick carbs'},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Protein oats: 60g oats cooked in milk\nScramble 2 whole eggs + 3 whites\nTop with berries',note:'~500 kcal · 35g protein'},
+    {t:'13:30',n:'Lunch',i:'150g lean beef or turkey mince in tomato sauce\n120g dry pasta or rice\nBig side salad + olive oil',note:'~640 kcal'},
+    {t:'16:00',n:'Snack',i:'200g Greek yogurt + small handful almonds\nOr whey shake + apple',note:'~320 kcal'},
+    {t:'19:00',n:'Dinner',i:'White fish 220g baked (cod / sea bass)\n200g sweet potato\nGreen beans + lemon + olive oil',note:'~600 kcal'},
+    {t:'21:00 — Optional',n:'Slow protein',i:'Casein shake or 150g cottage cheese',note:'slow release'},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Light Fuel',i:'1 slice toast + jam or half banana\nNo heavy fat before quality work',note:'45–60 min before'},
+    {t:'Post-Run',n:'Recovery',i:'40g whey + banana + pinch salt in water',note:'within 25 min'},
+    {t:'10:00',n:'Breakfast',i:'Omelette 3 eggs + spinach + feta\n1 wholegrain bagel',note:'~450 kcal'},
+    {t:'13:30',n:'Lunch',i:'Chicken or turkey wrap + hummus\nSide of fruit',note:'~580 kcal'},
+    {t:'19:00',n:'Dinner',i:'Salmon fillet 200g + quinoa 80g dry\nRoasted peppers + courgette',note:'~620 kcal'},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Light Activation',i:'Dates 3–4 or banana + rice cake',note:'45 min before'},
+    {t:'Post-Session',n:'Recovery',i:'Protein shake + orange or pineapple',note:'glycogen window'},
+    {t:'10:00',n:'Breakfast',i:'Overnight oats: 70g oats + milk + chia + berries\nBoiled eggs ×2',note:'~550 kcal'},
+    {t:'13:30',n:'Lunch',i:'Tuna or chicken poke bowl style: protein + rice + edamame + veg',note:'~600 kcal'},
+    {t:'19:00',n:'Dinner',i:'Stir-fry: prawns or chicken + mixed veg + noodles or rice',note:'~560 kcal'},
+  ],
+  longrun:[
+    {t:'Morning — Pre-Run',n:'Long Run Fuel',i:'Bagel + banana + honey\nEat 90 min out\nCoffee ok',note:'~450 kcal'},
+    {t:'During Run (>75 min)',n:'Mid-Run',i:'Gel or dates + water every 20–25 min',note:'fuel early'},
+    {t:'Post-Run',n:'Immediate',i:'40g protein + banana + salty crackers',note:'salt + carbs'},
+    {t:'Post-Run Meal',n:'Recovery Lunch',i:'Turkey or tofu rice bowl: 150g protein + white rice 150g cooked\nKimchi or veg',note:'~720 kcal'},
+    {t:'Dinner',n:'Rebuild',i:'Steak or lentil patties 180g + potatoes + greens',note:'~640 kcal'},
+  ],
+};
+
+const MEALS_VEG_0={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'500ml water\nCoffee optional'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Banana + 30g oats dry or rice cakes',note:'~220 kcal'},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'5 eggs scrambled or tofu scramble 200g\n80g oats + raisins + honey\nOr whey / soy protein shake + banana',note:'~520 kcal · high protein'},
+    {t:'13:30',n:'Lunch',i:'200g firm tofu or tempeh pan-seared\n100g dry brown rice or pasta\nLarge greens + tahini or olive oil',note:'~600 kcal'},
+    {t:'16:00',n:'Snack',i:'Greek yogurt or skyr 200g + berries\nOr protein shake + apple',note:'~300 kcal'},
+    {t:'19:00',n:'Dinner',i:'Lentil dhal + paneer 80g or halloumi 100g\nRice + roasted cauliflower',note:'~620 kcal'},
+    {t:'21:00 — Optional',n:'Night',i:'Casein or soy yogurt 200g',note:'slow protein'},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Light Fuel',i:'Banana or dates + water',note:'no heavy fat'},
+    {t:'Post-Run',n:'Recovery',i:'Protein shake (whey or plant) + banana',note:'20–30 min'},
+    {t:'10:00',n:'Breakfast',i:'Eggs on sourdough or avocado toast + chickpeas',note:'~420 kcal'},
+    {t:'13:30',n:'Lunch',i:'Halloumi or tofu grain bowl + hummus + veg',note:'~580 kcal'},
+    {t:'19:00',n:'Dinner',i:'Vegetable curry + Greek yogurt side\nBasmati rice',note:'~580 kcal'},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Activation',i:'Banana + small handful nuts',note:'45 min before'},
+    {t:'Post-Session',n:'Recovery',i:'Protein shake + fruit',note:'within 20 min'},
+    {t:'10:00',n:'Breakfast',i:'Porridge + milk + seeds + berries\nEggs ×2',note:'~560 kcal'},
+    {t:'13:30',n:'Lunch',i:'Bean burrito: black beans + cheese + salsa + wrap',note:'~580 kcal'},
+    {t:'19:00',n:'Dinner',i:'Eggplant parm light or tofu bake + side salad',note:'~540 kcal'},
+  ],
+  longrun:[
+    {t:'Morning — Pre-Run',n:'Fuel',i:'Oats + banana + maple syrup\n90 min before',note:'~480 kcal'},
+    {t:'During Run',n:'Mid-Run',i:'Gel (check vegan label) or dates + water',note:''},
+    {t:'Post-Run',n:'Immediate',i:'Protein shake + banana + salted rice cakes',note:''},
+    {t:'Post-Run Meal',n:'Lunch',i:'Chickpea pasta + pesto + cherry tomatoes\nSide salad',note:'~700 kcal'},
+    {t:'Dinner',n:'Rebuild',i:'Quinoa + roasted veg + feta + pumpkin seeds',note:'~620 kcal'},
+  ],
+};
+
+const MEALS_VEG_1={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'500ml water'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Apple + rice cakes + tsp jam',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Smoothie: milk + 40g protein + oats 50g + spinach + frozen berries',note:'~480 kcal'},
+    {t:'13:30',n:'Lunch',i:'Vegetarian chilli: beans + TVP or lentils\nBrown rice + avocado',note:'~620 kcal'},
+    {t:'16:00',n:'Snack',i:'Cottage cheese bowl + pineapple\nOr skyr + honey',note:''},
+    {t:'19:00',n:'Dinner',i:'Spinach & ricotta stuffed shells or mushroom risotto\nSide greens',note:'~600 kcal'},
+    {t:'21:00 — Optional',n:'Night',i:'Milk-based hot cocoa + collagen optional',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Light Fuel',i:'Toast + jam + water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Chocolate soy milk + banana + protein scoop',note:''},
+    {t:'10:00',n:'Breakfast',i:'Pancakes (eggs + oats blended) + yogurt + fruit',note:''},
+    {t:'13:30',n:'Lunch',i:'Caprese sandwich + soup',note:''},
+    {t:'19:00',n:'Dinner',i:'Paneer tikka + naan + cucumber raita',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Energy bar (veg-friendly) + water',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Protein + carb drink',note:''},
+    {t:'10:00',n:'Breakfast',i:'Shakshuka + bread',note:''},
+    {t:'13:30',n:'Lunch',i:'Falafel bowl + tahini + tabbouleh',note:''},
+    {t:'19:00',n:'Dinner',i:'Vegetable pad thai + crushed peanuts + lime',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Bagel + peanut butter + banana',note:''},
+    {t:'During',n:'Fuel',i:'Dates + electrolyte drink',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein smoothie + oats',note:''},
+    {t:'Lunch',n:'Recovery',i:'Sweet potato + black beans + cheese + salsa bowl',note:''},
+    {t:'Dinner',n:'Rebuild',i:'Vegetable lasagne + side salad',note:''},
+  ],
+};
+
+const MEALS_VEGAN_0={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'500ml water'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Banana + dates or rice cakes',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Tofu scramble 250g (turmeric, nutritional yeast)\nWholegrain toast + avocado',note:'~480 kcal · use B12-fortified foods or supplement'},
+    {t:'13:30',n:'Lunch',i:'Tempeh 200g marinated + quinoa 80g dry\nSteamed broccoli + sesame',note:'~580 kcal'},
+    {t:'16:00',n:'Snack',i:'Soy yogurt 200g + berries + hemp seeds\nOr pea-protein shake',note:''},
+    {t:'19:00',n:'Dinner',i:'Chickpea + spinach curry + brown rice\nCoconut yogurt dollop',note:'~620 kcal'},
+    {t:'21:00 — Optional',n:'Night',i:'Soy milk + scoop plant protein',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Light Fuel',i:'Banana + water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Pea/soy protein + banana + oat milk',note:''},
+    {t:'10:00',n:'Breakfast',i:'Overnight oats + chia + soy milk + nut butter',note:''},
+    {t:'13:30',n:'Lunch',i:'Tofu poke bowl + edamame + rice + seaweed salad',note:''},
+    {t:'19:00',n:'Dinner',i:'Lentil bolognese + pasta + nutritional yeast',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Dried fruit + rice cake',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Plant protein + fruit',note:''},
+    {t:'10:00',n:'Breakfast',i:'Smoothie bowl + granola (vegan) + berries',note:''},
+    {t:'13:30',n:'Lunch',i:'Hummus + falafel wrap + salad',note:''},
+    {t:'19:00',n:'Dinner',i:'Thai peanut tofu + jasmine rice + greens',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Oats + banana + maple + soy milk\n90 min before',note:''},
+    {t:'During',n:'Mid-Run',i:'Vegan gels or dates + water',note:''},
+    {t:'Post-Run',n:'Immediate',i:'Protein + banana + salted crackers',note:''},
+    {t:'Lunch',n:'Recovery',i:'Buddha bowl: grains + tofu + roasted veg + tahini',note:'~700 kcal'},
+    {t:'Dinner',n:'Rebuild',i:'Bean stew + polenta + greens',note:''},
+  ],
+};
+
+const MEALS_VEGAN_1={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'Water + lemon optional'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Apple sauce + rice cakes',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Protein pancakes (banana + oats + plant protein)\nBerries + maple',note:''},
+    {t:'13:30',n:'Lunch',i:'Seitan or soy curls stir-fry + noodles + veg',note:''},
+    {t:'16:00',n:'Snack',i:'Edamame + cherry tomatoes',note:''},
+    {t:'19:00',n:'Dinner',i:'Stuffed peppers: rice + black beans + corn + salsa bake',note:''},
+    {t:'21:00 — Optional',n:'Night',i:'Warm almond milk + cocoa',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Fuel',i:'Dates + water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Soy chocolate milk + protein',note:''},
+    {t:'10:00',n:'Breakfast',i:'Bagel + vegan cream cheese + tomato',note:''},
+    {t:'13:30',n:'Lunch',i:'Lentil soup + crusty bread + olive oil',note:''},
+    {t:'19:00',n:'Dinner',i:'Jackfruit tacos + slaw + lime',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Banana',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Smoothie: protein + mango + spinach',note:''},
+    {t:'10:00',n:'Breakfast',i:'Chia pudding + granola + kiwi',note:''},
+    {t:'13:30',n:'Lunch',i:'Sushi bowl: tofu + avocado + cucumber + rice',note:''},
+    {t:'19:00',n:'Dinner',i:'Vegan ramen: miso broth + noodles + mushrooms + bok choy',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Toast + jam + banana',note:''},
+    {t:'During',n:'Fuel',i:'Electrolytes + dates',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Recovery shake + salt',note:''},
+    {t:'Lunch',n:'Recovery',i:'Pasta + white beans + pesto (vegan) + rocket',note:''},
+    {t:'Dinner',n:'Rebuild',i:'Shepherd’s pie (lentil mash top) + peas',note:''},
+  ],
+};
+
+const MEALS_PESCA_0={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'500ml water'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Banana + oats 30g',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Smoked salmon 120g + scrambled eggs ×3\nRye bread',note:'~520 kcal'},
+    {t:'13:30',n:'Lunch',i:'Tuna or sardines + mixed beans salad\nQuinoa 70g dry',note:'~600 kcal'},
+    {t:'16:00',n:'Snack',i:'Greek yogurt + honey + walnuts',note:''},
+    {t:'19:00',n:'Dinner',i:'Salmon or sea bream 220g\nPotatoes + asparagus',note:'~620 kcal'},
+    {t:'21:00 — Optional',n:'Night',i:'Cottage cheese or skyr',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Fuel',i:'Banana + water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Whey + banana',note:''},
+    {t:'10:00',n:'Breakfast',i:'Eggs benny style: muffin + poached eggs + spinach (skip ham)',note:''},
+    {t:'13:30',n:'Lunch',i:'Poke bowl: salmon + rice + edamame + seaweed',note:''},
+    {t:'19:00',n:'Dinner',i:'Garlic prawns + linguine + side salad',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Rice cakes + jam',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Protein shake + orange',note:''},
+    {t:'10:00',n:'Breakfast',i:'Kippers or mackerel on toast + tomato',note:''},
+    {t:'13:30',n:'Lunch',i:'Fish tacos + slaw + lime crema (yogurt)',note:''},
+    {t:'19:00',n:'Dinner',i:'Fish pie (white fish) + peas + mash',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Oats + banana + honey',note:''},
+    {t:'During',n:'Fuel',i:'Gel + water sips',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein + banana + crackers',note:''},
+    {t:'Lunch',n:'Recovery',i:'Tuna pasta bake + greens',note:'~720 kcal'},
+    {t:'Dinner',n:'Rebuild',i:'Grilled swordfish or cod + rice + ratatouille',note:''},
+  ],
+};
+
+const MEALS_PESCA_1={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'Water'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Dates + rice cake',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Shrimp + egg white omelette + feta\nSide fruit',note:''},
+    {t:'13:30',n:'Lunch',i:'Anchovy + chickpea pasta + rocket + lemon',note:''},
+    {t:'16:00',n:'Snack',i:'Protein yogurt drink + apple',note:''},
+    {t:'19:00',n:'Dinner',i:'Teriyaki salmon + noodles + bok choy',note:''},
+    {t:'21:00 — Optional',n:'Night',i:'Casein shake',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Fuel',i:'Toast + honey',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Chocolate milk + protein',note:''},
+    {t:'10:00',n:'Breakfast',i:'Bagel + lox + cream cheese + capers',note:''},
+    {t:'13:30',n:'Lunch',i:'Niçoise-style: tuna, eggs, beans, greens',note:''},
+    {t:'19:00',n:'Dinner',i:'Fish curry + basmati + yogurt raita',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Banana + handful cereal',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Smoothie: protein + berries',note:''},
+    {t:'10:00',n:'Breakfast',i:'Crab or tuna melt on sourdough + tomato soup',note:''},
+    {t:'13:30',n:'Lunch',i:'Sushi rolls (fish) + miso',note:''},
+    {t:'19:00',n:'Dinner',i:'Paella-style rice + prawns + peas + lemon',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Bagel + peanut butter',note:''},
+    {t:'During',n:'Fuel',i:'Gels + electrolyte',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein oats',note:''},
+    {t:'Lunch',n:'Recovery',i:'Fish + chips oven-baked + mushy peas swap: peas',note:''},
+    {t:'Dinner',n:'Rebuild',i:'Tuna steak + sweet potato wedges + salad',note:''},
+  ],
+};
+
+const MEALS_OMNI_2={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'500ml water + pinch electrolyte optional'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Half banana + rice cake + tsp honey',note:'~180 kcal'},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Greek yogurt parfait: 250g yogurt + granola 40g + berries + chia',note:'~450 kcal · high protein'},
+    {t:'13:30',n:'Lunch',i:'Mediterranean bowl: grilled chicken 180g + couscous 80g dry + cucumber tomato salad + hummus',note:'~640 kcal'},
+    {t:'16:00',n:'Snack',i:'Cottage cheese 200g + cucumber + olive oil + pepper',note:'~280 kcal'},
+    {t:'19:00',n:'Dinner',i:'Lean pork tenderloin 180g + roasted carrots + farro 70g dry\nSide arugula lemon',note:'~620 kcal'},
+    {t:'21:00 — Optional',n:'Night',i:'Casein or milk + cocoa',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Light Fuel',i:'Rice cake + tsp honey + water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein shake + tart cherry juice splash + banana',note:'within 25 min'},
+    {t:'10:00',n:'Breakfast',i:'Egg wrap: wholemeal tortilla + 3 eggs + spinach + salsa',note:''},
+    {t:'13:30',n:'Lunch',i:'Chicken souvlaki skewers + tzatziki + Greek salad + pitta',note:''},
+    {t:'19:00',n:'Dinner',i:'Baked cod + lentils 120g dry + steamed greens + lemon',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Small banana + few almonds',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Whey + oat milk + frozen berries blended',note:''},
+    {t:'10:00',n:'Breakfast',i:'Egg muffin ×2 + fruit + black coffee',note:''},
+    {t:'13:30',n:'Lunch',i:'Turkey meatballs + marinara + courgetti or pasta 80g dry',note:''},
+    {t:'19:00',n:'Dinner',i:'Steak strip stir-fry + mixed peppers + jasmine rice 90g dry',note:''},
+  ],
+  longrun:[
+    {t:'Morning — Pre-Run',n:'Fuel',i:'White toast + jam + banana\nWater to thirst',note:''},
+    {t:'During Run',n:'Fuel',i:'Gel or chews + water every 20–25 min',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Chocolate milk + whey scoop + banana',note:''},
+    {t:'Post-Run Meal',n:'Lunch',i:'Chicken burrito bowl: rice + beans + salsa + guac',note:'~760 kcal'},
+    {t:'Dinner',n:'Rebuild',i:'Roast chicken leg + roast potatoes + green beans',note:''},
+  ],
+};
+
+const MEALS_VEG_2={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'Water + lemon'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Dates + water',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Protein oats baked: oats 70g + egg + berries + cinnamon',note:''},
+    {t:'13:30',n:'Lunch',i:'Mediterranean mezze: falafel + hummus + tabbouleh + pitta + feta',note:''},
+    {t:'16:00',n:'Snack',i:'Apple + peanut butter 1 tbsp + skyr',note:''},
+    {t:'19:00',n:'Dinner',i:'Mushroom stroganoff (yogurt sauce) + egg noodles + peas',note:''},
+    {t:'21:00 — Optional',n:'Night',i:'Warm milk + honey',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Fuel',i:'Crackers + jam',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein + banana smoothie',note:''},
+    {t:'10:00',n:'Breakfast',i:'Avocado toast ×2 + poached eggs + chilli flakes',note:''},
+    {t:'13:30',n:'Lunch',i:'Greek salad large + chickpeas + olive bread',note:''},
+    {t:'19:00',n:'Dinner',i:'Vegetable tagine + couscous + yogurt',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Rice cake + honey',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Milk + protein + banana',note:''},
+    {t:'10:00',n:'Breakfast',i:'Cheese + tomato on sourdough + fruit',note:''},
+    {t:'13:30',n:'Lunch',i:'Quiche slice + side salad',note:''},
+    {t:'19:00',n:'Dinner',i:'Paneer jalfrezi + basmati + cucumber raita',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Bagel thin + pb + banana',note:''},
+    {t:'During',n:'Fuel',i:'Dates + electrolyte',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Recovery smoothie + oats',note:''},
+    {t:'Lunch',n:'Recovery',i:'Veggie chilli + cornbread + coleslaw',note:''},
+    {t:'Dinner',n:'Rebuild',i:'Ricotta + spinach cannelloni + salad',note:''},
+  ],
+};
+
+const MEALS_VEGAN_2={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'Water'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Dried mango + rice cake',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Savory oats: oats + nutritional yeast + spinach + tofu cubes pan-fried',note:'B12-fortified nooch if available'},
+    {t:'13:30',n:'Lunch',i:'Mediterranean grain bowl: farro + roasted veg + olives + tahini lemon',note:''},
+    {t:'16:00',n:'Snack',i:'Roasted chickpeas + carrot sticks + hummus',note:''},
+    {t:'19:00',n:'Dinner',i:'Red lentil dal + spinach + brown basmati + coconut yogurt',note:''},
+    {t:'21:00 — Optional',n:'Night',i:'Herbal tea + small protein cookie (vegan)',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Fuel',i:'Apple sauce + water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Pea protein + oat milk + banana',note:''},
+    {t:'10:00',n:'Breakfast',i:'Tofu on sourdough + tomato + avocado',note:''},
+    {t:'13:30',n:'Lunch',i:'Veggie pho: rice noodles + broth + tofu + herbs',note:''},
+    {t:'19:00',n:'Dinner',i:'Black bean enchiladas + salsa + guacamole',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Fig bar + water',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Soy yogurt + granola + berries',note:''},
+    {t:'10:00',n:'Breakfast',i:'PB banana toast (wholegrain) + chia sprinkle',note:''},
+    {t:'13:30',n:'Lunch',i:'Veggie sushi rolls + edamame + miso',note:''},
+    {t:'19:00',n:'Dinner',i:'Coconut chickpea curry + quinoa + lime',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Rice cakes + jam + banana',note:''},
+    {t:'During',n:'Fuel',i:'Dates + electrolyte tabs in water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein + banana + pretzels',note:''},
+    {t:'Lunch',n:'Recovery',i:'Macro bowl: sweet potato + black beans + kale + tahini',note:''},
+    {t:'Dinner',n:'Rebuild',i:'Vegan moussaka (lentil) + side greens',note:''},
+  ],
+};
+
+const MEALS_PESCA_2={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration',i:'Water'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'Banana + tsp peanut butter',note:''},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'Smoked trout + eggs ×2 + sourdough + capers',note:''},
+    {t:'13:30',n:'Lunch',i:'Shrimp quinoa bowl + black beans + corn + lime dressing',note:''},
+    {t:'16:00',n:'Snack',i:'Skyr + flax + berries',note:''},
+    {t:'19:00',n:'Dinner',i:'Herb-crusted haddock + new potatoes + peas + lemon butter (small)',note:''},
+    {t:'21:00 — Optional',n:'Night',i:'Kefir or milk',note:''},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Fuel',i:'Half bagel + jam',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein + tart cherry + water',note:''},
+    {t:'10:00',n:'Breakfast',i:'Salmon + cream cheese bagel + cucumber',note:''},
+    {t:'13:30',n:'Lunch',i:'Tuna melt open sandwich + tomato soup',note:''},
+    {t:'19:00',n:'Dinner',i:'Mussels in tomato broth + linguine + parsley',note:''},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Fuel',i:'Apple + handful pretzels',note:''},
+    {t:'Post-Session',n:'Recovery',i:'Yogurt + honey + granola',note:''},
+    {t:'10:00',n:'Breakfast',i:'Kippers + rye + tomato',note:''},
+    {t:'13:30',n:'Lunch',i:'Crab salad wrap + greens',note:''},
+    {t:'19:00',n:'Dinner',i:'Baked tilapia + mango salsa + coconut rice',note:''},
+  ],
+  longrun:[
+    {t:'Pre-Run',n:'Fuel',i:'Oats + whey + banana',note:''},
+    {t:'During',n:'Fuel',i:'Gel + sips water',note:''},
+    {t:'Post-Run',n:'Recovery',i:'Protein oats + pinch salt',note:''},
+    {t:'Lunch',n:'Recovery',i:'Shrimp pad thai + crushed peanuts',note:''},
+    {t:'Dinner',n:'Rebuild',i:'Grilled octopus or calamari + potatoes + chard',note:''},
+  ],
+};
+
+const MEAL_PLANS={
+  omnivore:{lift:[MEALS_OMNI_0.lift,MEALS_OMNI_1.lift,MEALS_OMNI_2.lift],run:[MEALS_OMNI_0.run,MEALS_OMNI_1.run,MEALS_OMNI_2.run],kb:[MEALS_OMNI_0.kb,MEALS_OMNI_1.kb,MEALS_OMNI_2.kb],longrun:[MEALS_OMNI_0.longrun,MEALS_OMNI_1.longrun,MEALS_OMNI_2.longrun]},
+  vegetarian:{lift:[MEALS_VEG_0.lift,MEALS_VEG_1.lift,MEALS_VEG_2.lift],run:[MEALS_VEG_0.run,MEALS_VEG_1.run,MEALS_VEG_2.run],kb:[MEALS_VEG_0.kb,MEALS_VEG_1.kb,MEALS_VEG_2.kb],longrun:[MEALS_VEG_0.longrun,MEALS_VEG_1.longrun,MEALS_VEG_2.longrun]},
+  vegan:{lift:[MEALS_VEGAN_0.lift,MEALS_VEGAN_1.lift,MEALS_VEGAN_2.lift],run:[MEALS_VEGAN_0.run,MEALS_VEGAN_1.run,MEALS_VEGAN_2.run],kb:[MEALS_VEGAN_0.kb,MEALS_VEGAN_1.kb,MEALS_VEGAN_2.kb],longrun:[MEALS_VEGAN_0.longrun,MEALS_VEGAN_1.longrun,MEALS_VEGAN_2.longrun]},
+  pescatarian:{lift:[MEALS_PESCA_0.lift,MEALS_PESCA_1.lift,MEALS_PESCA_2.lift],run:[MEALS_PESCA_0.run,MEALS_PESCA_1.run,MEALS_PESCA_2.run],kb:[MEALS_PESCA_0.kb,MEALS_PESCA_1.kb,MEALS_PESCA_2.kb],longrun:[MEALS_PESCA_0.longrun,MEALS_PESCA_1.longrun,MEALS_PESCA_2.longrun]},
+};
+
+function getMealsForSessionType(type){
+  const diet=S.intake?.diet||'omnivore';
+  const plan=MEAL_PLANS[diet]||MEAL_PLANS.omnivore;
+  const slot=plan[type];
+  if(!slot||!slot.length)return MEAL_PLANS.omnivore[type][0];
+  const vi=(S.week-1)%slot.length;
+  return slot[vi];
+}
+
+const GOAL_LABELS={general:'General fitness',lose_fat:'Lose fat',build_muscle:'Build muscle',stay_lean:'Stay lean / maintain',endurance:'Endurance / cardio focus',fertility:'Fertility wellness (non-medical)'};
+
+function intakeGoals(intake){
+  if(!intake)return['general'];
+  if(Array.isArray(intake.goals)&&intake.goals.length)return[...new Set(intake.goals)];
+  if(intake.goal)return[intake.goal];
+  return['general'];
+}
+
+function normalizeIntakeShape(i){
+  if(!i||typeof i!=='object')return;
+  if(!Array.isArray(i.goals)||!i.goals.length)i.goals=intakeGoals(i);
+  if(Object.prototype.hasOwnProperty.call(i,'goal'))delete i.goal;
+  if(i.sex&&i.sex!=='female')i.goals=i.goals.filter(x=>x!=='fertility');
+  if(!i.goals.length)i.goals=['general'];
+  if(i.mealStyle!=='salad_forward')i.mealStyle='balanced';
+  if(i.unitPref!=='imperial')i.unitPref='metric';
+}
+
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
@@ -836,13 +1290,63 @@ if(!Array.isArray(S.shopList))S.shopList=[];
 if(typeof S.stravaConnected!=='boolean')S.stravaConnected=false;
 if(typeof S.planKey!=='string')S.planKey='default';
 if(S.intake!=null&&typeof S.intake!=='object')S.intake=null;
-function save(){try{localStorage.setItem('hf4',JSON.stringify(S))}catch(e){}}
+if(S.intake!=null&&typeof S.intake==='object')normalizeIntakeShape(S.intake);
+function save(opts){
+  try{localStorage.setItem('hf4',JSON.stringify(S))}catch(e){}
+  if(!opts||!opts.skipCloud)scheduleCloudSave();
+}
 
 // ─────────────────────────────────────────────
 // UTILS
 // ─────────────────────────────────────────────
-function reps(ex,w){const p=ex[2].split('/');return(w<=4?p[0]:w<=8?(p[1]||p[0]):(p[2]||p[1]||p[0])).trim()}
-function rest(w){return w<=4?'Rest 90s between sets':w<=8?'Rest 60s between sets':'Rest 45s between sets'}
+function workoutRepBias(){
+  const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
+  const mus=g.includes('build_muscle');
+  const fat=g.includes('lose_fat');
+  const end=g.includes('endurance');
+  if(mus&&!fat&&!end)return'muscle';
+  if((fat||end)&&!mus)return'metabolic';
+  return'norm';
+}
+function reps(ex,w){
+  const bias=workoutRepBias();
+  const p=ex[2].split('/');
+  let idx=w<=4?0:(w<=8?1:Math.min(2,p.length-1));
+  if(bias==='muscle')idx=Math.max(0,idx-1);
+  if(bias==='metabolic')idx=Math.min(p.length-1,idx+1);
+  return p[idx].trim();
+}
+function rest(w){
+  const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
+  if(g.includes('fertility'))return w<=4?'Rest 90s · quality over ego':w<=8?'Rest 60–75s · ease off if overheating':'Rest 45–60s · modulate with your cycle';
+  if(g.includes('lose_fat'))return w<=4?'Rest 60–75s · keep pace up':w<=8?'Rest 45–60s':'Rest 30–45s';
+  return w<=4?'Rest 90s between sets':w<=8?'Rest 60s between sets':'Rest 45s between sets';
+}
+function getZone2Minutes(){
+  const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
+  if(g.includes('endurance'))return 40;
+  if(g.includes('lose_fat'))return 35;
+  return 30;
+}
+function goalRunCoachNote(){
+  const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
+  const bits=[];
+  if(g.includes('endurance'))bits.push('Endurance goals: add 5–10 min very easy at the end when legs feel fresh.');
+  if(g.includes('lose_fat'))bits.push('Fat-loss focus: keep easy days truly easy — don’t turn recovery into junk miles.');
+  if(g.includes('fertility'))bits.push('Listen to your body; skip intensity spikes if you feel off.');
+  return bits.join(' ');
+}
+function workoutGoalMetaSuffix(){
+  const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
+  if(!g.length)return'';
+  const parts=[];
+  if(g.includes('build_muscle'))parts.push('strength-biased reps');
+  if(g.includes('lose_fat'))parts.push('metabolic bias');
+  if(g.includes('endurance'))parts.push('extra Zone 2 where marked');
+  if(g.includes('fertility'))parts.push('moderate intensity');
+  if(g.includes('stay_lean'))parts.push('balanced');
+  return parts.length?parts.slice(0,3).join(' · '):'';
+}
 function dkey(){return`${S.week}-${S.day}`}
 function done(){return Object.values(S.done).filter(Boolean).length}
 
@@ -870,6 +1374,15 @@ function updProg(){
 // PLAN VIEW
 // ─────────────────────────────────────────────
 function buildPlan(){
+  const hint=document.getElementById('plan-goal-hint');
+  if(hint){
+    const gs=intakeGoals(S.intake||{});
+    const active=gs.filter(x=>x!=='general');
+    if(S.intakeComplete&&active.length){
+      hint.style.display='block';
+      hint.innerHTML='<strong>Active goals</strong> — '+active.map(k=>GOAL_LABELS[k]||k).join(' · ')+'. Sessions below use these biases (reps, rests, easy run duration).';
+    }else{hint.style.display='none';hint.textContent='';}
+  }
   const g=document.getElementById('wg');g.innerHTML='';
   for(let w=1;w<=12;w++){
     const pc=w<=4?'b':w<=8?'d':'p',pn=w<=4?'Build':w<=8?'Drive':'Peak';
@@ -910,11 +1423,13 @@ function buildDay(){
   document.getElementById('wind').textContent=`Week ${w} of 12`;
   document.getElementById('d-big').textContent=day.name;
   document.getElementById('d-sub').textContent=day.sub;
+  const gSuf=workoutGoalMetaSuffix();
+  const gExtra=gSuf?' · '+gSuf:'';
   document.getElementById('d-meta').textContent=
-    day.type==='run'?`Quality run · Week ${w} · ${w%2!==0?'5k — odd week':'10k — even week'}`:
+    (day.type==='run'?`Quality run · Week ${w} · ${w%2!==0?'5k — odd week':'10k — even week'}`:
     day.type==='longrun'?`Long run · ${getSatRunEntry(w-1).d} · Half marathon build`:
     day.type==='kb'?'43 min · 3 circuit rounds + 4 HIIT rounds':
-    'Lift · Sauna · Recover';
+    'Lift · Sauna · Recover')+gExtra;
 
   const tabs=document.getElementById('dtabs');
   tabs.innerHTML=DAYS.map((x,i)=>{
@@ -966,9 +1481,10 @@ function dayThu(segs,w){
     exRows(THU_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
   const liftHtml=exRows(THU_LF,w,'Hypertrophy + Arms')+`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`;
   segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms','Incline · Chins · Arnold · Curls · Skulls · Dips',liftHtml,false));
-  segs.appendChild(mkSeg('prun','Zone 2 Easy Run','30 min post-lifting — conversational pace',
+  const z2=getZone2Minutes();
+  segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-lifting — conversational pace`,
     `<div class="rsum">
-      <div class="rsr"><span class="rsl">Duration</span><span class="rsv">30 MIN</span></div>
+      <div class="rsr"><span class="rsl">Duration</span><span class="rsv">${z2} MIN</span></div>
       <div class="rsr"><span class="rsl">Effort</span><span class="rsv">ZONE 2</span></div>
       <div class="rsr"><span class="rsl">Heart Rate</span><span class="rsv">65–75%</span></div>
       <div class="rsr" style="border:none"><span class="rsl">Rule</span><span style="font-size:11px;color:var(--mut)">You must be able to hold a full sentence</span></div>
@@ -990,7 +1506,8 @@ function dayTue(segs,w){
   const run=getTueRun(w);
   const bHtml=run.blocks.map(b=>`<div class="rb"><div class="rbh"><div class="rbn">${b.n}</div><div class="rbp">${b.d}</div></div><div class="rbm"><span class="pace-chip">${b.p}</span>${b.note?' &nbsp;'+b.note:''}</div></div>`).join('');
   const sumHtml=`<div class="rsum" style="margin-bottom:10px"><div class="rsr"><span class="rsl">Distance</span><span class="rsv">${run.dist.toUpperCase()}</span></div><div class="rsr"><span class="rsl">Target Pace</span><span class="rsv">${run.pace}</span></div><div class="rsr" style="border:none"><span class="rsl">Total Time</span><span class="rsv">${run.total}</span></div></div>`;
-  segs.appendChild(mkSeg('prun','Quality Run',run.label,sumHtml+bHtml,true));
+  const coach=goalRunCoachNote();
+  segs.appendChild(mkSeg('prun','Quality Run',run.label,sumHtml+bHtml+(coach?`<div style="font-size:11px;color:var(--hint);margin-top:10px;line-height:1.5">${coach}</div>`:''),true));
   segs.appendChild(mkSeg('plog','Log This Run','Save to run history',logFormHTML(),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','Post-run stretch',strList(CD_STR),false));
 }
@@ -1013,7 +1530,8 @@ function daySat(segs,w){
 
   const progHtml=`<div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">${SAT_RUNS.map((_,i)=>{const r=getSatRunEntry(i);return`<div style="display:flex;align-items:center;gap:8px;padding:3px 0"><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--hint);width:22px">W${i+1}</div><div style="flex:1;background:var(--sur2);border-radius:2px;height:4px;position:relative"><div style="position:absolute;left:0;top:0;height:4px;border-radius:2px;background:${i<w?'var(--gold)':'var(--hint)'};width:${Math.round(parseInt(String(r.d).replace(/\D/g,''),10)*100/21)}%"></div></div><div style="font-size:11px;color:${i+1===w?'var(--gold)':'var(--hint)'};width:28px;text-align:right;font-weight:${i+1===w?'500':'400'}">${r.d}</div></div>`}).join('')}</div>`;
 
-  segs.appendChild(mkSeg('prun','Long Run',`Week ${w} · ${run.d} · Half Marathon Build`,mainHtml+vidLinksHtml,true));
+  const coachL=goalRunCoachNote();
+  segs.appendChild(mkSeg('prun','Long Run',`Week ${w} · ${run.d} · Half Marathon Build`,mainHtml+vidLinksHtml+(coachL?`<div style="font-size:11px;color:var(--hint);margin-top:10px;line-height:1.5">${coachL}</div>`:''),true));
   segs.appendChild(mkSeg('plog','Log This Run','Save to run history',logFormHTML(),false));
   segs.appendChild(mkSeg('prun','Distance Progression','8km → 17km → taper',progHtml,false));
   segs.appendChild(mkSeg('pcd','Cool-Down','Hold stretches longer today',strList(CD_STR),false));
@@ -1076,7 +1594,15 @@ function buildFuel(){
   const day=DAYS[S.day];
   const type=day.type==='lift'?'lift':day.type==='run'?'run':day.type==='kb'?'kb':'longrun';
   document.getElementById('fuel-day').textContent=`${day.name} — ${day.sub}`;
-  document.getElementById('meal-list').innerHTML=MEALS[type].map((m,mi)=>{
+  const meals=getMealsForSessionType(type);
+  const diet=S.intake?.diet||'omnivore';
+  const dietLab={omnivore:'Omnivore',vegetarian:'Vegetarian',vegan:'Vegan',pescatarian:'Pescatarian'}[diet]||diet;
+  const vLbl=document.getElementById('fuel-variant-lbl');
+  const nMealSets=3;
+  let vLine=`Week ${S.week} · ${dietLab} · Meal set ${((S.week-1)%nMealSets)+1} of ${nMealSets} (rotates weekly)`;
+  if((S.intake?.mealStyle||'')==='salad_forward')vLine+=' · Salad-forward swaps';
+  if(vLbl)vLbl.textContent=vLine;
+  let mealHtml=meals.map((m,mi)=>{
     const ings=parseIngs(m.i);
     const ingRows=ings.map((ing,ii)=>{
       const added=(S.shopList||[]).some(x=>x.text===ing);
@@ -1085,6 +1611,9 @@ function buildFuel(){
     return`<div class="mcard"><div class="mt">${m.t}</div><div class="mn">${m.n}</div><div class="mi">${m.i.replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${m.note}</div>`:''
     }${ings.length?`<button class="mcard-expand" onclick="toggleIngList(this)">Ingredients</button><div class="ing-list" style="display:none">${ingRows}</div>`:''}</div>`;
   }).join('');
+  if(diet==='vegan')mealHtml+=`<div class="mcard" style="border-color:rgba(201,152,74,0.35)"><div class="mt">Vegan note</div><div class="mi">Prioritise B12 (fortified foods or supplement), iodine, and omega-3 (algae oil). This app is not medical advice — adjust with a dietitian if needed.</div></div>`;
+  if((S.intake?.mealStyle||'')==='salad_forward')mealHtml+=`<div class="mcard" style="border-color:rgba(139,38,53,0.35)"><div class="mt">Salad-forward</div><div class="mi">For lunch (or any grain bowl), swap in a large mixed salad with the same protein (chicken, fish, tofu, beans, eggs, or cheese as fits your eating style), plus dressing and carbs if you still need them (bread, rice, or roasted potatoes on the side).</div></div>`;
+  document.getElementById('meal-list').innerHTML=mealHtml;
   refreshFuelMacroSlbl();
 }
 
@@ -1153,28 +1682,128 @@ function chDay(dir){S.day=(S.day+dir+6)%6;save();buildDay()}
 function toggleDone(){const k=dkey();S.done[k]=!S.done[k];save();buildDay();updProg()}
 
 // ─────────────────────────────────────────────
-// INTAKE · STRAVA GATE · SETTINGS
+// INTAKE · UNITS · STRAVA GATE · SETTINGS
 // ─────────────────────────────────────────────
+const LB_PER_KG=2.2046226218;
+function kgToLb(kg){return Math.round(kg*LB_PER_KG*10)/10}
+function lbToKg(lb){return Math.round(lb/LB_PER_KG*10)/10}
+function ftInToCm(ft,inch){return Math.round((ft*12+inch)*2.54*10)/10}
+function ftInFromCm(cm){
+  if(!cm||cm<=0)return{ft:'',in:''};
+  const t=cm/2.54;
+  const f=Math.floor(t/12);
+  const inch=Math.round((t-f*12)*10)/10;
+  return{ft:String(f),in:String(inch)};
+}
+function formatWeightForProfile(kg){
+  if(!kg)return'—';
+  if(S.intake?.unitPref==='imperial')return kgToLb(kg)+' lb';
+  return kg+' kg';
+}
+function formatHeightForProfile(cm){
+  if(!cm)return'—';
+  if(S.intake?.unitPref==='imperial'){
+    const o=ftInFromCm(cm);
+    return o.ft?`${o.ft}′${o.in}″`:'—';
+  }
+  return cm+' cm';
+}
+
+function setIntakeUnitPref(pref,silent){
+  const h=document.getElementById('in-unit-pref');
+  const prev=h?h.value:'metric';
+  if(h)h.value=pref;
+  const btnM=document.getElementById('unit-btn-metric');
+  const btnI=document.getElementById('unit-btn-imperial');
+  if(btnM)btnM.classList.toggle('on',pref==='metric');
+  if(btnI)btnI.classList.toggle('on',pref==='imperial');
+  const wLbl=document.getElementById('in-weight-lbl');
+  if(wLbl)wLbl.textContent=pref==='imperial'?'Weight (lb)':'Weight (kg)';
+  const rowM=document.getElementById('in-height-metric-row');
+  const rowI=document.getElementById('in-height-imperial-row');
+  if(rowM)rowM.style.display=pref==='metric'?'block':'none';
+  if(rowI)rowI.style.display=pref==='imperial'?'block':'none';
+  if(!silent&&prev!==pref)convertIntakeFieldsBetweenUnits(prev,pref);
+}
+
+function convertIntakeFieldsBetweenUnits(from,to){
+  const wEl=document.getElementById('in-weight');
+  if(!wEl)return;
+  let kg=0,cm=0;
+  if(from==='metric'){
+    kg=parseFloat(wEl.value)||0;
+    cm=parseFloat(document.getElementById('in-height-cm')?.value)||0;
+  }else{
+    kg=lbToKg(parseFloat(wEl.value)||0);
+    const ft=parseFloat(document.getElementById('in-height-ft')?.value)||0;
+    const inc=parseFloat(document.getElementById('in-height-in')?.value)||0;
+    cm=ft||inc?ftInToCm(ft,inc):0;
+  }
+  if(to==='metric'){
+    wEl.value=kg||'';
+    const c=document.getElementById('in-height-cm');if(c)c.value=cm||'';
+  }else{
+    wEl.value=kg?kgToLb(kg):'';
+    const fi=ftInFromCm(cm);
+    const f=document.getElementById('in-height-ft'),incEl=document.getElementById('in-height-in');
+    if(f)f.value=fi.ft||'';
+    if(incEl)incEl.value=fi.in||'';
+  }
+}
+
+function readWeightKgFromForm(){
+  const pref=document.getElementById('in-unit-pref')?.value||'metric';
+  const v=parseFloat(document.getElementById('in-weight')?.value)||0;
+  return pref==='imperial'?lbToKg(v):v;
+}
+function readHeightCmFromForm(){
+  const pref=document.getElementById('in-unit-pref')?.value||'metric';
+  if(pref==='metric')return parseFloat(document.getElementById('in-height-cm')?.value)||0;
+  const ft=parseFloat(document.getElementById('in-height-ft')?.value)||0;
+  const inch=parseFloat(document.getElementById('in-height-in')?.value)||0;
+  return ft||inch?ftInToCm(ft,inch):0;
+}
+
 function resolvePlanKey(intake){
   if(!intake)return'default';
-  if(intake.goal==='fertility')return'fertility_v1';
+  if(intakeGoals(intake).includes('fertility'))return'fertility_v1';
   return'default';
 }
 
-function syncFertilityOption(){
-  const sel=document.getElementById('in-goal');
-  if(!sel)return;
-  let fo=sel.querySelector('option[value="fertility"]');
-  const female=document.getElementById('in-sex').value==='female';
-  if(female&&!fo){
-    fo=document.createElement('option');
-    fo.value='fertility';
-    fo.textContent='Fertility journey wellness (non-medical)';
-    sel.appendChild(fo);
+function allGoalCheckboxes(){return[...document.querySelectorAll('.in-goal-chk')];}
+
+function clampIntakeGoals(changed){
+  const boxes=allGoalCheckboxes();
+  let on=boxes.filter(b=>b.checked);
+  if(changed&&!changed.checked&&on.length===0){
+    const gen=boxes.find(b=>b.value==='general');
+    if(gen)gen.checked=true;
+    return;
   }
-  if(!female&&fo){
-    if(sel.value==='fertility')sel.value='general';
-    fo.remove();
+  on=boxes.filter(b=>b.checked);
+  if(on.length>3){
+    if(changed&&changed.checked)changed.checked=false;
+    else on[on.length-1].checked=false;
+  }
+}
+
+function setGoalChecksFromList(goals){
+  allGoalCheckboxes().forEach(b=>{b.checked=false});
+  goals.forEach(g=>{
+    const b=document.querySelector('.in-goal-chk[value="'+g+'"]');
+    if(b)b.checked=true;
+  });
+  clampIntakeGoals(null);
+}
+
+function syncFertilityOption(){
+  const wrap=document.getElementById('in-goal-fertility-wrap');
+  if(!wrap)return;
+  const female=document.getElementById('in-sex').value==='female';
+  wrap.style.display=female?'flex':'none';
+  if(!female){
+    const c=wrap.querySelector('.in-goal-chk[value="fertility"]');
+    if(c&&c.checked)c.checked=false;
   }
 }
 
@@ -1187,27 +1816,49 @@ function populateIntakeForm(){
     document.getElementById('in-sex').value='female';
     document.getElementById('in-age').value='';
     document.getElementById('in-weight').value='';
-    document.getElementById('in-height').value='';
-    document.getElementById('in-goal').value='general';
+    document.getElementById('in-height-cm').value='';
+    document.getElementById('in-height-ft').value='';
+    document.getElementById('in-height-in').value='';
+    setIntakeUnitPref('metric',true);
+    setGoalChecksFromList(['general']);
+    document.getElementById('in-meal-style').value='balanced';
     document.getElementById('in-exp').value='intermediate';
     document.getElementById('in-days').value='5';
     document.getElementById('in-loc').value='gym';
     document.getElementById('in-inj').value='';
     document.getElementById('in-run').value='ten_plus';
+    document.getElementById('in-diet').value='omnivore';
     syncFertilityOption();
     return;
   }
+  const pref=i.unitPref==='imperial'?'imperial':'metric';
+  document.getElementById('in-unit-pref').value=pref;
+  setIntakeUnitPref(pref,true);
   document.getElementById('in-sex').value=i.sex||'female';
   document.getElementById('in-age').value=i.age||'';
-  document.getElementById('in-weight').value=i.weightKg||'';
-  document.getElementById('in-height').value=i.heightCm||'';
+  const kg=i.weightKg||0;
+  const cm=i.heightCm||0;
+  if(pref==='imperial'){
+    document.getElementById('in-weight').value=kg?kgToLb(kg):'';
+    const fi=ftInFromCm(cm);
+    document.getElementById('in-height-ft').value=fi.ft||'';
+    document.getElementById('in-height-in').value=fi.in||'';
+    document.getElementById('in-height-cm').value='';
+  }else{
+    document.getElementById('in-weight').value=kg||'';
+    document.getElementById('in-height-cm').value=cm||'';
+    document.getElementById('in-height-ft').value='';
+    document.getElementById('in-height-in').value='';
+  }
   document.getElementById('in-exp').value=i.experience||'intermediate';
   document.getElementById('in-days').value=i.daysPerWeek||'5';
   document.getElementById('in-loc').value=i.location||'gym';
   document.getElementById('in-inj').value=i.injuries||'';
   document.getElementById('in-run').value=i.runningComfort||'ten_plus';
+  document.getElementById('in-diet').value=i.diet||'omnivore';
+  document.getElementById('in-meal-style').value=i.mealStyle==='salad_forward'?'salad_forward':'balanced';
   syncFertilityOption();
-  document.getElementById('in-goal').value=i.goal||'general';
+  setGoalChecksFromList(intakeGoals(i));
 }
 
 function openIntake(edit){
@@ -1225,37 +1876,43 @@ function closeIntake(){
 
 function submitIntake(){
   const sex=document.getElementById('in-sex').value;
-  let goal=document.getElementById('in-goal').value;
-  if(goal==='fertility'&&sex!=='female')goal='general';
+  let goals=[...document.querySelectorAll('.in-goal-chk:checked')].map(b=>b.value);
+  if(sex!=='female')goals=goals.filter(x=>x!=='fertility');
+  if(!goals.length)goals=['general'];
+  if(goals.length>3)goals=goals.slice(0,3);
+  const unitPref=document.getElementById('in-unit-pref').value==='imperial'?'imperial':'metric';
   S.intake={
     sex,
     age:parseFloat(document.getElementById('in-age').value)||0,
-    weightKg:parseFloat(document.getElementById('in-weight').value)||0,
-    heightCm:parseFloat(document.getElementById('in-height').value)||0,
-    goal,
+    weightKg:readWeightKgFromForm(),
+    heightCm:readHeightCmFromForm(),
+    unitPref,
+    goals,
     experience:document.getElementById('in-exp').value,
     daysPerWeek:document.getElementById('in-days').value,
     location:document.getElementById('in-loc').value,
     injuries:(document.getElementById('in-inj').value||'').trim(),
     runningComfort:document.getElementById('in-run').value,
+    diet:document.getElementById('in-diet').value,
+    mealStyle:document.getElementById('in-meal-style').value,
   };
   S.planKey=resolvePlanKey(S.intake);
   S.intakeComplete=true;
   save();
   closeIntake();
   refreshProfileStrip();
-  buildDay();buildFuel();
+  buildDay();buildPlan();buildFuel();
   document.getElementById('profile-strip-wrap').style.display='block';
 }
 
 function skipIntakeDefaults(){
-  S.intake={sex:'male',age:0,weightKg:0,heightCm:0,goal:'general',experience:'intermediate',daysPerWeek:'5',location:'gym',injuries:'',runningComfort:'ten_plus'};
+  S.intake={sex:'male',age:0,weightKg:0,heightCm:0,unitPref:'metric',goals:['general'],mealStyle:'balanced',experience:'intermediate',daysPerWeek:'5',location:'gym',injuries:'',runningComfort:'ten_plus',diet:'omnivore'};
   S.planKey='default';
   S.intakeComplete=true;
   save();
   closeIntake();
   refreshProfileStrip();
-  buildDay();buildFuel();
+  buildDay();buildPlan();buildFuel();
   document.getElementById('profile-strip-wrap').style.display='block';
 }
 
@@ -1268,8 +1925,9 @@ function refreshProfileStrip(){
   const i=S.intake;
   const sx=i.sex==='female'?'Female':i.sex==='male'?'Male':'Other';
   const runLab={not_yet:'Walk-first',walk_run:'Walk/jog',two_k:'≤2k',five_k:'5K level',ten_plus:'10K+ / HM build'}[i.runningComfort]||i.runningComfort;
-  const gl={general:'General fitness',lose_fat:'Lose fat',build_muscle:'Build muscle',stay_lean:'Stay lean',endurance:'Endurance',fertility:'Fertility wellness (non-medical)'}[i.goal]||i.goal;
-  el.innerHTML=`${sx} · ${i.age||'—'}y · ${i.weightKg||'—'}kg · ${gl} · Run: ${runLab} · Plan key: <strong>${S.planKey}</strong>`;
+  const gl=intakeGoals(i).map(k=>GOAL_LABELS[k]||k).join(' · ');
+  const dl={omnivore:'Omnivore',vegetarian:'Vegetarian',vegan:'Vegan',pescatarian:'Pescatarian'}[i.diet]||(i.diet||'Omnivore');
+  el.innerHTML=`${sx} · ${i.age||'—'}y · ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${gl} · ${dl} · Run: ${runLab} · Plan <strong>${S.planKey}</strong>`;
 }
 
 function syncStravaSettingsCheckbox(){
@@ -1301,23 +1959,133 @@ function refreshFuelMacroSlbl(){
     el.textContent='Your Numbers — 68kg · 45yo · Build Muscle';
     return;
   }
-  const gl={general:'General fitness',lose_fat:'Lose fat',build_muscle:'Build muscle',stay_lean:'Stay lean',endurance:'Endurance',fertility:'Fertility wellness'}[i.goal]||i.goal;
-  el.textContent=`Your Numbers — ${i.weightKg||'—'}kg · ${i.age||'—'}yo · ${gl}`;
+  const gl=intakeGoals(i).map(k=>GOAL_LABELS[k]||k).join(' · ');
+  const dl={omnivore:'Omnivore',vegetarian:'Vegetarian',vegan:'Vegan',pescatarian:'Pescatarian'}[i.diet]||'Omnivore';
+  const salad=i.mealStyle==='salad_forward'?' · Salad-forward':'';
+  el.textContent=`Your Numbers — ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${i.age||'—'}yo · ${gl} · ${dl}${salad}`;
+}
+
+// ─────────────────────────────────────────────
+// OPTIONAL SUPABASE (himfit-config.js)
+// ─────────────────────────────────────────────
+let himfitSupabase=null;
+let himfitAuthUser=null;
+function himfitAuthRedirectUrl(){
+  let p=window.location.pathname.replace(/\/index\.html$/i,'');
+  if(!p.endsWith('/'))p+='/';
+  return window.location.origin+p;
+}
+async function initHimfitCloud(){
+  const url=window.HIMFIT_SUPABASE_URL||'';
+  const key=window.HIMFIT_SUPABASE_ANON_KEY||'';
+  const wrap=document.getElementById('cloud-account-settings');
+  if(!url||!key){if(wrap)wrap.style.display='none';return;}
+  if(!wrap)return;
+  try{
+    const mod=await import('https://esm.sh/@supabase/supabase-js@2.49.8');
+    himfitSupabase=mod.createClient(url,key,{auth:{detectSessionInUrl:true,flowType:'pkce',storage:window.localStorage}});
+  }catch(e){
+    console.warn('HimFit cloud init failed',e);
+    return;
+  }
+  wrap.style.display='';
+  himfitSupabase.auth.onAuthStateChange(async (event,session)=>{
+    himfitAuthUser=session?.user||null;
+    updateCloudSettingsUI(himfitAuthUser);
+    if(event==='SIGNED_IN'&&session?.user){
+      const merged=await pullCloudStateIntoApp();
+      if(!merged)await pushStateToCloud();
+    }
+    if(event==='SIGNED_OUT')himfitAuthUser=null;
+  });
+  const {data:{session}}=await himfitSupabase.auth.getSession();
+  himfitAuthUser=session?.user||null;
+  updateCloudSettingsUI(himfitAuthUser);
+  if(session?.user){
+    const merged=await pullCloudStateIntoApp();
+    if(!merged)await pushStateToCloud();
+  }
+}
+function updateCloudSettingsUI(user){
+  const st=document.getElementById('cloud-auth-status');
+  const em=document.getElementById('cloud-email');
+  const so=document.getElementById('cloud-signout-btn');
+  if(!st)return;
+  if(user){
+    st.textContent='Signed in as '+user.email+'. Progress syncs after you use the app.';
+    if(em)em.style.display='none';
+    if(so)so.style.display='inline-block';
+  }else{
+    st.textContent='';
+    if(em)em.style.display='block';
+    if(so)so.style.display='none';
+  }
+}
+async function sendHimfitMagicLink(){
+  if(!himfitSupabase)return;
+  const el=document.getElementById('cloud-email');
+  const email=(el?.value||'').trim();
+  const st=document.getElementById('cloud-auth-status');
+  if(!email){if(st)st.textContent='Enter your email.';return;}
+  const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:himfitAuthRedirectUrl()}});
+  if(st)st.textContent=error?('Error: '+error.message):'Check your email for the sign-in link.';
+}
+async function himfitSignOut(){
+  if(himfitSupabase)await himfitSupabase.auth.signOut();
+  himfitAuthUser=null;
+  updateCloudSettingsUI(null);
+}
+function stateToCloudPayload(){
+  return{week:S.week,day:S.day,done:S.done||{},runs:S.runs||[],shopList:S.shopList||[],stravaConnected:!!S.stravaConnected,intakeComplete:!!S.intakeComplete,planKey:S.planKey||'default',intake:S.intake};
+}
+async function pushStateToCloud(){
+  if(!himfitSupabase||!himfitAuthUser)return;
+  const state=stateToCloudPayload();
+  const {error}=await himfitSupabase.from('himfit_profiles').upsert({id:himfitAuthUser.id,state,updated_at:new Date().toISOString()},{onConflict:'id'});
+  if(error)console.warn('HimFit cloud save',error);
+}
+let _cloudSaveTimer;
+function scheduleCloudSave(){
+  if(!himfitSupabase||!himfitAuthUser)return;
+  clearTimeout(_cloudSaveTimer);
+  _cloudSaveTimer=setTimeout(()=>pushStateToCloud(),1100);
+}
+async function pullCloudStateIntoApp(){
+  if(!himfitSupabase||!himfitAuthUser)return false;
+  const {data,error}=await himfitSupabase.from('himfit_profiles').select('state').eq('id',himfitAuthUser.id).maybeSingle();
+  if(error){console.warn('HimFit cloud load',error);return false;}
+  if(!data||!data.state||typeof data.state!=='object'||Object.keys(data.state).length===0)return false;
+  const r=data.state;
+  const keys=['week','day','done','runs','shopList','stravaConnected','intakeComplete','planKey','intake'];
+  keys.forEach(k=>{if(r[k]!==undefined)S[k]=r[k];});
+  if(S.intake!=null&&typeof S.intake==='object')normalizeIntakeShape(S.intake);
+  save({skipCloud:true});
+  refreshProfileStrip();buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();buildStravaSection();syncStravaSettingsCheckbox();
+  if(S.intakeComplete!==true){
+    document.getElementById('intake-overlay').classList.remove('hid');
+    document.getElementById('intake-cancel-btn').style.display='none';
+  }else{
+    document.getElementById('intake-overlay').classList.add('hid');
+  }
+  return true;
 }
 
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
-buildStravaSection();
-syncStravaSettingsCheckbox();
-refreshProfileStrip();
-if(S.intakeComplete!==true){
-  document.getElementById('intake-overlay').classList.remove('hid');
-  document.getElementById('intake-cancel-btn').style.display='none';
-}else{
-  document.getElementById('intake-overlay').classList.add('hid');
-}
-buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
+(async function runHimfitInit(){
+  await initHimfitCloud();
+  buildStravaSection();
+  syncStravaSettingsCheckbox();
+  refreshProfileStrip();
+  if(S.intakeComplete!==true){
+    document.getElementById('intake-overlay').classList.remove('hid');
+    document.getElementById('intake-cancel-btn').style.display='none';
+  }else{
+    document.getElementById('intake-overlay').classList.add('hid');
+  }
+  buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
+})();
 </script>
 </body>
 </html>
