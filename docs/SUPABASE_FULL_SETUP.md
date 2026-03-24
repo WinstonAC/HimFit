@@ -15,35 +15,11 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
 ### Step 2 — Create `himfit_profiles` + RLS
 
 1. Supabase → **SQL Editor** → **New query**.
-2. Paste and run:
+2. Open the repo file **`sql/supabase_himfit_profiles.sql`**, copy **all** of it (SQL only — no backticks), paste into the editor, **Run**.
 
-```sql
-create table if not exists public.himfit_profiles (
-  id uuid primary key references auth.users (id) on delete cascade,
-  state jsonb not null default '{}'::jsonb,
-  updated_at timestamptz not null default now()
-);
+   That file is plain text so nothing from Markdown breaks the query.
 
-alter table public.himfit_profiles enable row level security;
-
-drop policy if exists "himfit_select_own" on public.himfit_profiles;
-drop policy if exists "himfit_insert_own" on public.himfit_profiles;
-drop policy if exists "himfit_update_own" on public.himfit_profiles;
-
-create policy "himfit_select_own"
-  on public.himfit_profiles for select
-  using (auth.uid() = id);
-
-create policy "himfit_insert_own"
-  on public.himfit_profiles for insert
-  with check (auth.uid() = id);
-
-create policy "himfit_update_own"
-  on public.himfit_profiles for update
-  using (auth.uid() = id);
-```
-
-3. **Run** → confirm no errors.
+3. **Run** → you should see **Success** (no red error).
 
 ### Step 3 — (Optional) Confirm table exists
 
