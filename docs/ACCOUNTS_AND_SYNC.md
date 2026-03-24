@@ -60,7 +60,22 @@ If keys are empty, **Settings → Sign in** still appears with copy explaining t
 
 ---
 
-## 3. How sync behaves in the app
+## 3. Session lifetime & "why am I logged out?"
+
+Supabase issues a **JWT (1 hour)** + a **refresh token (~1 week)**. The JS client silently refreshes the JWT while the app is open or whenever it's reopened within the week.
+
+| Scenario | Result |
+|---|---|
+| App closed < 1 hr | Session restored instantly from `localStorage` |
+| App closed 1 hr – ~1 week | SDK auto-refreshes JWT on next open (silent) |
+| App not opened for > ~1 week | Refresh token expires → must sign in again |
+| iOS clears `localStorage` (low storage) | Must sign in again regardless of token age |
+
+**This is by design.** The free Supabase tier does not allow extending refresh-token lifetime. To reduce sign-in friction: keep the app pinned to the Home Screen (PWA) so iOS treats it more like a native app and is less aggressive about clearing storage.
+
+---
+
+## 4. How sync behaves in the app
 
 - After **sign-in**, the app **loads** `himfit_profiles.state` for that user (if present) and **merges** into in-memory state, then writes **`localStorage`**.
 - On **save** (completions, profile, etc.), the app still updates **`localStorage`** and **debounces** an **upsert** to `himfit_profiles` when signed in.
@@ -70,7 +85,7 @@ This is **not** real-time multi-device merge conflict resolution—last write wi
 
 ---
 
-## 4. “How people use it” (learning without training a model)
+## 5. “How people use it” (learning without training a model)
 
 - **Today:** you can **manually** inspect rows in Supabase Table Editor (goals, progress, etc. inside `state`).
 - **Later:** optional **anonymous** event table (e.g. `himfit_events` with `user_id`, `event`, `payload`, `created_at`) and RLS so users only insert their own rows—or use **Supabase Logs / Edge Functions** if you outgrow SQL queries.
@@ -79,7 +94,7 @@ The app **does not** send data to a custom “model training” pipeline unless 
 
 ---
 
-## 5. Strava OAuth (future)
+## 6. Strava OAuth (future)
 
 - Needs a **server** (or serverless) to hold the **client secret** and exchange codes.
 - **Vercel** (or Cloudflare Workers, etc.) is a common host for **one** small function—not because of multi-user, but because **secrets cannot live** in public static HTML.
@@ -88,7 +103,7 @@ Callback / redirect domains must match where that OAuth **redirect** URL is host
 
 ---
 
-## 6. Earlier plan notes (context)
+## 7. Earlier plan notes (context)
 
 - **Per-device testers** without login: already satisfied by **`localStorage`** isolation.
 - **Login + cloud row**: this doc + `himfit-config.js` + Settings UI.

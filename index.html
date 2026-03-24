@@ -617,18 +617,16 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   </div>
   <div class="slbl" id="fuel-macro-slbl">Your Numbers — 68kg · 45yo</div>
   <div class="mc-row">
-    <div class="mc"><div class="mc-n">2766</div><div class="mc-l">Kcal / Day</div></div>
-    <div class="mc"><div class="mc-n">150g</div><div class="mc-l">Protein</div></div>
-    <div class="mc"><div class="mc-n">+250</div><div class="mc-l">Kcal Surplus</div></div>
+    <div class="mc"><div class="mc-n" id="mc-kcal">2766</div><div class="mc-l">Kcal / Day</div></div>
+    <div class="mc"><div class="mc-n" id="mc-protein">150g</div><div class="mc-l">Protein</div></div>
+    <div class="mc"><div class="mc-n" id="mc-surplus-val">+250</div><div class="mc-l" id="mc-surplus-lbl">Kcal Surplus</div></div>
   </div>
   <div class="mc-row">
-    <div class="mc"><div class="mc-n">389g</div><div class="mc-l">Carbs</div></div>
-    <div class="mc"><div class="mc-n">68g</div><div class="mc-l">Fat</div></div>
-    <div class="mc"><div class="mc-n">2516</div><div class="mc-l">TDEE Base</div></div>
+    <div class="mc"><div class="mc-n" id="mc-carbs">389g</div><div class="mc-l">Carbs</div></div>
+    <div class="mc"><div class="mc-n" id="mc-fat">68g</div><div class="mc-l">Fat</div></div>
+    <div class="mc"><div class="mc-n" id="mc-tdee">2516</div><div class="mc-l">TDEE Base</div></div>
   </div>
-  <div style="background:var(--gold-lt);border:.5px solid rgba(201,152,74,0.2);border-radius:var(--rad-s);padding:11px 13px;margin-bottom:16px;font-size:11px;color:var(--mut);line-height:1.6">
-    Based on Mifflin-St Jeor BMR × 1.6 activity factor. Surplus of 250 kcal above TDEE for lean muscle gain without excess fat. Adjust carbs up on long run days, down on rest days.
-  </div>
+  <div id="fuel-macro-note" style="background:var(--gold-lt);border:.5px solid rgba(201,152,74,0.2);border-radius:var(--rad-s);padding:11px 13px;margin-bottom:16px;font-size:11px;color:var(--mut);line-height:1.6">Based on Mifflin-St Jeor BMR × 1.6 activity factor. Surplus of 250 kcal above TDEE for lean muscle gain without excess fat. Adjust carbs up on long run days, down on rest days.</div>
   <div class="slbl">Today's Meals</div>
   <div id="meal-list"></div>
   <div class="slbl">Supplements</div>
@@ -1685,7 +1683,7 @@ function buildFuel(){
   if(diet==='vegan')mealHtml+=`<div class="mcard" style="border-color:rgba(201,152,74,0.35)"><div class="mt">Vegan note</div><div class="mi">Prioritise B12 (fortified foods or supplement), iodine, and omega-3 (algae oil). This app is not medical advice — adjust with a dietitian if needed.</div></div>`;
   if((S.intake?.mealStyle||'')==='salad_forward')mealHtml+=`<div class="mcard" style="border-color:rgba(139,38,53,0.35)"><div class="mt">Salad-forward</div><div class="mi">For lunch (or any grain bowl), swap in a large mixed salad with the same protein (chicken, fish, tofu, beans, eggs, or cheese as fits your eating style), plus dressing and carbs if you still need them (bread, rice, or roasted potatoes on the side).</div></div>`;
   document.getElementById('meal-list').innerHTML=mealHtml;
-  refreshFuelMacroSlbl();
+  refreshFuelMacros();
 }
 
 function toggleIngList(btn){
@@ -2067,6 +2065,45 @@ function buildStravaSection(){
   }else{
     h.innerHTML='<div class="strava-placeholder"><div class="ph">Strava activity</div><p><strong>Not shown.</strong> Manual run logs below work for everyone and stay on this device only.</p></div>';
   }
+}
+
+function calcMacros(){
+  const i=S.intake;
+  const D={kcal:2766,protein:150,adjDisplay:'+250',adjLbl:'Kcal Surplus',carbs:389,fat:68,tdee:2516,
+    note:'Based on Mifflin-St Jeor BMR × 1.6 activity factor. Surplus of 250 kcal for lean muscle gain. Adjust carbs up on long run days, down on rest days.'};
+  if(!i||!S.intakeComplete||!(i.weightKg>0)||!(i.age>0))return D;
+  const wt=i.weightKg,ht=i.heightCm>0?i.heightCm:175,age=i.age;
+  const bmr=i.sex==='female'
+    ?10*wt+6.25*ht-5*age-161
+    :10*wt+6.25*ht-5*age+5;
+  const tdee=Math.round(bmr*1.6);
+  const goals=intakeGoals(i),primary=goals[0]||'general';
+  let adj=0,adjLbl='Maintenance',adjNote='Maintenance calories — adjust carbs on active days.';
+  if(primary==='build_muscle'){adj=250;adjLbl='Kcal Surplus';adjNote='Lean bulk: +250 kcal above TDEE for muscle gain.';}
+  else if(primary==='lose_fat'){adj=-400;adjLbl='Kcal Deficit';adjNote='Fat-loss cut: \u2212400 kcal. High protein preserves muscle.';}
+  else if(primary==='endurance'){adj=150;adjLbl='Run Fuel';adjNote='+150 kcal above TDEE for mileage volume.';}
+  else if(primary==='stay_lean'){adj=0;adjLbl='Maintenance';adjNote='Maintenance — fuel training without surplus.';}
+  const totalKcal=tdee+adj;
+  const proteinG=Math.round((primary==='lose_fat'?2.2:2.0)*wt);
+  const fatG=Math.round(totalKcal*0.27/9);
+  const carbG=Math.max(0,Math.round((totalKcal-proteinG*4-fatG*9)/4));
+  const adjDisplay=adj===0?'\u00b10':(adj>0?'+':'')+adj;
+  return{kcal:totalKcal,protein:proteinG,adjDisplay,adjLbl,carbs:carbG,fat:fatG,tdee,
+    note:`Mifflin-St Jeor BMR \u00d7 1.6. ${adjNote} Adjust carbs up on long run days.`};
+}
+
+function refreshFuelMacros(){
+  const m=calcMacros();
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('mc-kcal',m.kcal);
+  set('mc-protein',m.protein+'g');
+  set('mc-surplus-val',m.adjDisplay);
+  set('mc-carbs',m.carbs+'g');
+  set('mc-fat',m.fat+'g');
+  set('mc-tdee',m.tdee);
+  const lbl=document.getElementById('mc-surplus-lbl');if(lbl)lbl.textContent=m.adjLbl;
+  const note=document.getElementById('fuel-macro-note');if(note)note.textContent=m.note;
+  refreshFuelMacroSlbl();
 }
 
 function refreshFuelMacroSlbl(){
