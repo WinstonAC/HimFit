@@ -3,3 +3,6 @@
 
 window.HIMFIT_SUPABASE_URL = '';
 window.HIMFIT_SUPABASE_ANON_KEY = '';
+
+// Optional: your Supabase user UUID so only you can enable the Strava embed (Overview → Settings).
+window.HIMFIT_STRAVA_OWNER_USER_ID = '';

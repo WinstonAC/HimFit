@@ -116,6 +116,8 @@ Edit **`himfit-config.js`** at the repo root:
 ```javascript
 window.HIMFIT_SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
 window.HIMFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+// After you sign in once: Dashboard → Authentication → Users → copy your UUID:
+window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 ```
 
 3. **Commit** and **push** to **`main`**.
@@ -123,11 +125,10 @@ window.HIMFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 
 ### Step 8 — Smoke test
 
-1. Open the live HimFit URL.
-2. **Overview** → **Sign in** (hero) or scroll to **Settings → Sign in**.
-3. Enter your email → **Send link**.
-4. Open the **HimFit**-styled email → **Enter HimFit**.
-5. You should land on the app **signed in** (session in browser). Complete or skip **profile** as usual.
+1. Open the live HimFit URL (or a local static server with the same redirect URL allowlisted in Supabase).
+2. You should see the full-screen **Sign in** gate (when URL + anon key are set). Enter your email → **Send link**.
+3. Open the **HimFit**-styled email → **Enter HimFit**.
+4. You should land on the app **signed in** (session in browser). Complete or skip **profile** as usual.
 
 ---
 
@@ -146,7 +147,7 @@ window.HIMFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 
 | File | Role |
 |------|------|
-| `himfit-config.js` | URL + anon key (empty = sign-in UI explains setup) |
+| `himfit-config.js` | URL + anon key; optional `HIMFIT_STRAVA_OWNER_USER_ID` (Strava toggle) |
 | `himfit-config.example.js` | Copy starter |
 | `index.html` | Supabase client + **Sign in** UX |
 | `docs/ACCOUNTS_AND_SYNC.md` | Architecture notes |
