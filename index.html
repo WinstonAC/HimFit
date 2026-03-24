@@ -313,6 +313,10 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .auth-gate .log-input{text-align:center;margin-bottom:12px;max-width:100%;box-sizing:border-box}
 .auth-gate .auth-gate-btn{width:100%;max-width:100%;box-sizing:border-box}
 .auth-gate-foot{margin:18px auto 0;font-size:clamp(11px,2.8vw,12px);color:var(--hint);line-height:1.55;font-weight:400;max-width:min(340px,100%);padding:0 4px;text-align:center;box-sizing:border-box}
+.auth-gate-link{display:block;width:100%;margin:-2px 0 12px;padding:10px 4px;background:none;border:none;font-size:12px;color:var(--gold);text-decoration:underline;cursor:pointer;font-weight:500;font-family:inherit;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.auth-gate-link:disabled{opacity:0.45;cursor:not-allowed;text-decoration:none}
+.password-recovery-overlay{position:fixed;inset:0;background:rgba(8,3,6,0.94);z-index:520;display:flex;align-items:flex-start;justify-content:center;padding:calc(20px + var(--st)) 16px calc(24px + var(--sb));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.password-recovery-overlay.hid{display:none}
 #app-shell.hid{display:none!important}
 .overview-account-card{margin-bottom:14px}
 .overview-account-card .overview-signout{width:100%;padding:12px 16px;margin-top:4px}
@@ -432,10 +436,24 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <p class="auth-gate-sub">Use your email and password to sync your journey to your account. New here? Enter the same email and password and tap <strong>Create Account</strong>.</p>
     <input type="email" class="log-input" id="cloud-email" placeholder="Email" autocomplete="email" inputmode="email">
     <input type="password" class="log-input" id="cloud-password" placeholder="Password" autocomplete="current-password">
+    <button type="button" class="auth-gate-link" id="cloud-forgot-btn" onclick="himfitSendPasswordReset()">Forgot password?</button>
     <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-signin-btn" onclick="himfitSignInWithPassword()">Sign In</button>
     <button type="button" class="log-save intake-skip auth-gate-btn" id="cloud-signup-btn" onclick="himfitSignUpWithPassword()" style="width:100%;margin-top:10px">Create Account</button>
     <div id="cloud-auth-status" class="auth-gate-status" role="status" aria-live="polite"></div>
-    <p class="auth-gate-foot"><strong>Stay signed in:</strong> use the same browser and avoid private/incognito for day-to-day use — your session is saved on this device. <strong>Sign out</strong> is at the bottom of <strong>Overview</strong> after you’re in. <strong>#signin</strong> in the URL returns to this screen (signs you out first if needed).</p>
+    <p class="auth-gate-foot"><strong>Sign out</strong> anytime from <strong>Overview</strong> → <strong>Account</strong>. Same email and password work on every device once you’re set up.</p>
+  </div>
+</div>
+
+<div id="password-recovery-overlay" class="hid password-recovery-overlay" aria-hidden="true">
+  <div class="intake-card" style="max-width:min(400px,100%);margin-top:8px">
+    <h2>NEW <em style="color:var(--gold);font-style:normal">PASSWORD</em></h2>
+    <p class="sub">You opened a reset link. Set a new password below to finish.</p>
+    <div class="intake-field">
+      <label>New password</label>
+      <input type="password" class="log-input" id="recovery-new-password" autocomplete="new-password" placeholder="At least 6 characters">
+    </div>
+    <div id="recovery-auth-status" class="auth-gate-status" style="margin-top:8px"></div>
+    <button type="button" class="log-save" style="width:100%;margin-top:4px" onclick="himfitCompletePasswordRecovery()">Save password</button>
   </div>
 </div>
 
@@ -2060,6 +2078,39 @@ function refreshFuelMacroSlbl(){
 let himfitSupabase=null;
 let himfitAuthUser=null;
 let himfitCloudConfigured=false;
+function himfitAuthSiteUrl(){
+  const fixed=(window.HIMFIT_AUTH_REDIRECT_URL||'').trim();
+  if(fixed){
+    try{
+      const u=new URL(fixed);
+      let path=u.pathname.replace(/\/index\.html$/i,'');
+      if(path===''||path==='/')path='/';
+      if(!path.endsWith('/'))path+='/';
+      return u.origin+path;
+    }catch(e){console.warn('HimFit: invalid HIMFIT_AUTH_REDIRECT_URL — check himfit-config.js',e);}
+  }
+  let p=window.location.pathname.replace(/\/index\.html$/i,'');
+  if(!p.endsWith('/'))p+='/';
+  return window.location.origin+p;
+}
+function himfitFriendlyAuthError(error,context){
+  const raw=(error&&error.message)?String(error.message).trim():'Something went wrong.';
+  const lower=raw.toLowerCase();
+  if(context==='signin'){
+    if(lower.includes('invalid login')||lower.includes('invalid credentials')||lower==='invalid email or password'){
+      return 'That email and password don’t match. If you already have an account, check the password or use Forgot password. If you signed up with email link before passwords, use Forgot password once to set a password. New here? Use Create Account.';
+    }
+  }
+  if(context==='signup'){
+    if(lower.includes('already registered')||lower.includes('already been registered')||lower.includes('user already')||lower.includes('email address is already')){
+      return 'That email already has an account. Use Sign In, or Forgot password if you don’t remember the password.';
+    }
+  }
+  if((error.status|0)===429||lower.includes('rate')||lower.includes('too many')){
+    return 'Too many attempts — wait a few minutes and try again.';
+  }
+  return raw;
+}
 function himfitSetCloudAuthStatus(msg,isError){
   const st=document.getElementById('cloud-auth-status');
   if(!st)return;
@@ -2074,6 +2125,7 @@ async function initHimfitCloud(){
   const pw=document.getElementById('cloud-password');
   const signInBtn=document.getElementById('cloud-signin-btn');
   const signUpBtn=document.getElementById('cloud-signup-btn');
+  const forgotBtn=document.getElementById('cloud-forgot-btn');
   himfitCloudConfigured=!!(url&&key);
   if(!himfitCloudConfigured){
     if(st){st.textContent='';st.classList.remove('err');}
@@ -2081,12 +2133,14 @@ async function initHimfitCloud(){
     if(pw){pw.disabled=true;pw.style.opacity='0.5';}
     if(signInBtn){signInBtn.disabled=true;signInBtn.style.opacity='0.5';}
     if(signUpBtn){signUpBtn.disabled=true;signUpBtn.style.opacity='0.5';}
+    if(forgotBtn){forgotBtn.disabled=true;}
     return;
   }
   if(em){em.disabled=false;em.style.opacity='';}
   if(pw){pw.disabled=false;pw.style.opacity='';}
   if(signInBtn){signInBtn.disabled=false;signInBtn.style.opacity='';}
   if(signUpBtn){signUpBtn.disabled=false;signUpBtn.style.opacity='';}
+  if(forgotBtn){forgotBtn.disabled=false;}
   try{
     const mod=await import('https://esm.sh/@supabase/supabase-js@2.49.8');
     himfitSupabase=mod.createClient(url,key,{auth:{
@@ -2111,6 +2165,14 @@ async function initHimfitCloud(){
   himfitSupabase.auth.onAuthStateChange(async (event,session)=>{
     himfitAuthUser=session?.user||null;
     if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session?.user)stripAuthQueryFromUrl();
+    if(event==='PASSWORD_RECOVERY'){
+      const ro=document.getElementById('password-recovery-overlay');
+      if(ro){ro.classList.remove('hid');ro.setAttribute('aria-hidden','false');}
+      const rp=document.getElementById('recovery-new-password');
+      const rs=document.getElementById('recovery-auth-status');
+      if(rp)rp.value='';
+      if(rs){rs.textContent='';rs.classList.remove('err');}
+    }
     updateCloudSettingsUI(himfitAuthUser);
     updateAuthShellVisibility();
     refreshStravaOwnerUI();
@@ -2161,6 +2223,7 @@ function updateCloudSettingsUI(user){
   const pw=document.getElementById('cloud-password');
   const signInBtn=document.getElementById('cloud-signin-btn');
   const signUpBtn=document.getElementById('cloud-signup-btn');
+  const forgotBtn=document.getElementById('cloud-forgot-btn');
   const ovw=document.getElementById('overview-cloud-account');
   const ove=document.getElementById('overview-account-email');
   if(!himfitCloudConfigured){
@@ -2170,26 +2233,61 @@ function updateCloudSettingsUI(user){
     if(pw){pw.disabled=true;pw.style.opacity='0.5';}
     if(signInBtn){signInBtn.disabled=true;signInBtn.style.opacity='0.5';}
     if(signUpBtn){signUpBtn.disabled=true;signUpBtn.style.opacity='0.5';}
+    if(forgotBtn){forgotBtn.disabled=true;}
     return;
   }
   if(em){em.disabled=false;em.style.opacity='';}
   if(pw){pw.disabled=false;pw.style.opacity='';}
   if(signInBtn){signInBtn.disabled=false;signInBtn.style.opacity='';}
   if(signUpBtn){signUpBtn.disabled=false;signUpBtn.style.opacity='';}
+  if(forgotBtn){forgotBtn.disabled=false;}
   if(user){
     himfitSetCloudAuthStatus('',false);
     if(em)em.style.display='none';
     if(pw)pw.style.display='none';
     if(signInBtn)signInBtn.style.display='none';
     if(signUpBtn)signUpBtn.style.display='none';
+    if(forgotBtn)forgotBtn.style.display='none';
     if(ovw){ovw.style.display='block';if(ove)ove.textContent='Signed in as '+user.email+'. Your journey syncs as you train.';}
   }else{
     if(em)em.style.display='block';
     if(pw)pw.style.display='block';
     if(signInBtn)signInBtn.style.display='block';
     if(signUpBtn)signUpBtn.style.display='block';
+    if(forgotBtn)forgotBtn.style.display='block';
     if(ovw)ovw.style.display='none';
   }
+}
+async function himfitSendPasswordReset(){
+  himfitSetCloudAuthStatus('',false);
+  if(!himfitCloudConfigured||!himfitSupabase){
+    himfitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
+    return;
+  }
+  const email=(document.getElementById('cloud-email')?.value||'').trim();
+  if(!email){himfitSetCloudAuthStatus('Enter your email, then tap Forgot password again.',true);return;}
+  const redirectTo=himfitAuthSiteUrl();
+  const {error}=await himfitSupabase.auth.resetPasswordForEmail(email,{redirectTo});
+  if(error)himfitSetCloudAuthStatus(himfitFriendlyAuthError(error,'reset')||error.message,true);
+  else himfitSetCloudAuthStatus('If an account exists for that email, we sent a reset link. Check spam — open the link on this device.',false);
+}
+async function himfitCompletePasswordRecovery(){
+  const st=document.getElementById('recovery-auth-status');
+  const ro=document.getElementById('password-recovery-overlay');
+  if(!himfitSupabase)return;
+  const password=(document.getElementById('recovery-new-password')?.value||'').trim();
+  if(password.length<6){
+    if(st){st.textContent='Use at least 6 characters.';st.classList.add('err');}
+    return;
+  }
+  const {error}=await himfitSupabase.auth.updateUser({password});
+  if(error){
+    if(st){st.textContent=error.message||'Could not update password.';st.classList.add('err');}
+    return;
+  }
+  if(st){st.textContent='';st.classList.remove('err');}
+  if(ro){ro.classList.add('hid');ro.setAttribute('aria-hidden','true');}
+  document.getElementById('recovery-new-password').value='';
 }
 async function himfitSignInWithPassword(){
   himfitSetCloudAuthStatus('',false);
@@ -2202,7 +2300,7 @@ async function himfitSignInWithPassword(){
   if(!email){himfitSetCloudAuthStatus('Enter your email.',true);return;}
   if(!password){himfitSetCloudAuthStatus('Enter your password.',true);return;}
   const {error}=await himfitSupabase.auth.signInWithPassword({email,password});
-  if(error)himfitSetCloudAuthStatus(error.message||'Sign-in failed.',true);
+  if(error)himfitSetCloudAuthStatus(himfitFriendlyAuthError(error,'signin'),true);
 }
 async function himfitSignUpWithPassword(){
   himfitSetCloudAuthStatus('',false);
@@ -2216,7 +2314,7 @@ async function himfitSignUpWithPassword(){
   if(!password){himfitSetCloudAuthStatus('Choose a password (min. length set in Supabase).',true);return;}
   const {data,error}=await himfitSupabase.auth.signUp({email,password});
   if(error){
-    himfitSetCloudAuthStatus(error.message||'Could not create account.',true);
+    himfitSetCloudAuthStatus(himfitFriendlyAuthError(error,'signup'),true);
     return;
   }
   if(data.session)himfitSetCloudAuthStatus('',false);
