@@ -12,7 +12,7 @@
 
 | Area | Details |
 |------|---------|
-| **Overview** | Phases, weekly split, protocols, **Settings** (Strava toggle, profile edit, optional **cloud account**) |
+| **Overview** | **Tester sign-in** (hero + Settings), phases, split, protocols, **Settings** (Strava, profile, email magic link when Supabase is configured) |
 | **Today** | Full day: lifts, runs, KB, sauna notes; **reps, rest text, Zone 2 duration, and run tips** adjust from your **goals** |
 | **Plan** | 12-week grid; banner when **goals** are active (not only “general”) |
 | **Runs** | Optional Strava embed + **manual run log** + history |
@@ -31,7 +31,7 @@
 ### Data: device vs cloud
 
 - **Default:** everything lives in the browser **`localStorage`** key `hf4` (this device only). Different phones = different people; nothing is mixed automatically.
-- **Optional:** if the maintainer configures **Supabase** (see [`docs/ACCOUNTS_AND_SYNC.md`](docs/ACCOUNTS_AND_SYNC.md)), testers can **sign in with email (magic link)** and **sync** progress to their own row. Still **no cross-user analytics** in the app itself unless you add them in Supabase later.
+- **Optional cloud:** with **Supabase** + keys in `himfit-config.js`, testers use **Settings → Tester sign-in** (see **[`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md)** for a short checklist). The **magic link opens the same app URL** (no separate login page); intake/profile still runs on the device. Without keys, that section stays visible but explains what’s missing.
 
 ---
 
@@ -70,7 +70,7 @@ Any **static host** works the same way: connect the repo, no build step, publish
 3. Enable **Email** auth (magic link) and add your exact **redirect URL** (e.g. `https://winstonac.github.io/HimFit/`).
 4. Deploy **`himfit-config.js`** with the site (or use a private fork for pilot keys).
 
-If `himfit-config.js` is missing or keys are empty, the app behaves **offline-first** only.
+If keys are empty, the app is **offline-first** only, but **Tester sign-in** still appears with an explanation (so the UI isn’t invisible).
 
 ---
 
@@ -84,7 +84,7 @@ If `himfit-config.js` is missing or keys are empty, the app behaves **offline-fi
 
 ## PWA
 
-- `manifest.json` + `icon-512.png` support **Add to Home Screen**.
+- `manifest.json` + **`icon-512.png`** (burgundy + gold shoe / weight motif) support **Add to Home Screen**. After changing the icon, clear site data or re-add to home screen to refresh the cached icon.
 
 ---
 
@@ -93,6 +93,7 @@ If `himfit-config.js` is missing or keys are empty, the app behaves **offline-fi
 | Topic | Location |
 |-------|----------|
 | **Accounts, sync, roadmap (Strava, analytics)** | [`docs/ACCOUNTS_AND_SYNC.md`](docs/ACCOUNTS_AND_SYNC.md) |
+| **Tester magic link — quick checklist** | [`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md) |
 | **Supabase config template** | `himfit-config.example.js` → `himfit-config.js` |
 
 ### `localStorage` (`hf4`)

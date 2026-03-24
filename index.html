@@ -431,6 +431,8 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     </div>
     <div class="prog-row"><span>Progress</span><span id="prog-lbl">Week 1 of 12</span></div>
     <div class="prog-tr"><div class="prog-fi" id="prog-fi" style="width:2%"></div></div>
+    <button type="button" class="cta" style="margin-top:16px;width:100%" onclick="scrollToTesterSignIn()">Tester sign-in</button>
+    <p class="sub" style="margin-top:8px;margin-bottom:0;font-size:10px;line-height:1.45">Email magic link (scrolls to Settings). New here? Complete the profile form when it appears — same app, no separate login page.</p>
   </div>
 
   <div class="card-s" id="profile-strip-wrap" style="margin-bottom:14px;display:none">
@@ -480,14 +482,14 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
       </div>
       <button type="button" class="log-save" style="width:auto;padding:8px 14px;margin:0" onclick="openIntake(true)">Edit</button>
     </div>
-    <div class="settings-row" id="cloud-account-settings" style="display:none">
+    <div class="settings-row" id="tester-signin-section">
       <div class="settings-copy" style="max-width:100%">
-        <div class="settings-title">Cloud account</div>
-        <div class="settings-desc">Email magic link — backs up progress to your row in Supabase (maintainer must enable; see repo docs).</div>
+        <div class="settings-title">Tester sign-in</div>
+        <div class="settings-desc">We email you a magic link. Tap it → you return here <strong>signed in</strong> (same homepage). Your profile / intake form still runs on this device; cloud saves your progress if the host enabled Supabase.</div>
         <div id="cloud-auth-status" style="font-size:11px;color:var(--hint);margin-top:8px;line-height:1.45"></div>
         <input type="email" class="log-input" id="cloud-email" placeholder="you@email.com" autocomplete="email" style="margin-top:8px">
         <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <button type="button" class="log-save" style="width:auto;padding:8px 14px;margin:0" onclick="sendHimfitMagicLink()">Email sign-in link</button>
+          <button type="button" class="log-save" id="cloud-send-btn" style="width:auto;padding:8px 14px;margin:0" onclick="sendHimfitMagicLink()">Email sign-in link</button>
           <button type="button" class="log-save intake-skip" style="width:auto;padding:8px 14px;margin:0;display:none" id="cloud-signout-btn" onclick="himfitSignOut()">Sign out</button>
         </div>
       </div>
@@ -1970,25 +1972,39 @@ function refreshFuelMacroSlbl(){
 // ─────────────────────────────────────────────
 let himfitSupabase=null;
 let himfitAuthUser=null;
+let himfitCloudConfigured=false;
+function scrollToTesterSignIn(){
+  go('overview',document.querySelectorAll('.bni')[0]);
+  setTimeout(()=>document.getElementById('tester-signin-section')?.scrollIntoView({behavior:'smooth',block:'center'}),80);
+}
 function himfitAuthRedirectUrl(){
   let p=window.location.pathname.replace(/\/index\.html$/i,'');
   if(!p.endsWith('/'))p+='/';
   return window.location.origin+p;
 }
 async function initHimfitCloud(){
-  const url=window.HIMFIT_SUPABASE_URL||'';
-  const key=window.HIMFIT_SUPABASE_ANON_KEY||'';
-  const wrap=document.getElementById('cloud-account-settings');
-  if(!url||!key){if(wrap)wrap.style.display='none';return;}
-  if(!wrap)return;
+  const url=(window.HIMFIT_SUPABASE_URL||'').trim();
+  const key=(window.HIMFIT_SUPABASE_ANON_KEY||'').trim();
+  const st=document.getElementById('cloud-auth-status');
+  const em=document.getElementById('cloud-email');
+  const send=document.getElementById('cloud-send-btn');
+  himfitCloudConfigured=!!(url&&key);
+  if(!himfitCloudConfigured){
+    if(st)st.textContent='Host must add Supabase URL + anon key in himfit-config.js (see README). Until then, use the app on this device only — profile form still works.';
+    if(em){em.disabled=true;em.style.opacity='0.5';}
+    if(send){send.disabled=true;send.style.opacity='0.5';}
+    return;
+  }
+  if(em){em.disabled=false;em.style.opacity='';}
+  if(send){send.disabled=false;send.style.opacity='';}
   try{
     const mod=await import('https://esm.sh/@supabase/supabase-js@2.49.8');
     himfitSupabase=mod.createClient(url,key,{auth:{detectSessionInUrl:true,flowType:'pkce',storage:window.localStorage}});
   }catch(e){
     console.warn('HimFit cloud init failed',e);
+    if(st)st.textContent='Could not load sign-in. Check network or Supabase keys.';
     return;
   }
-  wrap.style.display='';
   himfitSupabase.auth.onAuthStateChange(async (event,session)=>{
     himfitAuthUser=session?.user||null;
     updateCloudSettingsUI(himfitAuthUser);
@@ -2010,22 +2026,31 @@ function updateCloudSettingsUI(user){
   const st=document.getElementById('cloud-auth-status');
   const em=document.getElementById('cloud-email');
   const so=document.getElementById('cloud-signout-btn');
+  const send=document.getElementById('cloud-send-btn');
   if(!st)return;
+  if(!himfitCloudConfigured){
+    if(!user)return;
+  }
   if(user){
     st.textContent='Signed in as '+user.email+'. Progress syncs after you use the app.';
-    if(em)em.style.display='none';
+    if(em){em.style.display='none';em.disabled=false;em.style.opacity='';}
+    if(send)send.style.display='none';
     if(so)so.style.display='inline-block';
   }else{
-    st.textContent='';
-    if(em)em.style.display='block';
+    if(himfitCloudConfigured)st.textContent='';
+    if(em){em.style.display='block';em.disabled=false;em.style.opacity='';}
+    if(send)send.style.display='inline-block';
     if(so)so.style.display='none';
   }
 }
 async function sendHimfitMagicLink(){
-  if(!himfitSupabase)return;
+  const st=document.getElementById('cloud-auth-status');
+  if(!himfitCloudConfigured||!himfitSupabase){
+    if(st)st.textContent='Sign-in is not configured yet (himfit-config.js).';
+    return;
+  }
   const el=document.getElementById('cloud-email');
   const email=(el?.value||'').trim();
-  const st=document.getElementById('cloud-auth-status');
   if(!email){if(st)st.textContent='Enter your email.';return;}
   const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:himfitAuthRedirectUrl()}});
   if(st)st.textContent=error?('Error: '+error.message):'Check your email for the sign-in link.';
