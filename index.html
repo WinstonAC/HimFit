@@ -251,9 +251,101 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .shop-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
 .shop-action{flex:1;min-width:120px;padding:9px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:transparent;color:var(--mut);font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
 .shop-count{font-size:11px;color:var(--mut);margin-bottom:0}
+
+/* INTAKE OVERLAY */
+#intake-overlay{position:fixed;inset:0;background:rgba(10,4,8,0.92);z-index:500;display:flex;align-items:flex-start;justify-content:center;padding:calc(20px + var(--st)) 16px calc(24px + var(--sb));overflow-y:auto;-webkit-overflow-scrolling:touch}
+#intake-overlay.hid{display:none}
+.intake-card{max-width:420px;width:100%;background:var(--sur);border:.5px solid var(--bdr2);border-radius:var(--rad);padding:20px 18px 22px;margin:auto}
+.intake-card h2{font-family:'Bebas Neue',sans-serif;font-size:28px;margin-bottom:4px}
+.intake-card .sub{font-size:11px;color:var(--mut);line-height:1.5;margin-bottom:16px}
+.intake-field{margin-bottom:12px}
+.intake-field label{display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hint);margin-bottom:5px}
+.intake-field textarea.log-input{min-height:56px;resize:vertical}
+.intake-actions{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.intake-skip{background:transparent;border:.5px solid var(--bdr2);color:var(--mut)}
+.strava-placeholder{padding:20px 16px;text-align:center;border:.5px solid var(--bdr);border-radius:var(--rad);background:var(--sur);margin-bottom:12px}
+.strava-placeholder p{font-size:12px;color:var(--mut);line-height:1.65;margin-bottom:10px}
+.strava-placeholder .ph{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--hint)}
+.settings-card{margin-top:14px}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:.5px solid var(--bdr);font-size:12px}
+.settings-row:last-child{border:none}
+.settings-row span{color:var(--mut);font-size:11px;flex:1}
+.sw{position:relative;width:44px;height:26px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;cursor:pointer;inset:0;background:var(--hint);border-radius:13px;transition:.2s}
+.sw span::before{position:absolute;content:'';height:20px;width:20px;left:3px;bottom:3px;background:var(--w);border-radius:50%;transition:.2s}
+.sw input:checked+span{background:var(--gold)}
+.sw input:checked+span::before{transform:translateX(18px)}
+#profile-strip{font-size:11px;color:var(--mut);line-height:1.5}
 </style>
 </head>
 <body>
+
+<div id="intake-overlay" class="hid">
+  <div class="intake-card">
+    <h2>YOUR<em style="color:var(--gold);font-style:normal"> PROFILE</em></h2>
+    <p class="sub">Used on this device only. Not sent to a server. Fertility-related goals appear only if sex is female. You can change this anytime in Overview → Settings.</p>
+    <div class="intake-field"><label>Sex</label>
+      <select class="log-input" id="in-sex" onchange="toggleFertilityGoal()">
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+        <option value="other">Other / prefer not to use for programming</option>
+      </select>
+    </div>
+    <div class="log-row">
+      <div class="intake-field"><label>Age</label><input class="log-input" id="in-age" type="number" min="16" max="90" placeholder="e.g. 35"></div>
+      <div class="intake-field"><label>Weight (kg)</label><input class="log-input" id="in-weight" type="number" min="35" max="200" step="0.1" placeholder="e.g. 68"></div>
+    </div>
+    <div class="intake-field"><label>Height (cm)</label><input class="log-input" id="in-height" type="number" min="120" max="220" placeholder="Optional"></div>
+    <div class="intake-field"><label>Primary goal</label>
+      <select class="log-input" id="in-goal">
+        <option value="general">General fitness</option>
+        <option value="lose_fat">Lose fat</option>
+        <option value="build_muscle">Build muscle</option>
+        <option value="stay_lean">Stay lean / maintain</option>
+        <option value="endurance">Endurance / cardio focus</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Training experience</label>
+      <select class="log-input" id="in-exp">
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Days per week available</label>
+      <select class="log-input" id="in-days">
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5" selected>5</option>
+        <option value="6">6</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Gym or home</label>
+      <select class="log-input" id="in-loc">
+        <option value="gym">Gym</option>
+        <option value="home">Home</option>
+        <option value="both">Both</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Running comfort (honest — we scale Tue/Sat)</label>
+      <select class="log-input" id="in-run">
+        <option value="not_yet">Not running yet / mostly walking</option>
+        <option value="walk_run">Walk–jog, building up</option>
+        <option value="two_k">Comfortable up to ~2 km</option>
+        <option value="five_k">5K comfortable</option>
+        <option value="ten_plus">10K+ / half-marathon build</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Injuries or restrictions (optional)</label><textarea class="log-input" id="in-inj" placeholder="e.g. bad shoulder — no overhead"></textarea></div>
+    <p class="sub" style="margin-top:12px;font-size:10px">Not medical advice. For pregnancy or medical conditions, follow your clinician.</p>
+    <div class="intake-actions">
+      <button type="button" class="log-save" onclick="submitIntake()">Save profile</button>
+      <button type="button" class="log-save intake-skip" onclick="skipIntakeDefaults()">Continue with defaults</button>
+      <button type="button" class="log-save intake-skip" id="intake-cancel-btn" style="display:none" onclick="closeIntake()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <nav class="bnav">
   <button class="bni active" onclick="go('overview',this)">
@@ -296,6 +388,12 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="prog-tr"><div class="prog-fi" id="prog-fi" style="width:2%"></div></div>
   </div>
 
+  <div class="card-s" id="profile-strip-wrap" style="margin-bottom:14px;display:none">
+    <div class="slbl" style="margin-bottom:8px">Your profile</div>
+    <div id="profile-strip"></div>
+    <button type="button" class="mcard-expand" style="margin-top:10px" onclick="openIntake(true)">Edit profile</button>
+  </div>
+
   <div class="slbl">Three Phases</div>
   <div class="ph-row">
     <div class="phc phc1"><div class="phc-n">Build</div><div class="phc-w">Wks 1–4</div><div class="phc-d">Form base<br>90s rest</div></div>
@@ -319,6 +417,18 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Creatine</div><div style="font-size:11px;color:var(--w);line-height:1.6">5g daily, any time. No loading. Non-training days: morning.</div></div>
     <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Run Order</div><div style="font-size:11px;color:var(--w);line-height:1.6">Lift first, run second. Never run hard after heavy legs.</div></div>
     <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Sugar Rule</div><div style="font-size:11px;color:var(--w);line-height:1.6">Post-lift and post-run windows only. Fruit ok. No late night.</div></div>
+  </div>
+
+  <div class="slbl">Settings</div>
+  <div class="card-s settings-card">
+    <div class="settings-row">
+      <div><strong style="font-size:12px">Strava embed</strong><span>Shows latest activity from a connected account. Off by default for other people using this app.</span></div>
+      <label class="sw"><input type="checkbox" id="set-strava" onchange="toggleStravaConnected(this.checked)"><span></span></label>
+    </div>
+    <div class="settings-row">
+      <div><strong style="font-size:12px">Profile</strong><span>Intake is stored on this device only.</span></div>
+      <button type="button" class="log-save" style="width:auto;padding:8px 14px;margin:0" onclick="openIntake(true)">Edit</button>
+    </div>
   </div>
 </div>
 
@@ -349,25 +459,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 <div id="view-runs" class="view">
 
   <div class="slbl" style="margin-top:4px">Strava</div>
-  <div class="strava-wrap">
-    <div class="strava-hdr">
-      <div class="strava-logo">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M10.9 5L14.5 12.1L18 5" stroke="#FC4C02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12.1L10.9 5L14.5 12.1" stroke="#FC4C02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Latest Activity
-      </div>
-      <a class="strava-link" href="https://www.strava.com/athletes/39096162" target="_blank">View Profile ↗</a>
-    </div>
-    <iframe
-      height="160"
-      width="100%"
-      frameborder="0"
-      allowtransparency="true"
-      scrolling="no"
-      src="https://www.strava.com/athletes/39096162/activity-summary/8a9cebff837b48d137c3bcfa1c083925d4a0cfb5"
-      class="strava-frame"
-      style="height:160px">
-    </iframe>
-  </div>
+  <div id="strava-section-host"></div>
 
   <div class="slbl">Log a Run</div>
   <div class="card-s" style="margin-bottom:12px">
@@ -397,7 +489,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="h-name" style="font-size:40px;margin-bottom:10px">FUEL<em>PLAN</em></div>
     <div id="fuel-day" style="font-size:11px;color:var(--mut)">Based on today's session</div>
   </div>
-  <div class="slbl">Your Numbers — 68kg · 45yo · Build Muscle</div>
+  <div class="slbl" id="fuel-macro-slbl">Your Numbers — 68kg · 45yo · Build Muscle</div>
   <div class="mc-row">
     <div class="mc"><div class="mc-n">2766</div><div class="mc-l">Kcal / Day</div></div>
     <div class="mc"><div class="mc-n">150g</div><div class="mc-l">Protein</div></div>
@@ -566,7 +658,67 @@ const CD_STR=[
 // ─────────────────────────────────────────────
 // RUN DATA
 // ─────────────────────────────────────────────
+function runTier(){
+  const r=S.intake?.runningComfort||'ten_plus';
+  const m={not_yet:0,walk_run:1,two_k:2,five_k:3,ten_plus:4};
+  return m[r]!==undefined?m[r]:4;
+}
+
 function getTueRun(w){
+  const t=runTier();
+  if(t<=1){
+    return{
+      label:`Week ${w} — Easy session (your running level)`,
+      dist:'Walk / jog',pace:'Easy — talk test',total:'~25–30 min',
+      blocks:[
+        {n:'Warm-Up',d:'8 min',p:'Brisk walk',note:''},
+        {n:'Main',d:'12–15 min',p:'Alternate jog 1–2 min / walk 1–2 min',note:'Stop if form falls apart'},
+        {n:'Cool-Down',d:'5 min',p:'Walk',note:''},
+      ]
+    };
+  }
+  if(t===2){
+    const is5k=w%2!==0;
+    const paceEasy='6:00–6:45/km';
+    if(is5k)return{
+      label:`Week ${w} — Short quality (odd week)`,dist:'2–3k',pace:paceEasy,total:'~25 min',
+      blocks:[
+        {n:'Warm-Up',d:'10 min',p:'Easy jog',note:''},
+        {n:'Steady block',d:'2–3k',p:paceEasy,note:'Comfortable steady'},
+        {n:'Cool-Down',d:'5 min',p:'Walk/jog',note:''},
+      ]
+    };
+    return{
+      label:`Week ${w} — Easy aerobic (even week)`,dist:'4k',pace:'6:00–6:30/km',total:'~35 min',
+      blocks:[
+        {n:'Warm-Up',d:'10 min',p:'Easy jog',note:''},
+        {n:'Continuous easy',d:'4k',p:'6:00–6:30/km',note:''},
+        {n:'Cool-Down',d:'5 min',p:'Walk',note:''},
+      ]
+    };
+  }
+  if(t===3){
+    const is5k=w%2!==0;
+    const pace5=w<=4?'5:20–5:40/km':w<=8?'5:05–5:20/km':'4:50–5:05/km';
+    const pace10=w<=4?'5:40–6:00/km':w<=8?'5:20–5:40/km':'5:05–5:20/km';
+    if(is5k)return{
+      label:`Week ${w} — 5k effort (odd week)`,dist:'5k',pace:pace5,total:'~30 min',
+      blocks:[
+        {n:'Warm-Up',d:'10 min',p:'Easy jog',note:'Conversational pace'},
+        {n:'5k Effort',d:'5km',p:pace5,note:'Controlled discomfort — not a sprint'},
+        {n:'Recovery Jog',d:'5 min',p:'Easy',note:'Bring HR down'},
+        {n:'Cool-Down Walk',d:'5 min',p:'Walk',note:''},
+      ]
+    };
+    return{
+      label:`Week ${w} — 8k aerobic (even week)`,dist:'8k',pace:pace10,total:'~45 min',
+      blocks:[
+        {n:'Warm-Up',d:'10 min',p:'Easy jog',note:''},
+        {n:'Steady aerobic',d:'8km',p:pace10,note:'Steady throughout'},
+        {n:'Cool-Down',d:'8 min',p:'Easy',note:''},
+      ]
+    };
+  }
   const is5k=w%2!==0;
   const pace5=w<=4?'5:00–5:20/km':w<=8?'4:45–5:00/km':'4:30–4:45/km';
   const pace10=w<=4?'5:20–5:40/km':w<=8?'5:00–5:20/km':'4:50–5:10/km';
@@ -603,6 +755,23 @@ const SAT_RUNS=[
   {d:'13km',p:'5:00–5:20/km',n:'Taper begins. Maintain sharpness.'},
   {d:'10km',p:'5:00–5:20/km',n:'Final week. Fresh legs. Race day is close.'},
 ];
+
+function getSatRunEntry(idx){
+  const base=SAT_RUNS[idx]||SAT_RUNS[0];
+  const t=runTier();
+  const km0=parseInt(String(base.d).replace(/\D/g,''),10)||8;
+  let mult=1;
+  if(t===0)mult=0.35;
+  else if(t===1)mult=0.5;
+  else if(t===2)mult=0.62;
+  else if(t===3)mult=0.82;
+  let km=Math.round(km0*mult);
+  const minKm=t<=1?2:3;
+  const maxKm=t===0?5:22;
+  km=Math.max(minKm,Math.min(km,maxKm));
+  const suff=t<4?' · scaled to your running level':'';
+  return{d:km+'km',p:base.p,n:base.n+suff};
+}
 
 // ─────────────────────────────────────────────
 // NUTRITION
@@ -643,9 +812,20 @@ const MEALS={
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-let S={week:1,day:0,done:{},runs:[],shopList:[]};
-try{const d=localStorage.getItem('hf4');if(d)S=JSON.parse(d)}catch(e){}
+let S={week:1,day:0,done:{},runs:[],shopList:[],stravaConnected:false,intakeComplete:false,planKey:'default',intake:null};
+try{
+  const d=localStorage.getItem('hf4');
+  if(d){
+    const o=JSON.parse(d);
+    Object.assign(S,o);
+    if(Object.prototype.hasOwnProperty.call(o,'intakeComplete'))S.intakeComplete=!!o.intakeComplete;
+    else S.intakeComplete=!!((o.runs&&o.runs.length)||Object.keys(o.done||{}).length>0);
+  }
+}catch(e){}
 if(!Array.isArray(S.shopList))S.shopList=[];
+if(typeof S.stravaConnected!=='boolean')S.stravaConnected=false;
+if(typeof S.planKey!=='string')S.planKey='default';
+if(S.intake!=null&&typeof S.intake!=='object')S.intake=null;
 function save(){try{localStorage.setItem('hf4',JSON.stringify(S))}catch(e){}}
 
 // ─────────────────────────────────────────────
@@ -664,8 +844,9 @@ function go(v,btn){
   if(v==='today')buildDay();
   if(v==='plan')buildPlan();
   if(v==='fuel')buildFuel();
-  if(v==='runs')buildRunLog();
+  if(v==='runs'){buildRunLog();buildStravaSection();}
   if(v==='shop')buildShopView();
+  if(v==='overview'){refreshProfileStrip();syncStravaSettingsCheckbox();}
   updProg();
 }
 
@@ -721,7 +902,7 @@ function buildDay(){
   document.getElementById('d-sub').textContent=day.sub;
   document.getElementById('d-meta').textContent=
     day.type==='run'?`Quality run · Week ${w} · ${w%2!==0?'5k — odd week':'10k — even week'}`:
-    day.type==='longrun'?`Long run · ${SAT_RUNS[w-1].d} · Half marathon build`:
+    day.type==='longrun'?`Long run · ${getSatRunEntry(w-1).d} · Half marathon build`:
     day.type==='kb'?'43 min · 3 circuit rounds + 4 HIIT rounds':
     'Lift · Sauna · Recover';
 
@@ -805,7 +986,7 @@ function dayTue(segs,w){
 }
 
 function daySat(segs,w){
-  const run=SAT_RUNS[w-1];
+  const run=getSatRunEntry(w-1);
   const mainHtml=`<div class="rsum" style="margin-bottom:10px">
     <div class="rsr"><span class="rsl">Distance</span><span class="rsv">${run.d.toUpperCase()}</span></div>
     <div class="rsr"><span class="rsl">Target Pace</span><span class="rsv">${run.p}</span></div>
@@ -820,7 +1001,7 @@ function daySat(segs,w){
     ${vidBtn(VIDS.legs3,'Legs Demo 3')}${vidBtn(VIDS.legs4,'Legs Demo 4')}${vidBtn(VIDS.legs5,'Legs Demo 5')}
   </div>`;
 
-  const progHtml=`<div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">${SAT_RUNS.map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:3px 0"><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--hint);width:22px">W${i+1}</div><div style="flex:1;background:var(--sur2);border-radius:2px;height:4px;position:relative"><div style="position:absolute;left:0;top:0;height:4px;border-radius:2px;background:${i<w?'var(--gold)':'var(--hint)'};width:${Math.round(parseInt(r.d)*100/21)}%"></div></div><div style="font-size:11px;color:${i+1===w?'var(--gold)':'var(--hint)'};width:28px;text-align:right;font-weight:${i+1===w?'500':'400'}">${r.d}</div></div>`).join('')}</div>`;
+  const progHtml=`<div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">${SAT_RUNS.map((_,i)=>{const r=getSatRunEntry(i);return`<div style="display:flex;align-items:center;gap:8px;padding:3px 0"><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--hint);width:22px">W${i+1}</div><div style="flex:1;background:var(--sur2);border-radius:2px;height:4px;position:relative"><div style="position:absolute;left:0;top:0;height:4px;border-radius:2px;background:${i<w?'var(--gold)':'var(--hint)'};width:${Math.round(parseInt(String(r.d).replace(/\D/g,''),10)*100/21)}%"></div></div><div style="font-size:11px;color:${i+1===w?'var(--gold)':'var(--hint)'};width:28px;text-align:right;font-weight:${i+1===w?'500':'400'}">${r.d}</div></div>`}).join('')}</div>`;
 
   segs.appendChild(mkSeg('prun','Long Run',`Week ${w} · ${run.d} · Half Marathon Build`,mainHtml+vidLinksHtml,true));
   segs.appendChild(mkSeg('plog','Log This Run','Save to run history',logFormHTML(),false));
@@ -894,6 +1075,7 @@ function buildFuel(){
     return`<div class="mcard"><div class="mt">${m.t}</div><div class="mn">${m.n}</div><div class="mi">${m.i.replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${m.note}</div>`:''
     }${ings.length?`<button class="mcard-expand" onclick="toggleIngList(this)">Ingredients</button><div class="ing-list" style="display:none">${ingRows}</div>`:''}</div>`;
   }).join('');
+  refreshFuelMacroSlbl();
 }
 
 function toggleIngList(btn){
@@ -961,8 +1143,170 @@ function chDay(dir){S.day=(S.day+dir+6)%6;save();buildDay()}
 function toggleDone(){const k=dkey();S.done[k]=!S.done[k];save();buildDay();updProg()}
 
 // ─────────────────────────────────────────────
+// INTAKE · STRAVA GATE · SETTINGS
+// ─────────────────────────────────────────────
+function resolvePlanKey(intake){
+  if(!intake)return'default';
+  if(intake.goal==='fertility')return'fertility_v1';
+  return'default';
+}
+
+function syncFertilityOption(){
+  const sel=document.getElementById('in-goal');
+  if(!sel)return;
+  let fo=sel.querySelector('option[value="fertility"]');
+  const female=document.getElementById('in-sex').value==='female';
+  if(female&&!fo){
+    fo=document.createElement('option');
+    fo.value='fertility';
+    fo.textContent='Fertility journey wellness (non-medical)';
+    sel.appendChild(fo);
+  }
+  if(!female&&fo){
+    if(sel.value==='fertility')sel.value='general';
+    fo.remove();
+  }
+}
+
+function toggleFertilityGoal(){syncFertilityOption();}
+
+function populateIntakeForm(){
+  const i=S.intake;
+  syncFertilityOption();
+  if(!i){
+    document.getElementById('in-sex').value='female';
+    document.getElementById('in-age').value='';
+    document.getElementById('in-weight').value='';
+    document.getElementById('in-height').value='';
+    document.getElementById('in-goal').value='general';
+    document.getElementById('in-exp').value='intermediate';
+    document.getElementById('in-days').value='5';
+    document.getElementById('in-loc').value='gym';
+    document.getElementById('in-inj').value='';
+    document.getElementById('in-run').value='ten_plus';
+    syncFertilityOption();
+    return;
+  }
+  document.getElementById('in-sex').value=i.sex||'female';
+  document.getElementById('in-age').value=i.age||'';
+  document.getElementById('in-weight').value=i.weightKg||'';
+  document.getElementById('in-height').value=i.heightCm||'';
+  document.getElementById('in-exp').value=i.experience||'intermediate';
+  document.getElementById('in-days').value=i.daysPerWeek||'5';
+  document.getElementById('in-loc').value=i.location||'gym';
+  document.getElementById('in-inj').value=i.injuries||'';
+  document.getElementById('in-run').value=i.runningComfort||'ten_plus';
+  syncFertilityOption();
+  document.getElementById('in-goal').value=i.goal||'general';
+}
+
+function openIntake(edit){
+  const ov=document.getElementById('intake-overlay');
+  if(!ov)return;
+  ov.classList.remove('hid');
+  document.getElementById('intake-cancel-btn').style.display=edit?'block':'none';
+  populateIntakeForm();
+}
+
+function closeIntake(){
+  const ov=document.getElementById('intake-overlay');
+  if(ov)ov.classList.add('hid');
+}
+
+function submitIntake(){
+  const sex=document.getElementById('in-sex').value;
+  let goal=document.getElementById('in-goal').value;
+  if(goal==='fertility'&&sex!=='female')goal='general';
+  S.intake={
+    sex,
+    age:parseFloat(document.getElementById('in-age').value)||0,
+    weightKg:parseFloat(document.getElementById('in-weight').value)||0,
+    heightCm:parseFloat(document.getElementById('in-height').value)||0,
+    goal,
+    experience:document.getElementById('in-exp').value,
+    daysPerWeek:document.getElementById('in-days').value,
+    location:document.getElementById('in-loc').value,
+    injuries:(document.getElementById('in-inj').value||'').trim(),
+    runningComfort:document.getElementById('in-run').value,
+  };
+  S.planKey=resolvePlanKey(S.intake);
+  S.intakeComplete=true;
+  save();
+  closeIntake();
+  refreshProfileStrip();
+  buildDay();buildFuel();
+  document.getElementById('profile-strip-wrap').style.display='block';
+}
+
+function skipIntakeDefaults(){
+  S.intake={sex:'male',age:0,weightKg:0,heightCm:0,goal:'general',experience:'intermediate',daysPerWeek:'5',location:'gym',injuries:'',runningComfort:'ten_plus'};
+  S.planKey='default';
+  S.intakeComplete=true;
+  save();
+  closeIntake();
+  refreshProfileStrip();
+  buildDay();buildFuel();
+  document.getElementById('profile-strip-wrap').style.display='block';
+}
+
+function refreshProfileStrip(){
+  const wrap=document.getElementById('profile-strip-wrap');
+  const el=document.getElementById('profile-strip');
+  if(!wrap||!el)return;
+  if(!S.intakeComplete||!S.intake){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const i=S.intake;
+  const sx=i.sex==='female'?'Female':i.sex==='male'?'Male':'Other';
+  const runLab={not_yet:'Walk-first',walk_run:'Walk/jog',two_k:'≤2k',five_k:'5K level',ten_plus:'10K+ / HM build'}[i.runningComfort]||i.runningComfort;
+  const gl={general:'General fitness',lose_fat:'Lose fat',build_muscle:'Build muscle',stay_lean:'Stay lean',endurance:'Endurance',fertility:'Fertility wellness (non-medical)'}[i.goal]||i.goal;
+  el.innerHTML=`${sx} · ${i.age||'—'}y · ${i.weightKg||'—'}kg · ${gl} · Run: ${runLab} · Plan key: <strong>${S.planKey}</strong>`;
+}
+
+function syncStravaSettingsCheckbox(){
+  const c=document.getElementById('set-strava');
+  if(c)c.checked=S.stravaConnected===true;
+}
+
+function toggleStravaConnected(on){
+  S.stravaConnected=!!on;
+  save();
+  buildStravaSection();
+}
+
+function buildStravaSection(){
+  const h=document.getElementById('strava-section-host');
+  if(!h)return;
+  if(S.stravaConnected===true){
+    h.innerHTML='<div class="strava-wrap"><div class="strava-hdr"><div class="strava-logo"><svg viewBox="0 0 24 24" fill="none"><path d="M10.9 5L14.5 12.1L18 5" stroke="#FC4C02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12.1L10.9 5L14.5 12.1" stroke="#FC4C02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Latest Activity</div><a class="strava-link" href="https://www.strava.com/athletes/39096162" target="_blank" rel="noopener">View Profile ↗</a></div><iframe height="160" width="100%" frameborder="0" allowtransparency="true" scrolling="no" src="https://www.strava.com/athletes/39096162/activity-summary/8a9cebff837b48d137c3bcfa1c083925d4a0cfb5" class="strava-frame" style="height:160px" title="Strava activity summary"></iframe></div>';
+  }else{
+    h.innerHTML='<div class="strava-placeholder"><div class="ph">Strava activity</div><p><strong>Not connected.</strong> Manual run logs below work for everyone and stay on this device only.</p><p>Your own Strava feed can appear here after a secure connection is set up (OAuth). Until then, only turn this on from <strong>Overview → Settings</strong> if the developer has enabled the embed for this build.</p></div>';
+  }
+}
+
+function refreshFuelMacroSlbl(){
+  const el=document.getElementById('fuel-macro-slbl');
+  if(!el)return;
+  const i=S.intake;
+  if(!i||!S.intakeComplete||(!i.age&&!i.weightKg)){
+    el.textContent='Your Numbers — 68kg · 45yo · Build Muscle';
+    return;
+  }
+  const gl={general:'General fitness',lose_fat:'Lose fat',build_muscle:'Build muscle',stay_lean:'Stay lean',endurance:'Endurance',fertility:'Fertility wellness'}[i.goal]||i.goal;
+  el.textContent=`Your Numbers — ${i.weightKg||'—'}kg · ${i.age||'—'}yo · ${gl}`;
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
+buildStravaSection();
+syncStravaSettingsCheckbox();
+refreshProfileStrip();
+if(S.intakeComplete!==true){
+  document.getElementById('intake-overlay').classList.remove('hid');
+  document.getElementById('intake-cancel-btn').style.display='none';
+}else{
+  document.getElementById('intake-overlay').classList.add('hid');
+}
 buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
 </script>
 </body>
