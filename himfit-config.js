@@ -7,7 +7,7 @@ window.HIMFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3Mi
 window.HIMFIT_AUTH_REDIRECT_URL = 'https://winstonac.github.io/HimFit/';
 
 // Strava embed (Runs) — only for YOUR login (not a “code for the AI”):
-// 1) Sign into HimFit once (magic link). 2) Supabase → Authentication → Users → your row → copy User UID.
+// 1) Sign into HimFit once (email + password). 2) Supabase → Authentication → Users → your row → copy User UID.
 // 3) Paste UUID below, save, push to GitHub Pages. 4) Open app signed in → Overview → Settings → Strava on.
 // Leave empty = no Strava row for anyone (manual run log still works for everyone).
 window.HIMFIT_STRAVA_OWNER_USER_ID = 'a757e5d1-b408-4f00-b9fa-351222e2a2ed';

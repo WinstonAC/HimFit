@@ -31,17 +31,20 @@
   --rad:14px;--rad-s:9px;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
 }
-html{min-height:100%;background:var(--bg-a)}
-body{font-family:'DM Sans',sans-serif;background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 35%,var(--bg-c) 70%,#141418 100%);background-attachment:fixed;color:var(--w);min-height:100vh;padding-bottom:calc(66px + var(--sb));-webkit-font-smoothing:antialiased}
+html{min-height:100%;background:var(--bg-a);overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 35%,var(--bg-c) 70%,#141418 100%);background-attachment:fixed;color:var(--w);min-height:100vh;padding-bottom:calc(66px + var(--sb));-webkit-font-smoothing:antialiased;width:100%;overflow-x:hidden;margin:0;position:relative}
 button,input,textarea{font-family:'DM Sans',sans-serif}
 .disp{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em}
 
 /* VIEWS */
-.view{display:none;padding:16px;padding-top:calc(18px + var(--st));max-width:600px;margin:0 auto}
+.view{display:none;padding:16px;padding-top:calc(18px + var(--st));padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right));max-width:600px;margin:0 auto;width:100%;box-sizing:border-box}
 .view.active{display:block}
 
+/* MAIN SHELL — keeps content column centered on wide screens */
+#app-shell{width:100%;max-width:640px;margin:0 auto;box-sizing:border-box;position:relative}
+
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(58px + var(--sb));background:rgba(14,5,9,0.92);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:.5px solid var(--bdr2);display:flex;align-items:flex-start;padding-top:10px;z-index:300}
+.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(58px + var(--sb));background:rgba(14,5,9,0.92);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:.5px solid var(--bdr2);display:flex;align-items:flex-start;padding:10px max(4px,env(safe-area-inset-left)) 0 max(4px,env(safe-area-inset-right));z-index:300;box-sizing:border-box;justify-content:space-between}
 .bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);transition:color .2s;padding:0;cursor:pointer}
 .bni svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;transition:stroke .2s}
 .bni.active{color:var(--w)}
@@ -53,16 +56,14 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .card-s{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:14px}
 
 /* HERO */
-.hero{background:linear-gradient(135deg,rgba(139,38,53,0.38) 0%,rgba(70,15,28,0.28) 55%,rgba(28,28,34,0.38) 100%);border:.5px solid rgba(139,38,53,0.25);border-radius:var(--rad);padding:26px 22px 20px;margin-bottom:16px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(139,38,53,0.18) 0%,transparent 70%);pointer-events:none}
-.h-eye{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
-.h-name{font-family:'Bebas Neue',sans-serif;font-size:54px;line-height:.9;margin-bottom:18px}
+.hero{background:linear-gradient(135deg,rgba(139,38,53,0.38) 0%,rgba(70,15,28,0.28) 55%,rgba(28,28,34,0.38) 100%);border:.5px solid rgba(139,38,53,0.25);border-radius:var(--rad);padding:26px max(18px,env(safe-area-inset-left)) 20px max(18px,env(safe-area-inset-right));margin-bottom:16px;position:relative;overflow:hidden;text-align:center;box-sizing:border-box}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:min(420px,140vw);height:min(420px,140vw);border-radius:50%;background:radial-gradient(circle,rgba(139,38,53,0.14) 0%,transparent 68%);pointer-events:none}
+.h-eye{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.h-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,14vw,54px);line-height:.92;margin:0 auto 18px;max-width:100%;display:block}
 .h-name em{color:var(--gold);font-style:normal}
-.h-stats{display:flex;border-top:.5px solid var(--bdr);padding-top:14px;margin-bottom:14px}
-.hst{flex:1;border-right:.5px solid var(--bdr)}
-.hst:last-child{border:none;padding-left:14px}
-.hst:first-child{padding-right:14px}
-.hst:nth-child(2){padding:0 14px}
+.h-stats{display:flex;justify-content:space-evenly;align-items:flex-start;border-top:.5px solid var(--bdr);padding-top:14px;margin-bottom:14px;text-align:center}
+.hst{flex:1;min-width:0;padding:0 6px;border:none;position:relative}
+.hst:not(:last-child)::after{content:'';position:absolute;right:0;top:4px;bottom:4px;width:.5px;background:var(--bdr)}
 .hst-n{display:block;font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1}
 .hst-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)}
 .prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
@@ -307,7 +308,8 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .auth-gate-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,10vw,54px);line-height:0.95;color:var(--w);margin:0 0 12px;letter-spacing:0.02em;word-break:normal}
 .auth-gate-h1 em{color:var(--gold);font-style:normal}
 .auth-gate-sub{font-size:clamp(13px,3.6vw,15px);color:#c9c4bd;line-height:1.58;font-weight:400;margin:0 auto 18px;max-width:min(340px,100%);padding:0 2px;box-sizing:border-box}
-.auth-gate-status{min-height:40px;font-size:clamp(12px,3.2vw,13px);color:#a8a39c;line-height:1.55;margin-bottom:10px;font-weight:400;padding:0 4px;max-width:100%;box-sizing:border-box}
+.auth-gate-status{min-height:32px;font-size:clamp(12px,3.2vw,13px);color:#a8a39c;line-height:1.55;margin-top:12px;margin-bottom:0;font-weight:400;padding:0 4px;max-width:100%;box-sizing:border-box}
+.auth-gate-status.err{color:#e06070;font-weight:500}
 .auth-gate .log-input{text-align:center;margin-bottom:12px;max-width:100%;box-sizing:border-box}
 .auth-gate .auth-gate-btn{width:100%;max-width:100%;box-sizing:border-box}
 .auth-gate-foot{margin:18px auto 0;font-size:clamp(11px,2.8vw,12px);color:var(--hint);line-height:1.55;font-weight:400;max-width:min(340px,100%);padding:0 4px;text-align:center;box-sizing:border-box}
@@ -427,10 +429,12 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <div class="auth-gate-card">
     <p class="auth-gate-brand">HimFit</p>
     <h1 class="auth-gate-h1">Sign <em>in</em></h1>
-    <p class="auth-gate-sub">We’ll email you a private sign-in link — no password. Use the link <strong>on this same phone or computer</strong> so the app can finish signing you in. Check spam if nothing arrives in a minute.</p>
-    <div id="cloud-auth-status" class="auth-gate-status"></div>
-    <input type="email" class="log-input" id="cloud-email" placeholder="Email address" autocomplete="email" inputmode="email">
-    <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-send-btn" onclick="sendHimfitMagicLink()">Send link</button>
+    <p class="auth-gate-sub">Use your email and password to sync your journey to your account. New here? Enter the same email and password and tap <strong>Create Account</strong>.</p>
+    <input type="email" class="log-input" id="cloud-email" placeholder="Email" autocomplete="email" inputmode="email">
+    <input type="password" class="log-input" id="cloud-password" placeholder="Password" autocomplete="current-password">
+    <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-signin-btn" onclick="himfitSignInWithPassword()">Sign In</button>
+    <button type="button" class="log-save intake-skip auth-gate-btn" id="cloud-signup-btn" onclick="himfitSignUpWithPassword()" style="width:100%;margin-top:10px">Create Account</button>
+    <div id="cloud-auth-status" class="auth-gate-status" role="status" aria-live="polite"></div>
     <p class="auth-gate-foot"><strong>Stay signed in:</strong> use the same browser and avoid private/incognito for day-to-day use — your session is saved on this device. <strong>Sign out</strong> is at the bottom of <strong>Overview</strong> after you’re in. <strong>#signin</strong> in the URL returns to this screen (signs you out first if needed).</p>
   </div>
 </div>
@@ -2056,38 +2060,33 @@ function refreshFuelMacroSlbl(){
 let himfitSupabase=null;
 let himfitAuthUser=null;
 let himfitCloudConfigured=false;
-function himfitAuthRedirectUrl(){
-  const fixed=(window.HIMFIT_AUTH_REDIRECT_URL||'').trim();
-  if(fixed){
-    try{
-      const u=new URL(fixed);
-      let path=u.pathname.replace(/\/index\.html$/i,'');
-      if(path===''||path==='/')path='/';
-      if(!path.endsWith('/'))path+='/';
-      return u.origin+path;
-    }catch(e){
-      console.warn('HimFit: invalid HIMFIT_AUTH_REDIRECT_URL — check himfit-config.js',e);
-    }
-  }
-  let p=window.location.pathname.replace(/\/index\.html$/i,'');
-  if(!p.endsWith('/'))p+='/';
-  return window.location.origin+p;
+function himfitSetCloudAuthStatus(msg,isError){
+  const st=document.getElementById('cloud-auth-status');
+  if(!st)return;
+  st.textContent=msg||'';
+  st.classList.toggle('err',!!isError);
 }
 async function initHimfitCloud(){
   const url=(window.HIMFIT_SUPABASE_URL||'').trim();
   const key=(window.HIMFIT_SUPABASE_ANON_KEY||'').trim();
   const st=document.getElementById('cloud-auth-status');
   const em=document.getElementById('cloud-email');
-  const send=document.getElementById('cloud-send-btn');
+  const pw=document.getElementById('cloud-password');
+  const signInBtn=document.getElementById('cloud-signin-btn');
+  const signUpBtn=document.getElementById('cloud-signup-btn');
   himfitCloudConfigured=!!(url&&key);
   if(!himfitCloudConfigured){
-    if(st)st.textContent='';
+    if(st){st.textContent='';st.classList.remove('err');}
     if(em){em.disabled=true;em.style.opacity='0.5';}
-    if(send){send.disabled=true;send.style.opacity='0.5';}
+    if(pw){pw.disabled=true;pw.style.opacity='0.5';}
+    if(signInBtn){signInBtn.disabled=true;signInBtn.style.opacity='0.5';}
+    if(signUpBtn){signUpBtn.disabled=true;signUpBtn.style.opacity='0.5';}
     return;
   }
   if(em){em.disabled=false;em.style.opacity='';}
-  if(send){send.disabled=false;send.style.opacity='';}
+  if(pw){pw.disabled=false;pw.style.opacity='';}
+  if(signInBtn){signInBtn.disabled=false;signInBtn.style.opacity='';}
+  if(signUpBtn){signUpBtn.disabled=false;signUpBtn.style.opacity='';}
   try{
     const mod=await import('https://esm.sh/@supabase/supabase-js@2.49.8');
     himfitSupabase=mod.createClient(url,key,{auth:{
@@ -2159,59 +2158,69 @@ function updateAuthShellVisibility(){
 function updateCloudSettingsUI(user){
   const st=document.getElementById('cloud-auth-status');
   const em=document.getElementById('cloud-email');
-  const send=document.getElementById('cloud-send-btn');
+  const pw=document.getElementById('cloud-password');
+  const signInBtn=document.getElementById('cloud-signin-btn');
+  const signUpBtn=document.getElementById('cloud-signup-btn');
   const ovw=document.getElementById('overview-cloud-account');
   const ove=document.getElementById('overview-account-email');
   if(!himfitCloudConfigured){
-    if(st)st.textContent='';
+    if(st){st.textContent='';st.classList.remove('err');}
     if(ovw)ovw.style.display='none';
     if(em){em.disabled=true;em.style.opacity='0.5';}
-    if(send){send.disabled=true;send.style.opacity='0.5';}
+    if(pw){pw.disabled=true;pw.style.opacity='0.5';}
+    if(signInBtn){signInBtn.disabled=true;signInBtn.style.opacity='0.5';}
+    if(signUpBtn){signUpBtn.disabled=true;signUpBtn.style.opacity='0.5';}
     return;
   }
   if(em){em.disabled=false;em.style.opacity='';}
-  if(send){send.disabled=false;send.style.opacity='';}
+  if(pw){pw.disabled=false;pw.style.opacity='';}
+  if(signInBtn){signInBtn.disabled=false;signInBtn.style.opacity='';}
+  if(signUpBtn){signUpBtn.disabled=false;signUpBtn.style.opacity='';}
   if(user){
-    if(st)st.textContent='';
+    himfitSetCloudAuthStatus('',false);
     if(em)em.style.display='none';
-    if(send)send.style.display='none';
+    if(pw)pw.style.display='none';
+    if(signInBtn)signInBtn.style.display='none';
+    if(signUpBtn)signUpBtn.style.display='none';
     if(ovw){ovw.style.display='block';if(ove)ove.textContent='Signed in as '+user.email+'. Your journey syncs as you train.';}
   }else{
-    if(st)st.textContent='';
     if(em)em.style.display='block';
-    if(send)send.style.display='block';
+    if(pw)pw.style.display='block';
+    if(signInBtn)signInBtn.style.display='block';
+    if(signUpBtn)signUpBtn.style.display='block';
     if(ovw)ovw.style.display='none';
   }
 }
-async function sendHimfitMagicLink(){
-  const st=document.getElementById('cloud-auth-status');
+async function himfitSignInWithPassword(){
+  himfitSetCloudAuthStatus('',false);
   if(!himfitCloudConfigured||!himfitSupabase){
-    if(st)st.textContent='Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.';
+    himfitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
     return;
   }
-  const el=document.getElementById('cloud-email');
-  const email=(el?.value||'').trim();
-  if(!email){if(st)st.textContent='Enter your email.';return;}
-  const redirectTo=himfitAuthRedirectUrl();
-  try{
-    const h=new URL(redirectTo).hostname;
-    if(h==='localhost'||h==='127.0.0.1'){
-      if(st)st.textContent='Magic link would open localhost — set window.HIMFIT_AUTH_REDIRECT_URL in himfit-config.js to your live HimFit URL (e.g. GitHub Pages), push, then use the live site to send links. In Supabase → Auth → URL configuration, set Site URL to that same live URL (not localhost).';
-      return;
-    }
-  }catch(e){
-    if(st)st.textContent='Invalid redirect URL in himfit-config.js. Check HIMFIT_AUTH_REDIRECT_URL.';
+  const email=(document.getElementById('cloud-email')?.value||'').trim();
+  const password=(document.getElementById('cloud-password')?.value||'').trim();
+  if(!email){himfitSetCloudAuthStatus('Enter your email.',true);return;}
+  if(!password){himfitSetCloudAuthStatus('Enter your password.',true);return;}
+  const {error}=await himfitSupabase.auth.signInWithPassword({email,password});
+  if(error)himfitSetCloudAuthStatus(error.message||'Sign-in failed.',true);
+}
+async function himfitSignUpWithPassword(){
+  himfitSetCloudAuthStatus('',false);
+  if(!himfitCloudConfigured||!himfitSupabase){
+    himfitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
     return;
   }
-  const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:redirectTo}});
-  if(st){
-    if(error){
-      const msg=(error.message||'').toLowerCase();
-      if(msg.includes('rate')||msg.includes('too many')||(error.status|0)===429){
-        st.textContent='Too many sign-in emails from Supabase — wait several minutes. If you already signed in on this browser, try a normal refresh; your session is usually saved.';
-      }else st.textContent='Error: '+error.message;
-    }else st.textContent='Email sent. Open the link in that message on this device to finish signing in.';
+  const email=(document.getElementById('cloud-email')?.value||'').trim();
+  const password=(document.getElementById('cloud-password')?.value||'').trim();
+  if(!email){himfitSetCloudAuthStatus('Enter your email.',true);return;}
+  if(!password){himfitSetCloudAuthStatus('Choose a password (min. length set in Supabase).',true);return;}
+  const {data,error}=await himfitSupabase.auth.signUp({email,password});
+  if(error){
+    himfitSetCloudAuthStatus(error.message||'Could not create account.',true);
+    return;
   }
+  if(data.session)himfitSetCloudAuthStatus('',false);
+  else himfitSetCloudAuthStatus('Account created. If your project still requires email confirmation, check your inbox; otherwise try Sign In.',false);
 }
 async function himfitSignOut(){
   if(himfitSupabase)await himfitSupabase.auth.signOut();

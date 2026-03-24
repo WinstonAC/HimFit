@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" style="stop-color:#3d1520"/>
+      <stop offset="55%" style="stop-color:#2a1018"/>
+      <stop offset="100%" style="stop-color:#1a0a0f"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>
+  <g fill="none" stroke="#c9984a" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Shoe (left), chunky stroke for home-screen size -->
+    <path d="M 106 276
+             L 106 300 Q 110 320 132 322 L 214 322 Q 238 320 244 296
+             L 250 266 Q 256 226 218 214 L 168 208 Q 124 214 112 250 Z"/>
+    <path d="M 168 208 L 180 188 Q 194 176 212 186"/>
+    <path d="M 112 250 Q 132 240 158 246"/>
+    <!-- Dumbbell: bar between plate inner edges -->
+    <line x1="288" y1="266" x2="344" y2="266"/>
+    <circle cx="258" cy="266" r="30"/>
+    <circle cx="374" cy="266" r="30"/>
+  </g>
+</svg>
