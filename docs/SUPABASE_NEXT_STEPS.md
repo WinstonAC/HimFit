@@ -1,7 +1,4 @@
 # Quick pointer
 
-The full ordered checklist (SQL, Auth URLs, **custom HimFit email HTML**, SMTP, `himfit-config.js`, testing) lives here:
-
-**[`SUPABASE_FULL_SETUP.md`](SUPABASE_FULL_SETUP.md)**
-
-Use that file as your single source of truth for wiring Supabase end-to-end.
+- **Step 3 + 4 (email copy files + keys + ship to users):** [`STEP_3_AND_4.md`](STEP_3_AND_4.md)
+- **Full Supabase guide:** [`SUPABASE_FULL_SETUP.md`](SUPABASE_FULL_SETUP.md)

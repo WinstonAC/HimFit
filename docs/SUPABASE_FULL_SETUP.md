@@ -57,66 +57,26 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
 
 ## Part C — Branded HimFit emails (templates)
 
-1. **Authentication** → **Email Templates**.
-2. Use the **subject lines** and **HTML bodies** below. **Do not remove** the Supabase variables (e.g. `{{ .ConfirmationURL }}`) or the link will break.
+**Copy-paste files (avoids broken preview / markdown):**
 
-### Magic Link — **Subject**
+| What | File in repo |
+|------|----------------|
+| Magic link **subject** (one line) | **`docs/email-magic-link-subject.txt`** |
+| Magic link **HTML body** | **`docs/email-magic-link-body.html`** |
 
-```
-HimFit — your private entrance
-```
+1. **Authentication** → **Email Templates** → **Magic link**.
+2. Paste **subject** from `email-magic-link-subject.txt`.
+3. Open `email-magic-link-body.html` → select all → copy → paste into the template body (use **Source** / HTML mode if available).
+4. **Save**.
 
-### Magic Link — **Body** (HTML)
+**Do not remove** `{{ .ConfirmationURL }}` or `{{ .Email }}`. Support line uses plain `info@williamacampbell.com` — edit that file if you want a different address.
 
-Paste this entire block into the **Magic link** template in the dashboard:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HimFit</title>
-</head>
-<body style="margin:0;padding:0;background-color:#14080c;font-family:Georgia,'Times New Roman',serif;-webkit-font-smoothing:antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#14080c;padding:40px 16px;">
-    <tr>
-      <td align="center">
-        <table role="presentation" width="100%" style="max-width:560px;background:linear-gradient(165deg,#2d1520 0%,#1a0a0f 45%,#141418 100%);border:1px solid rgba(201,152,74,0.25);border-radius:16px;overflow:hidden;">
-          <tr>
-            <td style="padding:40px 36px 28px;text-align:center;">
-              <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.35em;text-transform:uppercase;color:#9a9590;">HimFit</p>
-              <h1 style="margin:0;font-size:36px;line-height:1;font-weight:400;color:#f0eeeb;letter-spacing:0.02em;">Your journey<br><span style="color:#c9984a;">awaits</span></h1>
-              <p style="margin:22px 0 0;font-size:15px;line-height:1.65;color:#c4bfb8;font-weight:300;">A single, discreet link — no password. Tap below to return to your program, signed in.</p>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:0 36px 32px;text-align:center;">
-              <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:16px 36px;background:linear-gradient(165deg,rgba(201,152,74,0.2) 0%,rgba(139,38,53,0.25) 100%);border:1px solid rgba(201,152,74,0.45);border-radius:10px;color:#f0eeeb;text-decoration:none;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;font-family:Arial,sans-serif;">Enter HimFit</a>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding:0 36px 36px;text-align:center;">
-              <p style="margin:0;font-size:12px;line-height:1.6;color:#6a6560;">If you didn’t request this, you may ignore this note.</p>
-              <p style="margin:16px 0 0;font-size:11px;line-height:1.5;color:#5a5550;">{{ .Email }}</p>
-            </td>
-          </tr>
-        </table>
-        <p style="margin:28px 0 0;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4540;">Twelve weeks · strength · half marathon build</p>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-```
-
-> **Variable check:** Supabase must still inject `{{ .ConfirmationURL }}` into the **href** of the button. If your dashboard shows a different variable name for magic links, replace only that token — see [Auth email templates](https://supabase.com/docs/guides/auth/auth-email-templates).
+Full walkthrough for Step 3 + Step 4 together: **`docs/STEP_3_AND_4.md`**.
 
 ### Optional — **Confirm signup** (if you use “confirm email” + signup flow)
 
-**Subject:** `HimFit — confirm your email`
-
-Use the same layout as above but replace the button **href** with `{{ .ConfirmationURL }}` (confirm template uses the same variable in most Supabase versions).
+**Subject:** `HimFit — confirm your email`  
+**Body:** duplicate `email-magic-link-body.html` into that template; keep `{{ .ConfirmationURL }}` on the button.
 
 ---
 
