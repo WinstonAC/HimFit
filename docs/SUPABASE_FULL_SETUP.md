@@ -134,7 +134,15 @@ Until SMTP is set, branded **design** still works in the inbox; only the **from*
 
 ## Part E — Frontend (GitHub Pages)
 
-### Step 6 — API keys (safe in the browser)
+### Why the browser needs URL + `anon` key (read this if Step 4 felt scary)
+
+- Supabase **already stores** your project URL and keys in the dashboard. You are **copying** the pieces the **website** needs to call Auth + your database over HTTPS.
+- The **`anon` `public` key** is **designed to ship in front-end apps**. It is **not** a private password. Access is limited by **RLS** (your policies): users can only read/write **their own** `himfit_profiles` row.
+- **Never** paste the **`service_role`** key into `himfit-config.js`, `index.html`, or GitHub — that key **bypasses RLS** and must stay server-side only.
+
+There is **no** magic way for a static GitHub Pages app to sign people in **without** the `anon` key being present in the JavaScript the browser downloads. If the repo is public and that bothers you, use a **private repo** or accept that the anon key is public by design (same as most Supabase + SPA tutorials).
+
+### Step 6 — API keys (copy from dashboard)
 
 1. Supabase → **Project Settings** → **API**.
 2. Copy:
