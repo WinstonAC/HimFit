@@ -307,7 +307,10 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .auth-gate-status{min-height:44px;font-size:12px;color:var(--hint);line-height:1.5;margin-bottom:8px;font-weight:300}
 .auth-gate .log-input{text-align:center;margin-bottom:14px}
 .auth-gate .auth-gate-btn{width:100%;max-width:100%}
+.auth-gate-foot{margin:20px 0 0;font-size:10px;color:var(--hint);line-height:1.5;font-weight:300;max-width:320px;margin-left:auto;margin-right:auto}
 #app-shell.hid{display:none!important}
+.overview-account-card{margin-bottom:14px}
+.overview-account-card .overview-signout{width:100%;padding:12px 16px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -425,6 +428,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div id="cloud-auth-status" class="auth-gate-status"></div>
     <input type="email" class="log-input" id="cloud-email" placeholder="Email address" autocomplete="email" inputmode="email">
     <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-send-btn" onclick="sendHimfitMagicLink()">Send link</button>
+    <p class="auth-gate-foot">Already signed in on this device? After you open the app, use <strong>Overview → Sign out</strong>. Bookmark <strong>#signin</strong> on this page’s URL to force this screen (you’ll be signed out first).</p>
   </div>
 </div>
 
@@ -473,7 +477,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <div class="card-s" id="profile-strip-wrap" style="margin-bottom:14px;display:none">
     <div class="slbl" id="profile-strip-slbl" style="margin-bottom:8px">Your profile</div>
     <div id="profile-strip"></div>
-    <p class="sub" style="margin-top:10px;margin-bottom:0;font-size:10px">Edit in <strong>Settings</strong> below.</p>
+    <p class="sub" style="margin-top:10px;margin-bottom:0;font-size:10px">Edit profile in <strong>Settings</strong> below.</p>
   </div>
 
   <div class="slbl">Three Phases</div>
@@ -517,13 +521,13 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
       </div>
       <button type="button" class="log-save" style="width:auto;padding:8px 14px;margin:0" onclick="openIntake(true)">Edit</button>
     </div>
-    <div class="settings-row" id="settings-account-row" style="display:none">
-      <div class="settings-copy">
-        <div class="settings-title">Account</div>
-        <div class="settings-desc" id="settings-account-desc"></div>
-      </div>
-      <button type="button" class="log-save intake-skip" id="settings-signout-btn" style="width:auto;padding:8px 14px;margin:0" onclick="himfitSignOut()">Sign out</button>
-    </div>
+  </div>
+
+  <div id="overview-cloud-account" class="card-s overview-account-card" style="display:none">
+    <div class="slbl" style="margin-bottom:6px">Account</div>
+    <p id="overview-account-email" style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:4px"></p>
+    <p class="sub" style="margin:0 0 10px;font-size:10px">Each phone or browser signs in separately. Sign out here to use another email or see the sign-in screen on this device.</p>
+    <button type="button" class="log-save intake-skip overview-signout" onclick="himfitSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -2113,13 +2117,11 @@ function updateCloudSettingsUI(user){
   const st=document.getElementById('cloud-auth-status');
   const em=document.getElementById('cloud-email');
   const send=document.getElementById('cloud-send-btn');
-  const accRow=document.getElementById('settings-account-row');
-  const accDesc=document.getElementById('settings-account-desc');
-  const sOut=document.getElementById('settings-signout-btn');
+  const ovw=document.getElementById('overview-cloud-account');
+  const ove=document.getElementById('overview-account-email');
   if(!himfitCloudConfigured){
     if(st)st.textContent='';
-    if(accRow)accRow.style.display='none';
-    if(sOut)sOut.style.display='none';
+    if(ovw)ovw.style.display='none';
     if(em){em.disabled=true;em.style.opacity='0.5';}
     if(send){send.disabled=true;send.style.opacity='0.5';}
     return;
@@ -2130,15 +2132,12 @@ function updateCloudSettingsUI(user){
     if(st)st.textContent='';
     if(em)em.style.display='none';
     if(send)send.style.display='none';
-    if(accRow)accRow.style.display='flex';
-    if(accDesc)accDesc.textContent='Signed in as '+user.email+'. Your journey syncs as you train.';
-    if(sOut)sOut.style.display='inline-block';
+    if(ovw){ovw.style.display='block';if(ove)ove.textContent='Signed in as '+user.email+'. Your journey syncs as you train.';}
   }else{
     if(st)st.textContent='';
     if(em)em.style.display='block';
     if(send)send.style.display='block';
-    if(accRow)accRow.style.display='none';
-    if(sOut)sOut.style.display='none';
+    if(ovw)ovw.style.display='none';
   }
 }
 async function sendHimfitMagicLink(){
@@ -2200,6 +2199,13 @@ async function pullCloudStateIntoApp(){
 // ─────────────────────────────────────────────
 (async function runHimfitInit(){
   await initHimfitCloud();
+  const hash=(location.hash||'').toLowerCase();
+  if((hash==='#signin'||hash==='#login')&&himfitCloudConfigured&&himfitAuthUser){
+    await himfitSignOut();
+  }
+  if(hash==='#signin'||hash==='#login'){
+    try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+  }
   updateAuthShellVisibility();
   const blocked=himfitCloudConfigured&&!himfitAuthUser;
   refreshStravaOwnerUI();
