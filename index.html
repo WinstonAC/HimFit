@@ -267,7 +267,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .intake-field label{display:block;font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:#c4bfb8;margin-bottom:6px}
 .intake-field .sub{font-size:11.5px;color:#b0aaa2;line-height:1.5;margin-top:0;margin-bottom:0}
 .intake-field textarea.log-input{min-height:56px;resize:vertical}
-.intake-card .log-input{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);color:var(--w)}
+.intake-card .log-input{background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.16);color:var(--w);font-size:16px}
 .intake-card .log-input:focus{border-color:var(--gold);background:rgba(255,255,255,0.11)}
 .intake-card .log-input::placeholder{color:#8a8580}
 .intake-card select.log-input{color:var(--w)}
@@ -1934,10 +1934,15 @@ function populateIntakeForm(){
   setGoalChecksFromList(intakeGoals(i));
 }
 
+let _intakeLockY=0;
 function openIntake(edit){
   const ov=document.getElementById('intake-overlay');
   if(!ov)return;
   ov.classList.remove('hid');
+  _intakeLockY=window.scrollY||0;
+  document.body.style.top='-'+_intakeLockY+'px';
+  document.body.style.position='fixed';
+  document.body.style.width='100%';
   document.body.style.overflow='hidden';
   document.getElementById('intake-cancel-btn').style.display=edit?'block':'none';
   populateIntakeForm();
@@ -1946,7 +1951,11 @@ function openIntake(edit){
 function closeIntake(){
   const ov=document.getElementById('intake-overlay');
   if(ov)ov.classList.add('hid');
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.width='';
   document.body.style.overflow='';
+  window.scrollTo(0,_intakeLockY);
 }
 
 function submitIntake(){
@@ -2380,6 +2389,10 @@ async function pullCloudStateIntoApp(){
   const io=document.getElementById('intake-overlay');
   if(!blocked&&S.intakeComplete!==true){
     io.classList.remove('hid');
+    _intakeLockY=window.scrollY||0;
+    document.body.style.top='-'+_intakeLockY+'px';
+    document.body.style.position='fixed';
+    document.body.style.width='100%';
     document.body.style.overflow='hidden';
     document.getElementById('intake-cancel-btn').style.display='none';
   }else{
