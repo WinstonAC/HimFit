@@ -10,4 +10,4 @@ window.HIMFIT_AUTH_REDIRECT_URL = 'https://winstonac.github.io/HimFit/';
 // 1) Sign into HimFit once (magic link). 2) Supabase → Authentication → Users → your row → copy User UID.
 // 3) Paste UUID below, save, push to GitHub Pages. 4) Open app signed in → Overview → Settings → Strava on.
 // Leave empty = no Strava row for anyone (manual run log still works for everyone).
-window.HIMFIT_STRAVA_OWNER_USER_ID = '';
+window.HIMFIT_STRAVA_OWNER_USER_ID = 'a757e5d1-b408-4f00-b9fa-351222e2a2ed';
