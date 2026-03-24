@@ -226,6 +226,24 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .view.active>*:nth-child(3){animation-delay:.07s}
 .view.active>*:nth-child(4){animation-delay:.1s}
 .view.active>*:nth-child(5){animation-delay:.13s}
+
+/* INGREDIENTS + SHOP */
+.mcard-expand{margin-top:8px;padding:6px 10px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;background:transparent;border:.5px solid var(--bdr2);border-radius:var(--rad-s);color:var(--mut);cursor:pointer;width:100%}
+.ing-list{flex-direction:column;gap:4px;margin-top:8px;padding-top:8px;border-top:.5px solid var(--bdr)}
+.ing-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;background:var(--sur2);border-radius:var(--rad-s)}
+.ing-name{flex:1;font-size:12px;color:var(--w)}
+.ing-add{flex-shrink:0;width:28px;height:28px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:transparent;color:var(--gold);font-size:16px;line-height:1;cursor:pointer}
+.ing-add.added{background:var(--green-lt);border-color:var(--green);color:#5dbf8a}
+.sl-empty{text-align:center;font-size:12px;color:var(--hint);line-height:1.6;padding:24px 16px}
+.sl-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);margin-bottom:6px;cursor:pointer}
+.sl-item.on{opacity:.65}
+.sl-check{width:18px;height:18px;border-radius:3px;border:.5px solid var(--bdr2);flex-shrink:0}
+.sl-check.on{background:var(--gold-lt);border-color:var(--gold)}
+.sl-name{flex:1;font-size:13px}
+.sl-del{background:transparent;border:none;color:var(--hint);font-size:16px;padding:4px;cursor:pointer;flex-shrink:0}
+.shop-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.shop-action{flex:1;min-width:120px;padding:9px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:transparent;color:var(--mut);font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.shop-count{font-size:11px;color:var(--mut);margin-bottom:0}
 </style>
 </head>
 <body>
@@ -250,6 +268,10 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <button class="bni" onclick="go('fuel',this)">
     <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-4 9H9c-1-3-4-5-4-9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
     Fuel
+  </button>
+  <button class="bni" onclick="go('shop',this)">
+    <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+    Shop
   </button>
 </nav>
 
@@ -397,6 +419,24 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="supr"><span class="sn2">During workout + sauna</span><span class="sd">1 litre</span></div>
     <div class="supr"><span class="sn2">Across the day</span><span class="sd">3–4 litres total</span></div>
   </div>
+</div>
+
+<!-- ── SHOP ───────────────────────────────────── -->
+<div id="view-shop" class="view">
+  <div class="hero" style="padding:22px">
+    <div class="h-eye">From Fuel</div>
+    <div class="h-name" style="font-size:40px;margin-bottom:10px">SHOP<em>PING</em></div>
+    <div id="shop-count" class="shop-count">0 items</div>
+  </div>
+  <div class="card-s" style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <input class="log-input" id="custom-input" type="text" placeholder="Add custom item" style="flex:1;min-width:140px">
+    <button type="button" class="log-save" style="width:auto;flex-shrink:0;padding:9px 16px" onclick="addCustomItem()">Add</button>
+  </div>
+  <div class="shop-actions" style="margin-bottom:16px">
+    <button type="button" class="shop-action" onclick="clearDone()">Clear done</button>
+    <button type="button" class="shop-action" onclick="clearAll()">Clear all</button>
+  </div>
+  <div id="shop-list-items"></div>
 </div>
 
 <script>
@@ -596,8 +636,9 @@ const MEALS={
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-let S={week:1,day:0,done:{},runs:[]};
+let S={week:1,day:0,done:{},runs:[],shopList:[]};
 try{const d=localStorage.getItem('hf4');if(d)S=JSON.parse(d)}catch(e){}
+if(!Array.isArray(S.shopList))S.shopList=[];
 function save(){try{localStorage.setItem('hf4',JSON.stringify(S))}catch(e){}}
 
 // ─────────────────────────────────────────────
@@ -617,6 +658,7 @@ function go(v,btn){
   if(v==='plan')buildPlan();
   if(v==='fuel')buildFuel();
   if(v==='runs')buildRunLog();
+  if(v==='shop')buildShopView();
   updProg();
 }
 
@@ -824,11 +866,88 @@ function delRun(i){S.runs.splice(i,1);save();buildRunLog()}
 // ─────────────────────────────────────────────
 // FUEL
 // ─────────────────────────────────────────────
+function parseIngs(str){
+  return str.split('\n')
+    .map(s=>s.replace(/^Or:\s*/i,'').trim())
+    .filter(s=>s.length>3 && !s.match(/^~|^\+|^Sip|^Start|^This|^Add /))
+    .map(s=>s.replace(/\s*\(.*?\)/g,'').replace(/\s*—.*/,'').trim())
+    .filter(s=>s.length>3);
+}
+
 function buildFuel(){
   const day=DAYS[S.day];
   const type=day.type==='lift'?'lift':day.type==='run'?'run':day.type==='kb'?'kb':'longrun';
   document.getElementById('fuel-day').textContent=`${day.name} — ${day.sub}`;
-  document.getElementById('meal-list').innerHTML=MEALS[type].map(m=>`<div class="mcard"><div class="mt">${m.t}</div><div class="mn">${m.n}</div><div class="mi">${m.i.replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${m.note}</div>`:''}</div>`).join('');
+  document.getElementById('meal-list').innerHTML=MEALS[type].map((m,mi)=>{
+    const ings=parseIngs(m.i);
+    const ingRows=ings.map((ing,ii)=>{
+      const added=(S.shopList||[]).some(x=>x.text===ing);
+      return`<div class="ing-row"><div class="ing-name">${ing}</div><button class="ing-add${added?' added':''}" onclick="addToShop('${ing.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}',this)">${added?'&#10003;':'+'}</button></div>`;
+    }).join('');
+    return`<div class="mcard"><div class="mt">${m.t}</div><div class="mn">${m.n}</div><div class="mi">${m.i.replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${m.note}</div>`:''
+    }${ings.length?`<button class="mcard-expand" onclick="toggleIngList(this)">Ingredients</button><div class="ing-list" style="display:none">${ingRows}</div>`:''}</div>`;
+  }).join('');
+}
+
+function toggleIngList(btn){
+  const list=btn.nextElementSibling;
+  const open=list.style.display!=='none';
+  list.style.display=open?'none':'flex';
+  btn.textContent=open?'Ingredients':'Hide';
+}
+
+function addToShop(text,btn){
+  if(!S.shopList)S.shopList=[];
+  const exists=S.shopList.some(x=>x.text===text);
+  if(exists){
+    S.shopList=S.shopList.filter(x=>x.text!==text);
+    btn.textContent='+';btn.classList.remove('added');
+  }else{
+    S.shopList.push({text,done:false,custom:false});
+    btn.textContent='\u2713';btn.classList.add('added');
+  }
+  save();updateShopCount();
+}
+
+function addCustomItem(){
+  const input=document.getElementById('custom-input');
+  const text=input.value.trim();if(!text)return;
+  if(!S.shopList)S.shopList=[];
+  if(!S.shopList.some(x=>x.text===text)){S.shopList.push({text,done:false,custom:true});save();}
+  input.value='';buildShopView();
+}
+
+function toggleShopItem(idx){S.shopList[idx].done=!S.shopList[idx].done;save();buildShopView();}
+
+function delShopItem(idx){
+  S.shopList.splice(idx,1);save();buildShopView();
+  if(document.getElementById('view-fuel').classList.contains('active'))buildFuel();
+}
+
+function clearDone(){S.shopList=S.shopList.filter(x=>!x.done);save();buildShopView();}
+
+function clearAll(){
+  S.shopList=[];save();buildShopView();
+  if(document.getElementById('view-fuel').classList.contains('active'))buildFuel();
+}
+
+function updateShopCount(){
+  const el=document.getElementById('shop-count');if(!el)return;
+  const n=(S.shopList||[]).length,d=(S.shopList||[]).filter(x=>x.done).length;
+  el.textContent=n===0?'0 items':`${n-d} remaining · ${d} ticked`;
+}
+
+function buildShopView(){
+  if(!S.shopList)S.shopList=[];
+  updateShopCount();
+  const el=document.getElementById('shop-list-items');if(!el)return;
+  if(!S.shopList.length){
+    el.innerHTML='<div class="sl-empty">Your list is empty.<br>Go to Fuel, open a meal,<br>tap + on any ingredient.</div>';return;
+  }
+  const active=S.shopList.map((x,i)=>({...x,i})).filter(x=>!x.done);
+  const ticked=S.shopList.map((x,i)=>({...x,i})).filter(x=>x.done);
+  const row=items=>items.map(x=>`<div class="sl-item${x.done?' on':''}" onclick="toggleShopItem(${x.i})"><div class="sl-check${x.done?' on':''}"></div><div class="sl-name">${x.text}</div><button class="sl-del" onclick="event.stopPropagation();delShopItem(${x.i})">&#215;</button></div>`).join('');
+  el.innerHTML=row(active)+(ticked.length?'<div style="padding:8px 0 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hint)">Done</div>'+row(ticked):'');
 }
 
 function chDay(dir){S.day=(S.day+dir+6)%6;save();buildDay()}
@@ -837,7 +956,7 @@ function toggleDone(){const k=dkey();S.done[k]=!S.done[k];save();buildDay();updP
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
-buildPlan();buildDay();buildFuel();buildRunLog();updProg();
+buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
 </script>
 </body>
 </html>
