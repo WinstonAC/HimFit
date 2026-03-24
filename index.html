@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HimFit">
+<meta name="theme-color" content="#1a0a0f">
+<title>HimFit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg-a:#1a0a0f;--bg-b:#2d1520;--bg-c:#1c1c22;
+  --sur:rgba(255,255,255,0.05);--sur2:rgba(255,255,255,0.08);--sur3:rgba(255,255,255,0.03);
+  --bdr:rgba(255,255,255,0.08);--bdr2:rgba(255,255,255,0.14);
+  --w:#f0eeeb;--mut:#9a9590;--hint:#5a5550;
+  --gold:#c9984a;--gold-lt:rgba(201,152,74,0.15);
+  --red:#8B2635;--red-lt:rgba(139,38,53,0.2);
+  --green:#2a6b4a;--green-lt:rgba(42,107,74,0.18);
+  --blue-lt:rgba(80,120,200,0.15);
+  --rad:14px;--rad-s:9px;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+}
+html{min-height:100%;background:var(--bg-a)}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 35%,var(--bg-c) 70%,#141418 100%);background-attachment:fixed;color:var(--w);min-height:100vh;padding-bottom:calc(66px + var(--sb));-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:'DM Sans',sans-serif}
+.disp{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em}
+
+/* VIEWS */
+.view{display:none;padding:16px;padding-top:calc(18px + var(--st));max-width:600px;margin:0 auto}
+.view.active{display:block}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;height:calc(58px + var(--sb));background:rgba(14,5,9,0.92);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:.5px solid var(--bdr2);display:flex;align-items:flex-start;padding-top:10px;z-index:300}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:transparent;font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);transition:color .2s;padding:0;cursor:pointer}
+.bni svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0;transition:stroke .2s}
+.bni.active{color:var(--w)}
+
+/* COMMON */
+.slbl{font-size:9px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.slbl::after{content:'';flex:1;height:.5px;background:var(--bdr)}
+.card{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad);padding:18px;margin-bottom:12px}
+.card-s{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:14px}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,rgba(139,38,53,0.38) 0%,rgba(70,15,28,0.28) 55%,rgba(28,28,34,0.38) 100%);border:.5px solid rgba(139,38,53,0.25);border-radius:var(--rad);padding:26px 22px 20px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(139,38,53,0.18) 0%,transparent 70%);pointer-events:none}
+.h-eye{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.h-name{font-family:'Bebas Neue',sans-serif;font-size:54px;line-height:.9;margin-bottom:18px}
+.h-name em{color:var(--gold);font-style:normal}
+.h-stats{display:flex;border-top:.5px solid var(--bdr);padding-top:14px;margin-bottom:14px}
+.hst{flex:1;border-right:.5px solid var(--bdr)}
+.hst:last-child{border:none;padding-left:14px}
+.hst:first-child{padding-right:14px}
+.hst:nth-child(2){padding:0 14px}
+.hst-n{display:block;font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1}
+.hst-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)}
+.prog-row{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.prog-tr{background:rgba(255,255,255,0.07);border-radius:2px;height:2px}
+.prog-fi{background:linear-gradient(90deg,var(--red),var(--gold));border-radius:2px;height:2px;transition:width .7s ease;min-width:2px}
+
+/* PHASE */
+.ph-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.phc{border-radius:var(--rad-s);padding:13px 11px;border:.5px solid var(--bdr);background:var(--sur);border-top:2px solid}
+.phc1{border-top-color:var(--hint)}.phc2{border-top-color:var(--mut)}.phc3{border-top-color:var(--gold)}
+.phc-n{font-family:'Bebas Neue',sans-serif;font-size:19px;margin-bottom:1px}
+.phc-w{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);margin-bottom:5px}
+.phc-d{font-size:11px;color:var(--mut);line-height:1.5}
+
+/* SPLIT LIST */
+.sp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+.sp-item{display:flex;align-items:center;gap:12px;background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:11px 13px}
+.sp-day{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;color:var(--hint);width:26px;flex-shrink:0}
+.sp-foc{font-size:13px;flex:1}
+.tag{font-size:9px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:3px 7px;border-radius:3px}
+.tl{background:var(--sur2);color:var(--mut)}
+.tr{background:var(--green-lt);color:#5dbf8a}
+.tk{background:var(--gold-lt);color:var(--gold)}
+
+/* WEEK GRID */
+.wg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wk{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:12px 10px;cursor:pointer;transition:all .15s}
+.wk:active{transform:scale(.97)}
+.wk.cur{border-color:var(--gold);background:var(--gold-lt)}
+.wk-n{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;margin-bottom:2px}
+.wk-p{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px}
+.pb{color:var(--hint)}.pd{color:var(--mut)}.pp{color:var(--gold)}
+.dots{display:flex;gap:4px}
+.dot{width:6px;height:6px;border-radius:1px;background:var(--hint)}
+.dot.dn{background:var(--mut)}.dot.ac{background:var(--gold)}
+
+/* DAY HEADER */
+.dhdr{background:var(--sur);border:.5px solid var(--bdr2);border-radius:var(--rad);padding:16px;margin-bottom:10px}
+.dnav{display:flex;align-items:center;gap:8px;margin-bottom:13px}
+.dnb{width:32px;height:32px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:transparent;color:var(--w);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.dnb:active{background:var(--sur2)}
+.wind{flex:1;text-align:center;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+.dtabs{display:flex;gap:5px;margin-bottom:13px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.dtabs::-webkit-scrollbar{display:none}
+.dtab{padding:5px 12px;border-radius:3px;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;border:.5px solid var(--bdr);background:transparent;color:var(--hint);white-space:nowrap;cursor:pointer;transition:all .15s}
+.dtab.al{background:var(--w);border-color:var(--w);color:#1a0a0f}
+.dtab.ar{background:var(--w);border-color:var(--w);color:#1a0a0f}
+.dtab.ak{background:var(--w);border-color:var(--w);color:#1a0a0f}
+.d-big{font-family:'Bebas Neue',sans-serif;font-size:40px;line-height:.9;margin-bottom:4px}
+.d-sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:2px}
+.d-meta{font-size:11px;color:var(--hint)}
+
+/* SEGMENTS */
+.seg{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);margin-bottom:8px;overflow:hidden}
+.shdr{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer}
+.shdr-l{display:flex;align-items:center;gap:10px}
+.spip{width:3px;height:30px;border-radius:2px;flex-shrink:0}
+.pwu{background:var(--mut)}.plift{background:var(--w)}.prun{background:#5dbf8a}
+.pback{background:#e06070}.pkb{background:var(--gold)}.pcd{background:var(--hint)}
+.psauna{background:var(--gold)}.plog{background:#5b9bd5}
+.slbl2{font-size:13px;font-weight:500}
+.smeta{font-size:10px;color:var(--mut)}
+.schev{color:var(--hint);font-size:16px;transition:transform .2s;line-height:1}
+.schev.op{transform:rotate(180deg)}
+.sbody{display:none;padding:0 14px 13px}
+.sbody.op{display:block}
+
+/* EXERCISE ROWS */
+.ext{font-size:9px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--hint);padding:8px 0 5px;border-bottom:.5px solid var(--bdr);margin-bottom:7px}
+.exr{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:start;padding:7px 0;border-bottom:.5px solid rgba(255,255,255,0.04)}
+.exr:last-of-type{border:none}
+.exi{font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--hint);line-height:1.3}
+.exn{font-size:13px;font-weight:500;line-height:1.3}
+.exno{font-size:11px;color:var(--mut);margin-top:2px;line-height:1.4}
+.exw{display:inline-block;background:var(--red-lt);color:#e06070;font-size:10px;padding:1px 5px;border-radius:3px;margin-top:2px}
+.exs{font-size:12px;font-weight:500;color:var(--w);white-space:nowrap;text-align:right;padding-top:1px}
+
+/* VIDEO LINK BUTTON */
+.vid-btn{display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:3px 8px;border-radius:3px;background:rgba(255,100,100,0.1);border:.5px solid rgba(255,100,100,0.25);color:#ff8080;font-size:10px;font-weight:500;letter-spacing:.5px;text-decoration:none;cursor:pointer}
+.vid-btn:hover{background:rgba(255,100,100,0.18)}
+.vid-btn svg{width:10px;height:10px;fill:currentColor;flex-shrink:0}
+
+.rest-n{margin-top:7px;padding:6px 10px;border-left:2px solid var(--hint);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--hint)}
+
+/* SET TABLE */
+.stbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
+.stbl th{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);text-align:left;padding:5px 0;border-bottom:.5px solid var(--bdr);font-weight:500}
+.stbl td{padding:6px 0;border-bottom:.5px solid rgba(255,255,255,0.04)}
+.stbl tr:last-child td{border:none}
+
+/* STRETCH */
+.strl{display:flex;flex-direction:column;gap:5px}
+.strr{display:flex;align-items:center;gap:9px;padding:6px 9px;background:var(--sur2);border-radius:var(--rad-s)}
+.strn{width:18px;height:18px;border-radius:3px;background:var(--sur2);font-size:10px;font-weight:700;color:var(--mut);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sname{flex:1;font-size:12px}
+.sdur{font-size:11px;color:var(--mut);white-space:nowrap}
+
+/* SAUNA CARD */
+.scard{background:var(--gold-lt);border:.5px solid rgba(201,152,74,0.2);border-radius:var(--rad-s);padding:13px 15px;display:flex;align-items:center;gap:11px}
+.sbar{width:3px;height:34px;background:var(--gold);border-radius:2px;flex-shrink:0}
+.st{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px}
+.sb{font-size:11px;color:var(--mut);line-height:1.5}
+
+/* RUN BLOCKS */
+.rb{background:var(--sur2);border-radius:var(--rad-s);overflow:hidden;margin-bottom:6px}
+.rbh{padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.rbn{font-size:12px;font-weight:500}
+.rbp{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold)}
+.rbm{font-size:10px;color:var(--mut);padding:0 12px 9px}
+.pace-chip{background:var(--sur);border:.5px solid var(--bdr);border-radius:3px;padding:2px 7px;font-size:11px;font-family:'Bebas Neue',sans-serif;letter-spacing:.03em;color:var(--w)}
+.rsum{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:11px;margin-bottom:10px}
+.rsr{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid var(--bdr)}
+.rsr:last-child{border:none}
+.rsl{font-size:11px;color:var(--mut)}
+.rsv{font-family:'Bebas Neue',sans-serif;font-size:18px}
+
+/* RUN LOG */
+.log-form{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.log-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.log-field{display:flex;flex-direction:column;gap:4px}
+.log-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hint)}
+.log-input{background:var(--sur2);border:.5px solid var(--bdr2);border-radius:var(--rad-s);padding:9px 11px;font-size:13px;color:var(--w);outline:none;width:100%;-webkit-appearance:none}
+.log-input:focus{border-color:var(--gold)}
+.log-input::placeholder{color:var(--hint)}
+.log-save{background:var(--gold-lt);border:.5px solid var(--gold);border-radius:var(--rad-s);padding:10px;color:var(--gold);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;width:100%;transition:all .15s}
+.log-save:active{transform:scale(.98)}
+.log-history{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.log-entry{background:var(--sur2);border-radius:var(--rad-s);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.le-date{font-size:10px;color:var(--hint);min-width:36px}
+.le-dist{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--w);min-width:40px}
+.le-pace{font-size:11px;color:var(--mut)}
+.le-note{font-size:11px;color:var(--hint);flex:1;text-align:right;font-style:italic}
+.le-del{background:transparent;border:none;color:var(--hint);font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0}
+
+/* STRAVA */
+.strava-wrap{border-radius:var(--rad);overflow:hidden;margin-bottom:12px;background:#1a1a24;border:.5px solid var(--bdr2)}
+.strava-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:.5px solid var(--bdr)}
+.strava-logo{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500;color:var(--w)}
+.strava-logo svg{width:18px;height:18px}
+.strava-link{font-size:10px;color:var(--gold);text-decoration:none;letter-spacing:1px;text-transform:uppercase}
+.strava-frame{width:100%;display:block;border:none;background:#1a1a24}
+
+/* NUTRITION */
+.mc-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.mc{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:13px 10px;text-align:center}
+.mc-n{font-family:'Bebas Neue',sans-serif;font-size:24px}
+.mc-l{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)}
+.mcard{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:13px;margin-bottom:7px}
+.mt{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-bottom:3px}
+.mn{font-family:'Bebas Neue',sans-serif;font-size:21px;margin-bottom:5px}
+.mi{font-size:12px;color:var(--mut);line-height:1.75}
+.mnote{font-size:11px;color:var(--hint);font-style:italic;margin-top:4px}
+.supr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:.5px solid var(--bdr);font-size:12px}
+.supr:last-child{border:none}
+.sn2{font-weight:500}
+.sd{font-size:11px;color:var(--mut)}
+
+/* COMPLETE */
+.cta-w{display:flex;justify-content:center;padding:10px 0 4px}
+.cta{padding:13px 42px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:transparent;color:var(--w);font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.cta:active{transform:scale(.97)}
+.cta.dn{background:var(--gold-lt);border-color:var(--gold);color:var(--gold)}
+
+/* ANIM */
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.view.active>*{animation:fu .22s ease both}
+.view.active>*:nth-child(2){animation-delay:.04s}
+.view.active>*:nth-child(3){animation-delay:.07s}
+.view.active>*:nth-child(4){animation-delay:.1s}
+.view.active>*:nth-child(5){animation-delay:.13s}
+</style>
+</head>
+<body>
+
+<nav class="bnav">
+  <button class="bni active" onclick="go('overview',this)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    Overview
+  </button>
+  <button class="bni" onclick="go('today',this)">
+    <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+    Today
+  </button>
+  <button class="bni" onclick="go('plan',this)">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Plan
+  </button>
+  <button class="bni" onclick="go('runs',this)">
+    <svg viewBox="0 0 24 24"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+    Runs
+  </button>
+  <button class="bni" onclick="go('fuel',this)">
+    <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-4 9H9c-1-3-4-5-4-9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
+    Fuel
+  </button>
+</nav>
+
+<!-- ── OVERVIEW ───────────────────────────────── -->
+<div id="view-overview" class="view active">
+  <div class="hero">
+    <div class="h-eye">12-Week Training Program</div>
+    <div class="h-name">HIM<em>FIT</em></div>
+    <div class="h-stats">
+      <div class="hst"><span class="hst-n">5</span><span class="hst-l">Days/Wk</span></div>
+      <div class="hst"><span class="hst-n">60</span><span class="hst-l">Sessions</span></div>
+      <div class="hst"><span class="hst-n">HM</span><span class="hst-l">Goal Race</span></div>
+    </div>
+    <div class="prog-row"><span>Progress</span><span id="prog-lbl">Week 1 of 12</span></div>
+    <div class="prog-tr"><div class="prog-fi" id="prog-fi" style="width:2%"></div></div>
+  </div>
+
+  <div class="slbl">Three Phases</div>
+  <div class="ph-row">
+    <div class="phc phc1"><div class="phc-n">Build</div><div class="phc-w">Wks 1–4</div><div class="phc-d">Form base<br>90s rest</div></div>
+    <div class="phc phc2"><div class="phc-n">Drive</div><div class="phc-w">Wks 5–8</div><div class="phc-d">Volume up<br>60s rest</div></div>
+    <div class="phc phc3"><div class="phc-n">Peak</div><div class="phc-w">Wks 9–12</div><div class="phc-d">Max output<br>45s rest</div></div>
+  </div>
+
+  <div class="slbl">Weekly Split</div>
+  <div class="sp-list">
+    <div class="sp-item"><div class="sp-day">Mon</div><div class="sp-foc">Chest + Core</div><div class="tag tl">Lift</div></div>
+    <div class="sp-item"><div class="sp-day">Tue</div><div class="sp-foc">Quality Run — 5k / 10k alternating</div><div class="tag tr">Run</div></div>
+    <div class="sp-item"><div class="sp-day">Wed</div><div class="sp-foc">Shoulders + Back + Core</div><div class="tag tl">Lift</div></div>
+    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Upper Hypertrophy + Zone 2</div><div class="tag tl">Lift+Run</div></div>
+    <div class="sp-item"><div class="sp-day">Fri</div><div class="sp-foc">Kettlebell Circuit — 43 min</div><div class="tag tk">KB</div></div>
+    <div class="sp-item"><div class="sp-day">Sat</div><div class="sp-foc">Long Run — Half Marathon Build</div><div class="tag tr">Long</div></div>
+  </div>
+
+  <div class="slbl">Protocols</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+    <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Sauna</div><div style="font-size:11px;color:var(--w);line-height:1.6">15–30 min after every strength session. 80–90°C. 750ml water after.</div></div>
+    <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Creatine</div><div style="font-size:11px;color:var(--w);line-height:1.6">5g daily, any time. No loading. Non-training days: morning.</div></div>
+    <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Run Order</div><div style="font-size:11px;color:var(--w);line-height:1.6">Lift first, run second. Never run hard after heavy legs.</div></div>
+    <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Sugar Rule</div><div style="font-size:11px;color:var(--w);line-height:1.6">Post-lift and post-run windows only. Fruit ok. No late night.</div></div>
+  </div>
+</div>
+
+<!-- ── TODAY ──────────────────────────────────── -->
+<div id="view-today" class="view">
+  <div class="dhdr">
+    <div class="dnav">
+      <button class="dnb" onclick="chDay(-1)">&#8249;</button>
+      <div class="wind" id="wind">Week 1 of 12</div>
+      <button class="dnb" onclick="chDay(1)">&#8250;</button>
+    </div>
+    <div class="dtabs" id="dtabs"></div>
+    <div class="d-big" id="d-big">Monday</div>
+    <div class="d-sub" id="d-sub">Chest + Core</div>
+    <div class="d-meta" id="d-meta"></div>
+  </div>
+  <div id="segs"></div>
+  <div class="cta-w"><button class="cta" id="cta" onclick="toggleDone()">Mark Complete</button></div>
+</div>
+
+<!-- ── PLAN ───────────────────────────────────── -->
+<div id="view-plan" class="view">
+  <div class="slbl" style="margin-top:4px">All 12 Weeks</div>
+  <div class="wg" id="wg"></div>
+</div>
+
+<!-- ── RUNS ───────────────────────────────────── -->
+<div id="view-runs" class="view">
+
+  <div class="slbl" style="margin-top:4px">Strava</div>
+  <div class="strava-wrap">
+    <div class="strava-hdr">
+      <div class="strava-logo">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M10.9 5L14.5 12.1L18 5" stroke="#FC4C02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 12.1L10.9 5L14.5 12.1" stroke="#FC4C02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Latest Activity
+      </div>
+      <a class="strava-link" href="https://www.strava.com/athletes/39096162" target="_blank">View Profile ↗</a>
+    </div>
+    <iframe
+      height="160"
+      width="100%"
+      frameborder="0"
+      allowtransparency="true"
+      scrolling="no"
+      src="https://www.strava.com/athletes/39096162/activity-summary/8a9cebff837b48d137c3bcfa1c083925d4a0cfb5"
+      class="strava-frame"
+      style="height:160px">
+    </iframe>
+  </div>
+
+  <div class="slbl">Log a Run</div>
+  <div class="card-s" style="margin-bottom:12px">
+    <div class="log-form">
+      <div class="log-row">
+        <div class="log-field"><div class="log-label">Distance (km)</div><input class="log-input" id="l-dist" type="number" step="0.1" placeholder="0.0"></div>
+        <div class="log-field"><div class="log-label">Time (min)</div><input class="log-input" id="l-time" type="number" placeholder="0"></div>
+      </div>
+      <div class="log-row">
+        <div class="log-field"><div class="log-label">Avg Heart Rate</div><input class="log-input" id="l-hr" type="number" placeholder="—"></div>
+        <div class="log-field"><div class="log-label">RPE (1–10)</div><input class="log-input" id="l-rpe" type="number" min="1" max="10" placeholder="—"></div>
+      </div>
+      <div class="log-field"><div class="log-label">Notes (knees, pace feel, conditions)</div><input class="log-input" id="l-note" type="text" placeholder="Optional"></div>
+      <button class="log-save" onclick="saveRun()">Save Run</button>
+    </div>
+  </div>
+
+  <div class="slbl">Run History</div>
+  <div id="run-hist"></div>
+
+</div>
+
+<!-- ── FUEL ───────────────────────────────────── -->
+<div id="view-fuel" class="view">
+  <div class="hero" style="padding:22px">
+    <div class="h-eye">Daily Nutrition</div>
+    <div class="h-name" style="font-size:40px;margin-bottom:10px">FUEL<em>PLAN</em></div>
+    <div id="fuel-day" style="font-size:11px;color:var(--mut)">Based on today's session</div>
+  </div>
+  <div class="slbl">Your Numbers — 68kg · 45yo · Build Muscle</div>
+  <div class="mc-row">
+    <div class="mc"><div class="mc-n">2766</div><div class="mc-l">Kcal / Day</div></div>
+    <div class="mc"><div class="mc-n">150g</div><div class="mc-l">Protein</div></div>
+    <div class="mc"><div class="mc-n">+250</div><div class="mc-l">Kcal Surplus</div></div>
+  </div>
+  <div class="mc-row">
+    <div class="mc"><div class="mc-n">389g</div><div class="mc-l">Carbs</div></div>
+    <div class="mc"><div class="mc-n">68g</div><div class="mc-l">Fat</div></div>
+    <div class="mc"><div class="mc-n">2516</div><div class="mc-l">TDEE Base</div></div>
+  </div>
+  <div style="background:var(--gold-lt);border:.5px solid rgba(201,152,74,0.2);border-radius:var(--rad-s);padding:11px 13px;margin-bottom:16px;font-size:11px;color:var(--mut);line-height:1.6">
+    Based on Mifflin-St Jeor BMR × 1.6 activity factor. Surplus of 250 kcal above TDEE for lean muscle gain without excess fat. Adjust carbs up on long run days, down on rest days.
+  </div>
+  <div class="slbl">Today's Meals</div>
+  <div id="meal-list"></div>
+  <div class="slbl">Supplements</div>
+  <div class="card-s" style="margin-bottom:8px">
+    <div class="supr"><span class="sn2">Whey Protein Isolate</span><span class="sd">30–40g post-lift & post-run</span></div>
+    <div class="supr"><span class="sn2">Creatine Monohydrate</span><span class="sd">5g daily — no loading</span></div>
+    <div class="supr"><span class="sn2">Omega 3 Fish Oil</span><span class="sd">Anti-inflammatory, joint health</span></div>
+    <div class="supr"><span class="sn2">Multivitamin</span><span class="sd">Cover nutrient gaps daily</span></div>
+  </div>
+  <div class="slbl">Hydration</div>
+  <div class="card-s" style="margin-bottom:20px">
+    <div class="supr"><span class="sn2">On waking</span><span class="sd">500ml immediately</span></div>
+    <div class="supr"><span class="sn2">During workout + sauna</span><span class="sd">1 litre</span></div>
+    <div class="supr"><span class="sn2">Across the day</span><span class="sd">3–4 litres total</span></div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DAYS
+// ─────────────────────────────────────────────
+const DAYS=[
+  {name:'Monday',   sub:'Chest + Core',                type:'lift'},
+  {name:'Tuesday',  sub:'Quality Run',                  type:'run'},
+  {name:'Wednesday',sub:'Shoulders + Back + Core',      type:'lift'},
+  {name:'Thursday', sub:'Upper Hypertrophy + Zone 2',   type:'lift'},
+  {name:'Friday',   sub:'Kettlebell Circuit — 43 min',  type:'kb'},
+  {name:'Saturday', sub:'Long Run — Half Marathon Build',type:'longrun'},
+];
+
+// ─────────────────────────────────────────────
+// VIDEO LINKS (from your docs)
+// ─────────────────────────────────────────────
+const VIDS={
+  chest_stretch:'https://www.instagram.com/reel/DCeyOZ-owMN/',
+  shoulders:'https://www.instagram.com/p/C6L9W2DrgSG/',
+  arms:'https://www.instagram.com/reel/DAPO_gOO3TA/',
+  kb_circuit:'https://www.instagram.com/reel/C7g-m5fNAbA/',
+  legs1:'https://www.instagram.com/reel/DBHRosNvWEr/',
+  legs2:'https://www.instagram.com/reel/DFmKHsWu60f/',
+  legs3:'https://www.instagram.com/reel/DFEX13IPg7R/',
+  legs4:'https://www.instagram.com/p/C72FxJ_I_d4/',
+  legs5:'https://www.instagram.com/reel/C72bgXTxMhV/',
+  back_inspo:'https://www.instagram.com/p/DChD8tsvUOc/',
+};
+
+function vidBtn(url,label){
+  return `<a href="${url}" target="_blank" class="vid-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${label||'Watch'}</a>`;
+}
+
+// ─────────────────────────────────────────────
+// EXERCISE DATA  [name, note, "p1/p2/p3", weightInfo, videoUrl]
+// ─────────────────────────────────────────────
+const MON_WU=[["Wide-Grip Pull-Ups","Full dead hang to chin over bar — 10 warm-up reps","2×10 / 2×10 / 3×10"]];
+const MON_CH=[
+  ["Push-Ups","Hands shoulder-width; core engaged; full ROM","3×12 / 3×15 / 4×15"],
+  ["Bench Press","Set 1: 40kg×20  ·  Set 2: 60kg×10  ·  Set 3: 70kg×10  ·  Set 4: 80kg×8","4 sets / 4 sets / 4 sets","40–80kg progressive"],
+  ["Nautilus Press","15kg×12  ·  20kg×10  ·  30kg×8","3 sets / 3 sets / 3 sets","15–30kg"],
+  ["Incline Barbell Press","50kg×12  ·  70kg×10  ·  75kg×8","3 sets / 3 sets / 3 sets","50–75kg"],
+  ["Pec Deck Machine","20kg×12  ·  30kg×10  ·  40kg×8","3 sets / 3 sets / 3 sets","20–40kg"],
+  ["Dumbbell Chest Flyes","12kg each; wide arc; squeeze at top; 3s eccentric","3×12 / 3×12 / 3×15","12kg DBs"],
+  ["Incline Dumbbell Press","12kg each; 4-second lowering; full stretch at bottom","3×12 / 3×12 / 3×15","12kg DBs"],
+];
+const MON_CORE=[
+  ["Front Plank","Neutral spine; breathe steadily","3×30s / 3×40s / 3×50s"],
+  ["Side Plank","Each side; hips don't sag","3×30s / 3×40s / 3×50s"],
+  ["Russian Twist","Weighted med ball or DB; feet elevated","3×12 / 3×15 / 3×20"],
+  ["Bicycle Crunches","Elbow to opposite knee; slow and deliberate","3×12 / 3×15 / 3×20"],
+];
+
+const WED_WU=[["Close-Grip Pull-Ups","Full dead hang; chin over bar","2×10 / 2×10 / 3×10"]];
+const WED_SH=[
+  ["Arnold Press (Barbell)","20kg; rotate palms during press; brace core","3×10 / 3×12 / 4×12","20kg",""],
+  ["Lateral Raises (Barbell)","10kg; no momentum; 3s eccentric","3×12 / 3×15 / 4×15","10kg",""],
+  ["Front Raises (Barbell)","6.5kg; alternate arms; control descent","3×10 / 3×12 / 3×15","6.5kg",""],
+  ["Cuban Press (Barbell)","8kg; external rotation emphasis","3×10 / 3×12 / 3×12","8kg",""],
+  ["Kettlebell Overhead Press","16kg; lock out fully; brace core","3×8 / 3×10 / 3×12","16kg KB",""],
+  ["Steering Wheels","10kg plate; arms extended; full circles","3×10 / 3×12 / 3×15","10kg plate",""],
+  ["Shoulder Shrugs","20kg; hold 1s at top; slow lower","3×20 / 3×20 / 4×20","20kg",""],
+];
+const WED_BK=[
+  ["Seated Rows","20kg×12  ·  30kg×10  ·  35kg×8; squeeze scapulae at top","3 sets / 3 sets / 3 sets","20–35kg"],
+  ["Lat Pulldowns","20kg×12  ·  30kg×10  ·  40kg×8; elbows to ribs","3 sets / 3 sets / 3 sets","20–40kg"],
+  ["T-Bar Rows","10kg×10  ·  15kg×10  ·  25kg×8; explosive row","3 sets / 3 sets / 3 sets","10–25kg"],
+  ["Kettlebell Deadlifts","12kg; hinge at hip; drive through heels","3×10 / 3×12 / 3×12","12kg KB"],
+];
+const WED_CORE=[
+  ["Front Plank","Add plate on back if able","3×30s / 3×40s / 3×50s"],
+  ["Side Plank","Each side; add reach-through for harder","3×30s / 3×40s / 3×50s"],
+  ["Russian Twist","Weighted; feet elevated","3×12 / 3×15 / 3×20"],
+];
+
+const THU_WU=[["Wide-Grip Pull-Ups","10 warm-up reps; full range","2×10 / 2×10 / 3×10"]];
+const THU_LF=[
+  ["Incline Dumbbell Press","4-second eccentric; feel the stretch","4×10 / 4×12 / 4×12"],
+  ["Chin-Ups","AMRAP; dead hang to chin over bar","4×AMRAP / 4×AMRAP / 4×AMRAP"],
+  ["Arnold Press","Moderate load; full rotation","3×12 / 3×12 / 3×15"],
+  ["Lateral Raises","Strict; no momentum","3×15 / 3×15 / 4×15"],
+  ["Skull Crushers","Elbows warm first; bar to forehead","3×12 / 3×12 / 4×12"],
+  ["Preacher Curls Machine","20kg  ·  27.5kg  ·  30kg; full extension at bottom","3 sets / 3 sets / 3 sets","20–30kg"],
+  ["EZ Curls Cable","12kg  ·  17kg  ·  20kg; squeeze at top","3 sets / 3 sets / 3 sets","12–20kg"],
+  ["Hammer Curls","13.6kg  ·  20.4kg  ·  25kg; neutral grip","3 sets / 3 sets / 3 sets","13–25kg"],
+  ["Tricep Pulldowns","10kg  ·  15kg  ·  22.5kg; lockout each rep","3 sets / 3 sets / 3 sets","10–22.5kg"],
+  ["Dumbbell Pullover","13.6kg  ·  20.4kg  ·  25kg; lats + triceps","3 sets / 3 sets / 3 sets","13–25kg"],
+  ["Tricep Dips","Bodyweight; lean forward slightly","3×12 / 3×12 / 3×15","Bodyweight"],
+  ["Weighted Plank Hold","Plate on back","3×45s / 3×45s / 3×60s"],
+];
+
+const FRI_KB=[
+  ["Dual KB Flat Bench Press","Both kettlebells; controlled descent","3×12 / 3×12 / 4×12"],
+  ["Half Kneeling KB Press","12 reps each side; rear knee on floor","3×12 R/L / 3×12 R/L / 4×12 R/L"],
+  ["Lift-Off Push-Up to Shoulder Tap","6 each side; push up then tap opposite shoulder","3×6 R/L / 3×8 R/L / 3×10 R/L"],
+  ["Reverse Nordic to KB Halo","Lower forward then halo; full control","3×12 / 3×12 / 4×12"],
+  ["KB Upright Row to Press","Row to chin then press overhead","3×10 / 3×12 / 4×12"],
+  ["KB Bicep Curl","Full supination at top; no swinging","3×10 / 3×12 / 4×12"],
+  ["KB Overhead Tricep Extension","Elbows in tight; full extension","3×10 / 3×12 / 4×12"],
+];
+const FRI_HIIT=[
+  ["Jump Rope or Jumping Jacks","30s max effort cardio burst","4×30s / 4×30s / 4×30s"],
+  ["Jump Lunges","Continuous; modify to reverse lunge if form breaks","4×30s / 4×30s / 4×30s"],
+  ["Suitcase Marches","12 each side; KB in one hand; tall posture","4×12 R/L / 4×12 R/L / 4×12 R/L"],
+];
+
+const WU_STR=[
+  ["Shoulder Rolls","10 fwd / 10 back"],["Arm Circles","30s each dir"],
+  ["Hip Circles","30s each side"],["Wrist Circles","10 each dir"],
+  ["Cat-Cow","10 slow reps"],["Band Pull-Aparts","15 reps"],["Neck Rolls","5 each side"],
+];
+const CD_STR=[
+  ["Doorway Chest Stretch","45s each side"],["Cross-Body Shoulder","30s each side"],
+  ["Tricep Overhead Stretch","30s each side"],["Supine Hamstring (band)","30s each leg"],
+  ["Figure-4 Piriformis","45s each side"],["Child's Pose","60s"],
+];
+
+// ─────────────────────────────────────────────
+// RUN DATA
+// ─────────────────────────────────────────────
+function getTueRun(w){
+  const is5k=w%2!==0;
+  const pace5=w<=4?'5:00–5:20/km':w<=8?'4:45–5:00/km':'4:30–4:45/km';
+  const pace10=w<=4?'5:20–5:40/km':w<=8?'5:00–5:20/km':'4:50–5:10/km';
+  if(is5k) return{
+    label:`Week ${w} — 5k Effort (odd week)`,dist:'5k',pace:pace5,total:'~30 min',
+    blocks:[
+      {n:'Warm-Up',d:'10 min',p:'Easy jog',note:'Conversational pace'},
+      {n:'5k Effort',d:'5km',p:pace5,note:'Controlled discomfort — not a sprint'},
+      {n:'Recovery Jog',d:'5 min',p:'Easy',note:'Bring HR down'},
+      {n:'Cool-Down Walk',d:'5 min',p:'Walk',note:''},
+    ]
+  };
+  return{
+    label:`Week ${w} — 10k Effort (even week)`,dist:'10k',pace:pace10,total:'~55–60 min',
+    blocks:[
+      {n:'Warm-Up',d:'10 min',p:'Easy jog',note:''},
+      {n:'10k Effort',d:'10km',p:pace10,note:'Steady state — sustainable throughout'},
+      {n:'Cool-Down',d:'10 min',p:'Easy',note:'Breathe out, lower HR'},
+    ]
+  };
+}
+
+const SAT_RUNS=[
+  {d:'8km',p:'5:50–6:10/km',n:'Easy aerobic base. Keep it comfortable.'},
+  {d:'9km',p:'5:50–6:10/km',n:'Add 1km. Same easy effort.'},
+  {d:'10km',p:'5:40–6:00/km',n:'Double digits. Stay fully aerobic.'},
+  {d:'11km',p:'5:40–6:00/km',n:'Slightly sharper. Still comfortable.'},
+  {d:'12km',p:'5:30–5:50/km',n:'Mid-plan. Pace beginning to sharpen.'},
+  {d:'13km',p:'5:30–5:50/km',n:'Consistent effort. Trust the build.'},
+  {d:'14km',p:'5:20–5:40/km',n:'Race-simulation effort starts here.'},
+  {d:'15km',p:'5:20–5:40/km',n:'Three-quarter mark of half marathon distance.'},
+  {d:'16km',p:'5:10–5:30/km',n:'Peak long run territory. Race pace feel.'},
+  {d:'17km',p:'5:10–5:30/km',n:'Longest run. You are ready.'},
+  {d:'13km',p:'5:00–5:20/km',n:'Taper begins. Maintain sharpness.'},
+  {d:'10km',p:'5:00–5:20/km',n:'Final week. Fresh legs. Race day is close.'},
+];
+
+// ─────────────────────────────────────────────
+// NUTRITION
+// ─────────────────────────────────────────────
+const MEALS={
+  lift:[
+    {t:'06:45 — Wake',n:'Hydration Start',i:'500ml water immediately on waking\nOptional: black coffee'},
+    {t:'07:15 — Pre-Workout',n:'Activation',i:'1 banana + 30g oats\nOptional: pre-workout supplement',note:'~250 kcal · 8g protein · fast carbs'},
+    {t:'10:00 — Post-Sauna',n:'Breakfast',i:'5 whole eggs scrambled (or 6 whites + 2 yolks)\n80g oats with raisins + 1 tbsp honey\nOr: 40g whey isolate shake + banana',note:'~550 kcal · 40g protein · replenish glycogen'},
+    {t:'13:30',n:'Lunch',i:'200g chicken breast or 2 tins tuna\n100g dry brown rice or pasta\nLarge portion green veg + olive oil drizzle',note:'~650 kcal · 50g protein'},
+    {t:'16:00',n:'Afternoon Snack',i:'40g whey protein isolate shake\n1 banana or protein bar',note:'~350 kcal · 40g protein'},
+    {t:'19:00',n:'Dinner',i:'200g grilled salmon or chicken\n100g dry brown rice or pasta\nRoasted veg + large salad',note:'~650 kcal · 45g protein'},
+    {t:'21:00 — Optional',n:'Night Protein',i:'30g whey isolate shake\nOr: 200g low-fat cottage cheese (slow release casein)',note:'~200 kcal · 25–30g protein · slow overnight release'},
+  ],
+  run:[
+    {t:'Pre-Run',n:'Light Fuel',i:'1 banana or 30g oats with water\nNo fat, no heavy protein before speed work',note:'Eat 45–60 min before — not on an empty stomach'},
+    {t:'Post-Run',n:'Recovery Window',i:'40g whey protein shake + banana immediately\nThis is your carb + sugar window — use it',note:'Within 20–30 min · ~350 kcal · 40g protein'},
+    {t:'10:00',n:'Breakfast',i:'4 whole eggs scrambled + 2 slices whole grain toast\nOr: Greek yogurt 200g + berries + chia seeds'},
+    {t:'13:30',n:'Lunch',i:'200g chicken or tuna on whole wheat\n100g brown rice + broccoli and spinach',note:'~600 kcal · 50g protein'},
+    {t:'19:00',n:'Dinner',i:'200g grilled fish or chicken\nBrown rice + roasted asparagus or mixed veg',note:'~600 kcal · 45g protein'},
+  ],
+  kb:[
+    {t:'Pre-Session',n:'Light Activation',i:'1 banana + protein bar (20g+)\nKB circuit is high intensity — fuel it',note:'Eat 45 min before — blood sugar needs to be up'},
+    {t:'Post-Session',n:'Recovery',i:'40g whey protein shake + banana\nReplenish glycogen immediately',note:'Within 20 min · ~350 kcal · 40g protein'},
+    {t:'10:00',n:'Breakfast',i:'5 whole eggs + 80g oats with raisins\n+250ml whole milk if gaining slowly',note:'~600 kcal · 42g protein'},
+    {t:'13:30',n:'Lunch',i:'200g chicken + 100g brown rice + green veg',note:'~600 kcal · 50g protein'},
+    {t:'19:00',n:'Dinner',i:'200g grilled fish or chicken + roasted vegetables\nAdd 80g rice if training was heavy',note:'~550 kcal · 45g protein'},
+  ],
+  longrun:[
+    {t:'Morning — Pre-Run',n:'Long Run Fuel',i:'80g oats + banana + 1 tbsp honey\nEat 90 min before running\nCoffee is fine',note:'~500 kcal · No fasting before long runs — you need stored glycogen'},
+    {t:'During Run (>75 min)',n:'Mid-Run',i:'Energy gel or banana at 45 min mark\nSip 150–200ml water every 20 min',note:'Start fuelling before you feel hungry'},
+    {t:'Post-Run',n:'Immediate Recovery',i:'40g whey protein shake + banana within 20 min\nSalty snack — pretzels or rice cakes\nElectrolytes depleted — add a pinch of salt',note:'Most important meal of the week · muscle repair window is wide open'},
+    {t:'Post-Run Meal',n:'Recovery Lunch',i:'200g chicken + white rice 120g (faster digesting today)\nBroccoli + olive oil\nExtra portion — carb up today, you earned it',note:'~750 kcal · 50g protein · higher carbs intentional'},
+    {t:'Dinner',n:'Rebuild',i:'200g salmon or chicken + brown rice + salad\nAdd sweet potato (150g) if legs are empty',note:'~650 kcal · 48g protein'},
+  ],
+};
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let S={week:1,day:0,done:{},runs:[]};
+try{const d=localStorage.getItem('hf4');if(d)S=JSON.parse(d)}catch(e){}
+function save(){try{localStorage.setItem('hf4',JSON.stringify(S))}catch(e){}}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function reps(ex,w){const p=ex[2].split('/');return(w<=4?p[0]:w<=8?(p[1]||p[0]):(p[2]||p[1]||p[0])).trim()}
+function rest(w){return w<=4?'Rest 90s between sets':w<=8?'Rest 60s between sets':'Rest 45s between sets'}
+function dkey(){return`${S.week}-${S.day}`}
+function done(){return Object.values(S.done).filter(Boolean).length}
+
+function go(v,btn){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelectorAll('.bni').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  if(v==='today')buildDay();
+  if(v==='plan')buildPlan();
+  if(v==='fuel')buildFuel();
+  if(v==='runs')buildRunLog();
+  updProg();
+}
+
+function updProg(){
+  const n=done();
+  document.getElementById('prog-fi').style.width=Math.max(2,Math.round(n/60*100))+'%';
+  document.getElementById('prog-lbl').textContent=`Week ${Math.min(Math.ceil((n+1)/6),12)} of 12`;
+}
+
+// ─────────────────────────────────────────────
+// PLAN VIEW
+// ─────────────────────────────────────────────
+function buildPlan(){
+  const g=document.getElementById('wg');g.innerHTML='';
+  for(let w=1;w<=12;w++){
+    const pc=w<=4?'b':w<=8?'d':'p',pn=w<=4?'Build':w<=8?'Drive':'Peak';
+    const d=document.createElement('div');d.className='wk'+(w===S.week?' cur':'');
+    d.innerHTML=`<div class="wk-n">${w}</div><div class="wk-p p${pc}">${pn}</div><div class="dots">${[0,1,2,3,4,5].map(i=>{const k=`${w}-${i}`;return`<div class="dot${S.done[k]?' dn':''}${w===S.week&&i===S.day?' ac':''}"></div>`}).join('')}</div>`;
+    d.onclick=()=>{S.week=w;S.day=0;save();go('today',document.querySelectorAll('.bni')[1])};
+    g.appendChild(d);
+  }
+}
+
+// ─────────────────────────────────────────────
+// SEGMENT HELPERS
+// ─────────────────────────────────────────────
+function mkSeg(pip,label,meta,html,open){
+  const id='s'+Math.random().toString(36).slice(2);
+  const el=document.createElement('div');el.className='seg';
+  el.innerHTML=`<div class="shdr" onclick="togS('${id}',this)"><div class="shdr-l"><div class="spip ${pip}"></div><div><div class="slbl2">${label}</div><div class="smeta">${meta}</div></div></div><span class="schev${open?' op':''}">&#8964;</span></div><div class="sbody${open?' op':''}" id="${id}">${html}</div>`;
+  return el;
+}
+function togS(id,h){document.getElementById(id).classList.toggle('op');h.querySelector('.schev').classList.toggle('op')}
+
+function exRows(arr,w,titleStr){
+  return`<div class="ext">${titleStr}</div>${arr.map((e,i)=>`<div class="exr"><div class="exi">${i+1}</div><div><div class="exn">${e[0]}</div><div class="exno">${e[1]}</div>${e[3]?`<div class="exw">${e[3]}</div>`:''}${e[4]?vidBtn(e[4]):''}${e[5]?vidBtn(e[5]):''}  </div><div class="exs">${reps(e,w)}</div></div>`).join('')}<div class="rest-n">${rest(w)}</div>`;
+}
+
+function strList(arr){
+  return`<div class="strl">${arr.map((s,i)=>`<div class="strr"><div class="strn">${i+1}</div><div class="sname">${s[0]}</div><div class="sdur">${s[1]}</div></div>`).join('')}</div>`;
+}
+function saunaCard(){
+  return`<div class="scard"><div class="sbar"></div><div><div class="st">15–30 min · 80–90°C</div><div class="sb">Enter post-shower. Hydrate 750ml after.<br>No cold plunge on heavy lift days.</div></div></div>`;
+}
+
+// ─────────────────────────────────────────────
+// DAY RENDERERS
+// ─────────────────────────────────────────────
+function buildDay(){
+  const day=DAYS[S.day],w=S.week;
+  document.getElementById('wind').textContent=`Week ${w} of 12`;
+  document.getElementById('d-big').textContent=day.name;
+  document.getElementById('d-sub').textContent=day.sub;
+  document.getElementById('d-meta').textContent=
+    day.type==='run'?`Quality run · Week ${w} · ${w%2!==0?'5k — odd week':'10k — even week'}`:
+    day.type==='longrun'?`Long run · ${SAT_RUNS[w-1].d} · Half marathon build`:
+    day.type==='kb'?'43 min · 3 circuit rounds + 4 HIIT rounds':
+    'Lift · Sauna · Recover';
+
+  const tabs=document.getElementById('dtabs');
+  tabs.innerHTML=DAYS.map((x,i)=>{
+    const ac=i===S.day?(x.type==='run'||x.type==='longrun'?'ar':x.type==='kb'?'ak':'al'):'';
+    return`<button class="dtab ${ac}" onclick="S.day=${i};save();buildDay()">${x.name.slice(0,3)}</button>`;
+  }).join('');
+
+  const segs=document.getElementById('segs');segs.innerHTML='';
+
+  if(day.name==='Monday') dayMon(segs,w);
+  else if(day.name==='Wednesday') dayWed(segs,w);
+  else if(day.name==='Thursday') dayThu(segs,w);
+  else if(day.type==='kb') dayFri(segs,w);
+  else if(day.type==='run') dayTue(segs,w);
+  else if(day.type==='longrun') daySat(segs,w);
+
+  const dn=!!S.done[dkey()];
+  const btn=document.getElementById('cta');
+  btn.textContent=dn?'Session Complete':'Mark Complete';
+  btn.className='cta'+(dn?' dn':'');
+}
+
+function dayMon(segs,w){
+  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder prep',
+    exRows(MON_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
+  const chestWithVid=[...MON_CH];
+  // add video button to bench press row
+  const chHtml=exRows(chestWithVid,w,'Chest Work')+`<div style="margin-top:10px">${vidBtn(VIDS.chest_stretch,'Chest Stretch Demo')}</div>`;
+  segs.appendChild(mkSeg('plift','Chest','Bench · Nautilus · Incline · Fly · Pec Deck',chHtml,false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle',exRows(MON_CORE,w,'Core'),false));
+  segs.appendChild(mkSeg('pcd','Cool-Down','5 min static',strList(CD_STR),false));
+  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+}
+
+function dayWed(segs,w){
+  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + joint prep',
+    exRows(WED_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
+  const shHtml=exRows(WED_SH,w,'Shoulder Work')+`<div style="margin-top:10px">${vidBtn(VIDS.shoulders,'Shoulders Demo')}</div>`;
+  segs.appendChild(mkSeg('plift','Shoulders','Arnold · Lateral · Front · Cuban · KB Press',shHtml,false));
+  const bkHtml=exRows(WED_BK,w,'Back Work — Layered in from original Tuesday split')+`<div style="margin-top:10px">${vidBtn(VIDS.back_inspo,'Back Inspiration')}</div>`;
+  segs.appendChild(mkSeg('pback','Back','Rows · Pulldowns · T-Bar · KB Deadlifts',bkHtml,false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist',exRows(WED_CORE,w,'Core'),false));
+  segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
+  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+}
+
+function dayThu(segs,w){
+  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder mobility',
+    exRows(THU_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
+  const liftHtml=exRows(THU_LF,w,'Hypertrophy + Arms')+`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`;
+  segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms','Incline · Chins · Arnold · Curls · Skulls · Dips',liftHtml,false));
+  segs.appendChild(mkSeg('prun','Zone 2 Easy Run','30 min post-lifting — conversational pace',
+    `<div class="rsum">
+      <div class="rsr"><span class="rsl">Duration</span><span class="rsv">30 MIN</span></div>
+      <div class="rsr"><span class="rsl">Effort</span><span class="rsv">ZONE 2</span></div>
+      <div class="rsr"><span class="rsl">Heart Rate</span><span class="rsv">65–75%</span></div>
+      <div class="rsr" style="border:none"><span class="rsl">Rule</span><span style="font-size:11px;color:var(--mut)">You must be able to hold a full sentence</span></div>
+    </div>`,false));
+  segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
+  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+}
+
+function dayFri(segs,w){
+  segs.appendChild(mkSeg('pwu','Warm-Up','Joint mobility — 5 min',strList(WU_STR),true));
+  const kbHtml=exRows(FRI_KB,w,'Upper Push Circuit — 3 Rounds · 30s rest')+`<div style="margin-top:10px">${vidBtn(VIDS.kb_circuit,'KB Circuit Demo — Full Workout')}</div>`;
+  segs.appendChild(mkSeg('pkb','KB Circuit','7 exercises · 3 rounds · 30s rest',kbHtml,false));
+  segs.appendChild(mkSeg('pkb','HIIT Core Finisher','3 exercises · 4 rounds · 15s rest',exRows(FRI_HIIT,w,'Core Cardio'),false));
+  segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
+  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+}
+
+function dayTue(segs,w){
+  const run=getTueRun(w);
+  const bHtml=run.blocks.map(b=>`<div class="rb"><div class="rbh"><div class="rbn">${b.n}</div><div class="rbp">${b.d}</div></div><div class="rbm"><span class="pace-chip">${b.p}</span>${b.note?' &nbsp;'+b.note:''}</div></div>`).join('');
+  const sumHtml=`<div class="rsum" style="margin-bottom:10px"><div class="rsr"><span class="rsl">Distance</span><span class="rsv">${run.dist.toUpperCase()}</span></div><div class="rsr"><span class="rsl">Target Pace</span><span class="rsv">${run.pace}</span></div><div class="rsr" style="border:none"><span class="rsl">Total Time</span><span class="rsv">${run.total}</span></div></div>`;
+  segs.appendChild(mkSeg('prun','Quality Run',run.label,sumHtml+bHtml,true));
+  segs.appendChild(mkSeg('plog','Log This Run','Save to run history',logFormHTML(),false));
+  segs.appendChild(mkSeg('pcd','Cool-Down','Post-run stretch',strList(CD_STR),false));
+}
+
+function daySat(segs,w){
+  const run=SAT_RUNS[w-1];
+  const mainHtml=`<div class="rsum" style="margin-bottom:10px">
+    <div class="rsr"><span class="rsl">Distance</span><span class="rsv">${run.d.toUpperCase()}</span></div>
+    <div class="rsr"><span class="rsl">Target Pace</span><span class="rsv">${run.p}</span></div>
+    <div class="rsr" style="border:none"><span class="rsl">Note</span><span style="font-size:11px;color:var(--mut);text-align:right;max-width:180px">${run.n}</span></div>
+  </div>
+  <div class="rb"><div class="rbh"><div class="rbn">Warm-Up</div><div class="rbp">10 min</div></div><div class="rbm">Easy jog — conversational</div></div>
+  <div class="rb"><div class="rbh"><div class="rbn">Main Run</div><div class="rbp">${run.d}</div></div><div class="rbm"><span class="pace-chip">${run.p}</span> &nbsp;${run.n}</div></div>
+  <div class="rb"><div class="rbh"><div class="rbn">Cool-Down</div><div class="rbp">10 min</div></div><div class="rbm">Walk + breathe out</div></div>`;
+
+  const vidLinksHtml=`<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+    ${vidBtn(VIDS.legs1,'Legs Demo 1')}${vidBtn(VIDS.legs2,'Legs Demo 2')}
+    ${vidBtn(VIDS.legs3,'Legs Demo 3')}${vidBtn(VIDS.legs4,'Legs Demo 4')}${vidBtn(VIDS.legs5,'Legs Demo 5')}
+  </div>`;
+
+  const progHtml=`<div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">${SAT_RUNS.map((r,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:3px 0"><div style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--hint);width:22px">W${i+1}</div><div style="flex:1;background:var(--sur2);border-radius:2px;height:4px;position:relative"><div style="position:absolute;left:0;top:0;height:4px;border-radius:2px;background:${i<w?'var(--gold)':'var(--hint)'};width:${Math.round(parseInt(r.d)*100/21)}%"></div></div><div style="font-size:11px;color:${i+1===w?'var(--gold)':'var(--hint)'};width:28px;text-align:right;font-weight:${i+1===w?'500':'400'}">${r.d}</div></div>`).join('')}</div>`;
+
+  segs.appendChild(mkSeg('prun','Long Run',`Week ${w} · ${run.d} · Half Marathon Build`,mainHtml+vidLinksHtml,true));
+  segs.appendChild(mkSeg('plog','Log This Run','Save to run history',logFormHTML(),false));
+  segs.appendChild(mkSeg('prun','Distance Progression','8km → 17km → taper',progHtml,false));
+  segs.appendChild(mkSeg('pcd','Cool-Down','Hold stretches longer today',strList(CD_STR),false));
+}
+
+// ─────────────────────────────────────────────
+// RUN LOG
+// ─────────────────────────────────────────────
+function logFormHTML(){
+  return`<div class="log-form">
+    <div class="log-row">
+      <div class="log-field"><div class="log-label">Distance (km)</div><input class="log-input" id="ld" type="number" step="0.1" placeholder="0.0"></div>
+      <div class="log-field"><div class="log-label">Time (min)</div><input class="log-input" id="lt" type="number" placeholder="0"></div>
+    </div>
+    <div class="log-row">
+      <div class="log-field"><div class="log-label">Avg Heart Rate</div><input class="log-input" id="lh" type="number" placeholder="—"></div>
+      <div class="log-field"><div class="log-label">RPE (1–10)</div><input class="log-input" id="lr" type="number" min="1" max="10" placeholder="—"></div>
+    </div>
+    <div class="log-field"><div class="log-label">Notes</div><input class="log-input" id="ln" type="text" placeholder="Knees, pace feel, conditions..."></div>
+    <button class="log-save" onclick="saveRun()">Save Run</button>
+  </div>`;
+}
+
+function saveRun(){
+  const dist=parseFloat(document.getElementById('ld')?.value||document.getElementById('l-dist')?.value||0);
+  const time=parseFloat(document.getElementById('lt')?.value||document.getElementById('l-time')?.value||0);
+  const hr=document.getElementById('lh')?.value||document.getElementById('l-hr')?.value||'';
+  const rpe=document.getElementById('lr')?.value||document.getElementById('l-rpe')?.value||'';
+  const note=document.getElementById('ln')?.value||document.getElementById('l-note')?.value||'';
+  if(!dist||!time)return;
+  const pace=time/dist;
+  const pm=Math.floor(pace),ps=Math.round((pace-pm)*60);
+  const entry={date:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}),dist,time,pace:`${pm}:${ps.toString().padStart(2,'0')}/km`,hr,rpe,note,day:DAYS[S.day].name,week:S.week};
+  S.runs.unshift(entry);if(S.runs.length>50)S.runs.pop();save();
+  ['ld','lt','lh','lr','ln','l-dist','l-time','l-hr','l-rpe','l-note'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  buildRunLog();
+}
+
+function buildRunLog(){
+  const hist=document.getElementById('run-hist');
+  if(!hist)return;
+  if(!S.runs.length){hist.innerHTML='<div style="font-size:12px;color:var(--hint);padding:8px 0">No runs logged yet.</div>';return}
+  hist.innerHTML=`<div class="log-history">${S.runs.map((r,i)=>`<div class="log-entry"><div class="le-date">${r.date}</div><div class="le-dist">${r.dist}km</div><div class="le-pace">${r.pace}${r.hr?' · '+r.hr+'bpm':''}</div><div class="le-note">${r.note||r.day||''}</div><button class="le-del" onclick="delRun(${i})">&#215;</button></div>`).join('')}</div>`;
+}
+
+function delRun(i){S.runs.splice(i,1);save();buildRunLog()}
+
+// ─────────────────────────────────────────────
+// FUEL
+// ─────────────────────────────────────────────
+function buildFuel(){
+  const day=DAYS[S.day];
+  const type=day.type==='lift'?'lift':day.type==='run'?'run':day.type==='kb'?'kb':'longrun';
+  document.getElementById('fuel-day').textContent=`${day.name} — ${day.sub}`;
+  document.getElementById('meal-list').innerHTML=MEALS[type].map(m=>`<div class="mcard"><div class="mt">${m.t}</div><div class="mn">${m.n}</div><div class="mi">${m.i.replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${m.note}</div>`:''}</div>`).join('');
+}
+
+function chDay(dir){S.day=(S.day+dir+6)%6;save();buildDay()}
+function toggleDone(){const k=dkey();S.done[k]=!S.done[k];save();buildDay();updProg()}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+buildPlan();buildDay();buildFuel();buildRunLog();updProg();
+</script>
+</body>
+</html>
