@@ -2161,7 +2161,18 @@ async function sendHimfitMagicLink(){
   const el=document.getElementById('cloud-email');
   const email=(el?.value||'').trim();
   if(!email){if(st)st.textContent='Enter your email.';return;}
-  const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:himfitAuthRedirectUrl()}});
+  const redirectTo=himfitAuthRedirectUrl();
+  try{
+    const h=new URL(redirectTo).hostname;
+    if(h==='localhost'||h==='127.0.0.1'){
+      if(st)st.textContent='Magic link would open localhost — set window.HIMFIT_AUTH_REDIRECT_URL in himfit-config.js to your live HimFit URL (e.g. GitHub Pages), push, then use the live site to send links. In Supabase → Auth → URL configuration, set Site URL to that same live URL (not localhost).';
+      return;
+    }
+  }catch(e){
+    if(st)st.textContent='Invalid redirect URL in himfit-config.js. Check HIMFIT_AUTH_REDIRECT_URL.';
+    return;
+  }
+  const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:redirectTo}});
   if(st)st.textContent=error?('Error: '+error.message):'Email sent. Open the link in that message on this device to finish signing in.';
 }
 async function himfitSignOut(){

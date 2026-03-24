@@ -79,6 +79,8 @@ Supabase sends **different** emails from **different** templates. If your inbox 
 
 **Do not remove** `{{ .ConfirmationURL }}` or `{{ .Email }}` in any template that uses them. Support line uses plain `info@williamacampbell.com` — edit that file if you want a different address.
 
+**Phone vs desktop inbox:** Mobile Gmail/Apple Mail often scale or strip CSS. This repo’s `email-magic-link-body.html` uses **tables + inline styles + larger type (16px body)** so phone and desktop look closer. After pulling updates, **paste the file into Supabase again** — the dashboard does not auto-sync from GitHub.
+
 Full walkthrough for Step 3 + Step 4 together: **`docs/STEP_3_AND_4.md`**.
 
 ---
@@ -142,7 +144,7 @@ window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 |--------|----------------|
 | Email never arrives | Spam folder; Supabase **Auth** logs; rate limits |
 | Link opens app but not signed in | **Redirect URLs** and **Site URL** must match your real URL (including trailing slash) |
-| Email link opens **localhost** on phone | **Site URL** must be your live HTTPS URL, not localhost. Set **`HIMFIT_AUTH_REDIRECT_URL`** in `himfit-config.js` to that live URL, push, request a **new** magic link |
+| Email link opens **localhost** (e.g. `localhost:3000/?code=…`) | **Supabase → Authentication → URL configuration → Site URL** must be your **live** app URL (`https://winstonac.github.io/HimFit/`), **not** `http://localhost:3000`. Add the same URL under **Redirect URLs**. In **`himfit-config.js`**, keep **`HIMFIT_AUTH_REDIRECT_URL`** set to that live URL. Then request a **new** magic link (old emails keep the old redirect). If you use **Send link** from a dev server, either set the fixed redirect URL in config or only send links from the **deployed** site. |
 | Wrong / ugly **confirm signup** email | Supabase uses a **separate** template — copy your HimFit HTML into **Confirm signup** as well as **Magic link** (Part C) |
 | “Invalid API key” | You pasted `service_role` instead of **anon** — fix `himfit-config.js` |
 | Table errors on save | RLS policies + table name **`himfit_profiles`** exactly |
