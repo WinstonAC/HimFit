@@ -296,7 +296,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .sw span::before{position:absolute;content:'';height:20px;width:20px;left:3px;bottom:3px;background:var(--w);border-radius:50%;transition:.2s}
 .sw input:checked+span{background:var(--gold)}
 .sw input:checked+span::before{transform:translateX(18px)}
-#profile-strip{font-size:11px;color:var(--mut);line-height:1.5}
+#profile-strip{font-size:11px;color:var(--mut);line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
 /* AUTH GATE — full screen before app when Supabase is on and user not signed in */
 .auth-gate{position:fixed;inset:0;z-index:450;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-sizing:border-box;min-height:100vh;min-height:100dvh;padding:calc(20px + var(--st)) max(16px,env(safe-area-inset-left)) calc(24px + var(--sb)) max(16px,env(safe-area-inset-right));background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 38%,var(--bg-c) 72%,#141418 100%);background-attachment:scroll;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @media (min-width:480px) and (min-height:560px){
@@ -318,7 +318,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .password-recovery-overlay{position:fixed;inset:0;background:rgba(8,3,6,0.94);z-index:520;display:flex;align-items:flex-start;justify-content:center;padding:calc(20px + var(--st)) 16px calc(24px + var(--sb));overflow-y:auto;-webkit-overflow-scrolling:touch}
 .password-recovery-overlay.hid{display:none}
 #app-shell.hid{display:none!important}
-.overview-account-card{margin-bottom:14px}
+.overview-account-card{margin-bottom:14px;margin-top:14px}
 .overview-account-card .overview-signout{width:100%;padding:12px 16px;margin-top:4px}
 </style>
 </head>
@@ -523,7 +523,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   </div>
 
   <div class="slbl">Protocols</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
     <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Sauna</div><div style="font-size:11px;color:var(--w);line-height:1.6">15–30 min after every strength session. 80–90°C. 750ml water after.</div></div>
     <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Creatine</div><div style="font-size:11px;color:var(--w);line-height:1.6">5g daily, any time. No loading. Non-training days: morning.</div></div>
     <div class="card-s"><div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">Run Order</div><div style="font-size:11px;color:var(--w);line-height:1.6">Lift first, run second. Never run hard after heavy legs.</div></div>
@@ -615,7 +615,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div id="fuel-day" style="font-size:11px;color:var(--mut)">Based on today's session</div>
     <div id="fuel-variant-lbl" style="font-size:10px;color:var(--hint);margin-top:6px;line-height:1.4"></div>
   </div>
-  <div class="slbl" id="fuel-macro-slbl">Your Numbers — 68kg · 45yo · Build Muscle</div>
+  <div class="slbl" id="fuel-macro-slbl">Your Numbers — 68kg · 45yo</div>
   <div class="mc-row">
     <div class="mc"><div class="mc-n">2766</div><div class="mc-l">Kcal / Day</div></div>
     <div class="mc"><div class="mc-n">150g</div><div class="mc-l">Protein</div></div>
@@ -1938,6 +1938,7 @@ function openIntake(edit){
   const ov=document.getElementById('intake-overlay');
   if(!ov)return;
   ov.classList.remove('hid');
+  document.body.style.overflow='hidden';
   document.getElementById('intake-cancel-btn').style.display=edit?'block':'none';
   populateIntakeForm();
 }
@@ -1945,6 +1946,7 @@ function openIntake(edit){
 function closeIntake(){
   const ov=document.getElementById('intake-overlay');
   if(ov)ov.classList.add('hid');
+  document.body.style.overflow='';
 }
 
 function submitIntake(){
@@ -2063,13 +2065,10 @@ function refreshFuelMacroSlbl(){
   if(!el)return;
   const i=S.intake;
   if(!i||!S.intakeComplete||(!i.age&&!i.weightKg)){
-    el.textContent='Your Numbers — 68kg · 45yo · Build Muscle';
+    el.textContent='Your Numbers — 68kg · 45yo';
     return;
   }
-  const gl=intakeGoals(i).map(k=>GOAL_LABELS[k]||k).join(' · ');
-  const dl={omnivore:'Omnivore',vegetarian:'Vegetarian',vegan:'Vegan',pescatarian:'Pescatarian'}[i.diet]||'Omnivore';
-  const salad=i.mealStyle==='salad_forward'?' · Salad-forward':'';
-  el.textContent=`Your Numbers — ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${i.age||'—'}yo · ${gl} · ${dl}${salad}`;
+  el.textContent=`Your Numbers — ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${i.age||'—'}yo`;
 }
 
 // ─────────────────────────────────────────────
@@ -2381,6 +2380,7 @@ async function pullCloudStateIntoApp(){
   const io=document.getElementById('intake-overlay');
   if(!blocked&&S.intakeComplete!==true){
     io.classList.remove('hid');
+    document.body.style.overflow='hidden';
     document.getElementById('intake-cancel-btn').style.display='none';
   }else{
     io.classList.add('hid');
