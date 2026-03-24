@@ -56,7 +56,7 @@ create policy "himfit_update_own"
 2. Set `HIMFIT_SUPABASE_URL` and `HIMFIT_SUPABASE_ANON_KEY` from **Project Settings → API**.
 3. Deploy `himfit-config.js` with the site.
 
-If keys are empty, **Settings → Cloud account** stays hidden and the app is device-only.
+If keys are empty, **Settings → Sign in** still appears with copy explaining that Supabase is not configured yet; the app remains device-only until you add keys.
 
 ---
 

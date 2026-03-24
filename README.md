@@ -12,7 +12,7 @@
 
 | Area | Details |
 |------|---------|
-| **Overview** | **Tester sign-in** (hero + Settings), phases, split, protocols, **Settings** (Strava, profile, email magic link when Supabase is configured) |
+| **Overview** | **Sign in** (hero + Settings — luxe copy), phases, split, protocols, **Settings** (Strava, profile, magic link when Supabase is configured) |
 | **Today** | Full day: lifts, runs, KB, sauna notes; **reps, rest text, Zone 2 duration, and run tips** adjust from your **goals** |
 | **Plan** | 12-week grid; banner when **goals** are active (not only “general”) |
 | **Runs** | Optional Strava embed + **manual run log** + history |
@@ -31,7 +31,7 @@
 ### Data: device vs cloud
 
 - **Default:** everything lives in the browser **`localStorage`** key `hf4` (this device only). Different phones = different people; nothing is mixed automatically.
-- **Optional cloud:** with **Supabase** + keys in `himfit-config.js`, testers use **Settings → Tester sign-in** (see **[`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md)** for a short checklist). The **magic link opens the same app URL** (no separate login page); intake/profile still runs on the device. Without keys, that section stays visible but explains what’s missing.
+- **Optional cloud:** with **Supabase** + keys in `himfit-config.js`, use **Sign in** on the hero or under **Settings**. Full order-of-operations + **branded HimFit email HTML**: **[`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md)**. The magic link returns to the **same app URL**; profile/intake still runs on the device. Without keys, **Sign in** stays visible with a short explanation.
 
 ---
 
@@ -65,12 +65,9 @@ Any **static host** works the same way: connect the repo, no build step, publish
 
 ## Optional cloud sign-in (maintainers)
 
-1. Create a Supabase project and run the SQL in **[`docs/ACCOUNTS_AND_SYNC.md`](docs/ACCOUNTS_AND_SYNC.md)**.
-2. Copy **`himfit-config.example.js`** to **`himfit-config.js`** and add your **project URL** and **anon key** (safe to expose with RLS; never put the **service role** key in the frontend).
-3. Enable **Email** auth (magic link) and add your exact **redirect URL** (e.g. `https://winstonac.github.io/HimFit/`).
-4. Deploy **`himfit-config.js`** with the site (or use a private fork for pilot keys).
+Follow **[`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md)** (SQL, Auth URLs, **custom email templates**, optional SMTP, `himfit-config.js`, test). Shorthand pointer: [`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md).
 
-If keys are empty, the app is **offline-first** only, but **Tester sign-in** still appears with an explanation (so the UI isn’t invisible).
+If keys are empty, the app is **offline-first** only, but **Sign in** still appears with a calm explanation.
 
 ---
 
@@ -93,7 +90,7 @@ If keys are empty, the app is **offline-first** only, but **Tester sign-in** sti
 | Topic | Location |
 |-------|----------|
 | **Accounts, sync, roadmap (Strava, analytics)** | [`docs/ACCOUNTS_AND_SYNC.md`](docs/ACCOUNTS_AND_SYNC.md) |
-| **Tester magic link — quick checklist** | [`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md) |
+| **Supabase + branded email — full checklist** | [`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md) |
 | **Supabase config template** | `himfit-config.example.js` → `himfit-config.js` |
 
 ### `localStorage` (`hf4`)
