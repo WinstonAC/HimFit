@@ -16,7 +16,7 @@
 | **Today** | Full day: lifts, runs, KB, sauna notes; **reps, rest text, Zone 2 duration, and run tips** adjust from your **goals** |
 | **Plan** | 12-week grid; banner when **goals** are active (not only “general”) |
 | **Runs** | Optional Strava embed + **manual run log** + history |
-| **Fuel** | Meals by **eating style** (omnivore / pescatarian / vegetarian / vegan), **week rotation** across **3 meal sets**, optional **salad-forward** tips + shopping list |
+| **Fuel** | **Personalised macros** (Mifflin-St Jeor BMR × 1.6, goal-adjusted: +250 surplus / −400 deficit / +150 run fuel / maintenance). Meals by **eating style** (omnivore / pescatarian / vegetarian / vegan), **week rotation** across **3 meal sets**, optional **salad-forward** tips + shopping list |
 | **Shop** | List built from Fuel ingredients |
 
 ### Profile & intake
@@ -92,6 +92,19 @@ If keys are empty, the app is **offline-first** only, but **Sign in** still appe
 | **Accounts, sync, roadmap (Strava, analytics)** | [`docs/ACCOUNTS_AND_SYNC.md`](docs/ACCOUNTS_AND_SYNC.md) |
 | **Supabase + branded email — full checklist** | [`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md) |
 | **Supabase config template** | `himfit-config.example.js` → `himfit-config.js` |
+
+### Macro calculation
+
+`calcMacros()` in `index.html` uses **Mifflin-St Jeor BMR × 1.6** (5-day active factor) from the saved profile (`weightKg`, `heightCm`, `age`, `sex`). Calorie targets adjust per primary goal:
+
+| Primary goal | Adjustment | Protein |
+|---|---|---|
+| `build_muscle` | TDEE + 250 | 2.0 g/kg |
+| `lose_fat` | TDEE − 400 | 2.2 g/kg |
+| `endurance` | TDEE + 150 | 2.0 g/kg |
+| `stay_lean` / `general` | TDEE ± 0 | 2.0 g/kg |
+
+Fat = 27 % of total kcal. Carbs = remainder. Falls back to 68 kg / 45 yo defaults if no profile.
 
 ### `localStorage` (`hf4`)
 
