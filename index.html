@@ -301,13 +301,13 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .auth-gate.hid{display:none}
 .auth-gate-card{max-width:400px;width:100%;text-align:center;padding:12px 8px 24px}
 .auth-gate-brand{font-size:10px;letter-spacing:0.42em;text-transform:uppercase;color:var(--mut);margin-bottom:16px}
-.auth-gate-h1{font-family:'Bebas Neue',sans-serif;font-size:56px;line-height:0.92;color:var(--w);margin:0 0 14px;letter-spacing:0.02em}
+.auth-gate-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(42px,11vw,56px);line-height:0.92;color:var(--w);margin:0 0 14px;letter-spacing:0.02em}
 .auth-gate-h1 em{color:var(--gold);font-style:normal}
-.auth-gate-sub{font-size:13px;color:var(--mut);line-height:1.65;font-weight:300;margin:0 0 24px;max-width:320px;margin-left:auto;margin-right:auto}
-.auth-gate-status{min-height:44px;font-size:12px;color:var(--hint);line-height:1.5;margin-bottom:8px;font-weight:300}
+.auth-gate-sub{font-size:clamp(13px,3.4vw,14px);color:#c9c4bd;line-height:1.6;font-weight:400;margin:0 0 22px;max-width:340px;margin-left:auto;margin-right:auto;padding:0 4px}
+.auth-gate-status{min-height:44px;font-size:clamp(12px,3.2vw,13px);color:#a8a39c;line-height:1.55;margin-bottom:8px;font-weight:400;padding:0 2px}
 .auth-gate .log-input{text-align:center;margin-bottom:14px}
 .auth-gate .auth-gate-btn{width:100%;max-width:100%}
-.auth-gate-foot{margin:20px 0 0;font-size:10px;color:var(--hint);line-height:1.5;font-weight:300;max-width:320px;margin-left:auto;margin-right:auto}
+.auth-gate-foot{margin:22px 0 0;font-size:clamp(11px,2.9vw,12px);color:var(--hint);line-height:1.55;font-weight:400;max-width:340px;margin-left:auto;margin-right:auto;padding:0 4px;text-align:center}
 #app-shell.hid{display:none!important}
 .overview-account-card{margin-bottom:14px}
 .overview-account-card .overview-signout{width:100%;padding:12px 16px;margin-top:4px}
@@ -424,11 +424,11 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <div class="auth-gate-card">
     <p class="auth-gate-brand">HimFit</p>
     <h1 class="auth-gate-h1">Sign <em>in</em></h1>
-    <p class="auth-gate-sub">Start your journey now. We’ll email you a private link — no password. Check your inbox, then tap the link to open your program.</p>
+    <p class="auth-gate-sub">We’ll email you a private sign-in link — no password. Use the link <strong>on this same phone or computer</strong> so the app can finish signing you in. Check spam if nothing arrives in a minute.</p>
     <div id="cloud-auth-status" class="auth-gate-status"></div>
     <input type="email" class="log-input" id="cloud-email" placeholder="Email address" autocomplete="email" inputmode="email">
     <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-send-btn" onclick="sendHimfitMagicLink()">Send link</button>
-    <p class="auth-gate-foot">Already signed in on this device? After you open the app, use <strong>Overview → Sign out</strong>. Bookmark <strong>#signin</strong> on this page’s URL to force this screen (you’ll be signed out first).</p>
+    <p class="auth-gate-foot"><strong>Already signed in?</strong> Open the app → <strong>Overview</strong> (bottom) → scroll down → <strong>Sign out</strong>. To return here: add <strong>#signin</strong> to the end of this page’s address (you’ll be signed out first if needed).</p>
   </div>
 </div>
 
@@ -2162,7 +2162,7 @@ async function sendHimfitMagicLink(){
   const email=(el?.value||'').trim();
   if(!email){if(st)st.textContent='Enter your email.';return;}
   const {error}=await himfitSupabase.auth.signInWithOtp({email,options:{emailRedirectTo:himfitAuthRedirectUrl()}});
-  if(st)st.textContent=error?('Error: '+error.message):'Check your inbox — your HimFit link is on its way.';
+  if(st)st.textContent=error?('Error: '+error.message):'Email sent. Open the link in that message on this device to finish signing in.';
 }
 async function himfitSignOut(){
   if(himfitSupabase)await himfitSupabase.auth.signOut();
