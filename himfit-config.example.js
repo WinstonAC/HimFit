@@ -4,5 +4,8 @@
 window.HIMFIT_SUPABASE_URL = '';
 window.HIMFIT_SUPABASE_ANON_KEY = '';
 
+// Live app URL for magic-link redirects (same as Site URL / allowlisted redirect in Supabase). Stops localhost links in email.
+window.HIMFIT_AUTH_REDIRECT_URL = 'https://winstonac.github.io/HimFit/';
+
 // Optional: your Supabase user UUID so only you can enable the Strava embed (Overview → Settings).
 window.HIMFIT_STRAVA_OWNER_USER_ID = '';

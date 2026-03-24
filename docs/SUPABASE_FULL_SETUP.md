@@ -41,9 +41,11 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
 ### Step 5 — Site URL & redirect URLs (critical)
 
 1. **Authentication** → **URL configuration**.
-2. **Site URL** (exactly):
+2. **Site URL** (exactly — use your real GitHub Pages URL):
 
    `https://winstonac.github.io/HimFit/`
+
+   If this is still **`http://localhost:…`**, Supabase will put **localhost** in emails and Safari will fail on your phone. Change it to your **live** URL.
 
 3. **Redirect URLs** — add **each** of these (one per line):
 
@@ -51,11 +53,15 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
    - `https://winstonac.github.io/HimFit/**` (if Supabase allows wildcards in your dashboard)
    - For local testing: `http://localhost:8081/` (or whatever port you use)
 
+4. In **`himfit-config.js`**, set **`HIMFIT_AUTH_REDIRECT_URL`** to that **same** live URL (see `himfit-config.example.js`). HimFit sends this to Supabase as `emailRedirectTo`. If you only relied on “current page” and once clicked **Send link** from **localhost**, the email would open **localhost** on your phone — the fixed URL prevents that.
+
 > The link in the email must match an allowed redirect, or sign-in will fail after the user taps it.
 
 ---
 
 ## Part C — Branded HimFit emails (templates)
+
+Supabase sends **different** emails from **different** templates. If your inbox shows **“Confirm your signup”** with the default gray Supabase look, that is **not** the Magic Link template — you must style **that** template too.
 
 **Copy-paste files (avoids broken preview / markdown):**
 
@@ -69,14 +75,11 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
 3. Open `email-magic-link-body.html` → select all → copy → paste into the template body (use **Source** / HTML mode if available).
 4. **Save**.
 
-**Do not remove** `{{ .ConfirmationURL }}` or `{{ .Email }}`. Support line uses plain `info@williamacampbell.com` — edit that file if you want a different address.
+5. **Same dashboard** → **Confirm signup** (or **Confirm your email**): paste the **same** HTML body and a matching subject (e.g. `HimFit — confirm your email`). **Do not remove** `{{ .ConfirmationURL }}` on the button.
+
+**Do not remove** `{{ .ConfirmationURL }}` or `{{ .Email }}` in any template that uses them. Support line uses plain `info@williamacampbell.com` — edit that file if you want a different address.
 
 Full walkthrough for Step 3 + Step 4 together: **`docs/STEP_3_AND_4.md`**.
-
-### Optional — **Confirm signup** (if you use “confirm email” + signup flow)
-
-**Subject:** `HimFit — confirm your email`  
-**Body:** duplicate `email-magic-link-body.html` into that template; keep `{{ .ConfirmationURL }}` on the button.
 
 ---
 
@@ -116,6 +119,7 @@ Edit **`himfit-config.js`** at the repo root:
 ```javascript
 window.HIMFIT_SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
 window.HIMFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+window.HIMFIT_AUTH_REDIRECT_URL = 'https://winstonac.github.io/HimFit/';
 // After you sign in once: Dashboard → Authentication → Users → copy your UUID:
 window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 ```
@@ -138,6 +142,8 @@ window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 |--------|----------------|
 | Email never arrives | Spam folder; Supabase **Auth** logs; rate limits |
 | Link opens app but not signed in | **Redirect URLs** and **Site URL** must match your real URL (including trailing slash) |
+| Email link opens **localhost** on phone | **Site URL** must be your live HTTPS URL, not localhost. Set **`HIMFIT_AUTH_REDIRECT_URL`** in `himfit-config.js` to that live URL, push, request a **new** magic link |
+| Wrong / ugly **confirm signup** email | Supabase uses a **separate** template — copy your HimFit HTML into **Confirm signup** as well as **Magic link** (Part C) |
 | “Invalid API key” | You pasted `service_role` instead of **anon** — fix `himfit-config.js` |
 | Table errors on save | RLS policies + table name **`himfit_profiles`** exactly |
 
@@ -147,7 +153,7 @@ window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
 | File | Role |
 |------|------|
-| `himfit-config.js` | URL + anon key; optional `HIMFIT_STRAVA_OWNER_USER_ID` (Strava toggle) |
+| `himfit-config.js` | URL, anon key, **`HIMFIT_AUTH_REDIRECT_URL`** (live magic-link target); optional Strava owner UUID |
 | `himfit-config.example.js` | Copy starter |
 | `index.html` | Supabase client + **Sign in** UX |
 | `docs/ACCOUNTS_AND_SYNC.md` | Architecture notes |

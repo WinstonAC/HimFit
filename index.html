@@ -2053,6 +2053,18 @@ let himfitSupabase=null;
 let himfitAuthUser=null;
 let himfitCloudConfigured=false;
 function himfitAuthRedirectUrl(){
+  const fixed=(window.HIMFIT_AUTH_REDIRECT_URL||'').trim();
+  if(fixed){
+    try{
+      const u=new URL(fixed);
+      let path=u.pathname.replace(/\/index\.html$/i,'');
+      if(path===''||path==='/')path='/';
+      if(!path.endsWith('/'))path+='/';
+      return u.origin+path;
+    }catch(e){
+      console.warn('HimFit: invalid HIMFIT_AUTH_REDIRECT_URL — check himfit-config.js',e);
+    }
+  }
   let p=window.location.pathname.replace(/\/index\.html$/i,'');
   if(!p.endsWith('/'))p+='/';
   return window.location.origin+p;
