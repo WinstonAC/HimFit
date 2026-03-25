@@ -391,8 +391,14 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="intake-field"><label>Gym or home</label>
       <select class="log-input" id="in-loc">
         <option value="gym">Gym</option>
-        <option value="home">Home</option>
+        <option value="home">Home (bodyweight + bands)</option>
         <option value="both">Both</option>
+      </select>
+    </div>
+    <div class="intake-field"><label>Program style</label>
+      <select class="log-input" id="in-style">
+        <option value="full">Full program — strength + running</option>
+        <option value="runner">Runner-focused — running + light bodyweight only</option>
       </select>
     </div>
     <div class="intake-field"><label>Eating style</label>
@@ -768,6 +774,80 @@ const FRI_HIIT=[
   ["Jump Rope or Jumping Jacks","30s max effort cardio burst","4×30s / 4×30s / 4×30s"],
   ["Jump Lunges","Continuous; modify to reverse lunge if form breaks","4×30s / 4×30s / 4×30s"],
   ["Suitcase Marches","12 each side; KB in one hand; tall posture","4×12 R/L / 4×12 R/L / 4×12 R/L",'', 'https://www.youtube.com/watch?v=FxQoRZO45y0'],
+];
+
+// ─────────────────────────────────────────────
+// HOME WORKOUT ARRAYS  (no barbell / machines — bodyweight + bands + optional KBs)
+// ─────────────────────────────────────────────
+const MON_HOME_WU=[
+  ["Push-Up to Down Dog","From push-up position lower chest to floor then push hips up to downward dog; 5 slow reps","2×5 / 2×8 / 3×8"],
+];
+const MON_HOME_CH=[
+  ["Standard Push-Ups","Hands shoulder-width; chest to 2 cm off floor; lock out at top; full ROM","3×10 / 3×15 / 4×15"],
+  ["Wide Push-Ups","Hands 1.5× shoulder-width; emphasises outer chest; slow 3s eccentric","3×10 / 3×12 / 4×12"],
+  ["Diamond Push-Ups","Index fingers + thumbs form a diamond; elbows track back; triceps emphasis","3×8 / 3×10 / 3×12"],
+  ["Pike Push-Ups","Hips high in inverted-V; lower head between hands — shoulder press pattern","3×10 / 3×12 / 4×12"],
+  ["Decline Push-Ups","Feet elevated on chair; targets upper chest; keep core rigid","3×10 / 3×12 / 3×15"],
+  ["Resistance Band Chest Press","Anchor band at back; press forward at chest height; squeeze at full extension","3×12 / 3×15 / 4×15","Light–Medium band"],
+  ["Chair Dips","Hands on chair edge; lower until elbows 90°; lean forward slightly for chest","3×10 / 3×12 / 4×12","Bodyweight"],
+];
+const WED_HOME_WU=[
+  ["Arm Circles + Band Pull-Aparts","30s arm circles each direction then 15 band pull-aparts","2×30s / 2×30s / 3×30s"],
+];
+const WED_HOME_SH=[
+  ["Pike Push-Ups","Hips high; lower head between hands; slow 3s eccentric — shoulder press movement","3×10 / 3×12 / 4×12"],
+  ["Band Overhead Press","Stand on band; press to full lockout overhead; brace core throughout","3×10 / 3×12 / 4×12","Light–Medium band"],
+  ["Band Lateral Raises","Both arms; no momentum; 3s eccentric; pause at shoulder height","3×12 / 3×15 / 4×15","Light band"],
+  ["Band Front Raises","Alternate arms; control the descent fully","3×10 / 3×12 / 3×15","Light band"],
+  ["Plank Shoulder Taps","From plank; tap opposite shoulder; keep hips square and still","3×10 R/L / 3×12 R/L / 4×12 R/L"],
+  ["Band Cuban Press","Anchor band low; external rotation into press in one fluid movement","3×10 / 3×12 / 3×12","Light band"],
+];
+const WED_HOME_BK=[
+  ["Inverted Rows","Under sturdy table; hands shoulder-width; pull chest to table edge; scapulae first","3×8 / 3×10 / 4×10","Bodyweight"],
+  ["Band Bent-Over Row","Hinge 45°; pull band to lower chest; retract scapulae; explosive pull","3×10 / 4×10 / 4×12","Medium band"],
+  ["Superman Hold","Lie face-down; lift arms + legs simultaneously; hold 2s at top","3×10 / 3×12 / 3×15"],
+  ["Reverse Snow Angel","Face-down; arms trace arc from sides to overhead; squeeze shoulder blades","3×10 / 3×12 / 3×15"],
+  ["Band Lat Pulldown","Anchor band high in doorway; pull elbows to ribs; squeeze lats at bottom","3×12 / 3×15 / 4×15","Medium band"],
+];
+const THU_HOME_LF=[
+  ["Incline Push-Ups","Hands on raised surface; 4s eccentric; targets upper chest","3×12 / 4×12 / 4×15","Bodyweight"],
+  ["Inverted Rows","Pull chest to table edge; think 'bend the table'; retract scapulae","3×8 / 4×10 / 4×10","Bodyweight"],
+  ["Band Bicep Curls","Stand on band; supinate wrists; full range; squeeze hard at top","3×12 / 3×12 / 3×15","Medium band"],
+  ["Band Tricep Extensions","Anchor band high in doorway; press down to full lockout; control return","3×12 / 3×12 / 4×12","Light–Medium band"],
+  ["Chair Dips","Hands on chair edge; lower until 90°; press to lockout; lean back slightly","3×10 / 3×12 / 4×12","Bodyweight"],
+  ["Band Hammer Curls","Neutral grip; slow 3s eccentric; don't swing at the top","3×12 / 3×12 / 3×15","Medium band"],
+  ["Plank Hold","Forearms; neutral spine; posterior tilt pelvis; breathe steadily","3×40s / 3×50s / 3×60s"],
+];
+
+// ─────────────────────────────────────────────
+// RUNNER-FOCUSED ARRAYS  (run-primary users — short bodyweight sessions)
+// ─────────────────────────────────────────────
+const RUN_MON_UPPER=[
+  ["Push-Ups","Full ROM; chest to floor; core braced; don't rush","3×10 / 3×15 / 4×15"],
+  ["Diamond Push-Ups","Triceps + upper chest; elbows track back; slow 3s eccentric","3×8 / 3×10 / 3×12"],
+  ["Pike Push-Ups","Inverted-V; shoulder press movement; lower slow","3×8 / 3×10 / 3×12"],
+  ["Inverted Rows","Under table; scapulae first then pull; don't crane neck","3×8 / 3×10 / 4×10","Bodyweight"],
+  ["Sit-Ups","Feet anchored under sofa; full sit to upright; control the descent","3×15 / 3×20 / 4×20"],
+  ["Plank Hold","Elbows under shoulders; posterior tilt pelvis; hold steady","3×30s / 3×45s / 3×60s"],
+];
+const RUN_WED_CORE=[
+  ["Dead Bug","Extend opposite arm + leg; press lower back into floor; slow","3×8 R/L / 3×10 R/L / 3×12 R/L"],
+  ["Bicycle Crunches","Slow + deliberate; elbow to opposite knee; full rotation","3×15 / 3×20 / 4×20"],
+  ["Russian Twist","Feet elevated; rotate fully each side; add weight if easy","3×12 / 3×15 / 3×20"],
+  ["Side Plank","Full hold each side; don't let hips sag; breathe steadily","3×25s / 3×35s / 3×45s"],
+  ["Kneeling Hip Flexor Stretch","Front knee over ankle; drive hip forward; hold steady","2×45s / 2×45s / 3×45s"],
+];
+const RUN_THU_LOWER=[
+  ["Bodyweight Squat","Full depth; knees track toes; tall chest; drive through heels","3×15 / 3×20 / 4×20"],
+  ["Reverse Lunges","Step back; front shin vertical; drive up through front heel","3×10 R/L / 3×12 R/L / 4×12 R/L"],
+  ["Single-Leg Glute Bridge","Flat on back; one leg extended; drive hip to ceiling; hold 1s","3×10 R/L / 3×12 R/L / 4×12 R/L"],
+  ["Single-Leg Calf Raises","Step edge preferred; full ROM up + slow 3s eccentric down","3×12 / 3×15 / 4×20"],
+  ["Side-Lying Hip Abduction","Leg straight; slow arc to 45°; hold 1s at top; don't roll","3×12 R/L / 3×15 R/L / 3×15 R/L"],
+];
+const RUN_FRI_ACTIVE=[
+  ["Downward Dog Hold","5 slow pedals each foot; let hamstrings breathe; hold 45s","3×45s / 3×45s / 3×60s"],
+  ["World's Greatest Stretch","Lunge forward + open chest to ceiling; each side alternating","3×5 R/L / 3×6 R/L / 3×8 R/L"],
+  ["Figure-4 Glute Stretch","Seated or lying; cross ankle over knee; hold; breathing slowly","2×45s / 3×45s / 3×60s"],
 ];
 
 const WU_STR=[
@@ -1374,6 +1454,20 @@ function activeDays(){
 function experienceLevel(){
   return (S.intake||{}).experience||'intermediate';
 }
+function workoutLocation(){
+  return (S.intake||{}).location||'gym';
+}
+function programStyle(){
+  return (S.intake||{}).programStyle||'full';
+}
+// Returns a slice of an exercise array scaled to the user's experience level.
+// Beginner ≈ 50 %, intermediate ≈ 75 %, advanced = all.
+function experienceSlice(arr){
+  const exp=experienceLevel();
+  if(exp==='beginner')return arr.slice(0,Math.max(2,Math.ceil(arr.length*0.5)));
+  if(exp==='intermediate')return arr.slice(0,Math.max(3,Math.ceil(arr.length*0.75)));
+  return arr;
+}
 function workoutRepBias(){
   const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
   const mus=g.includes('build_muscle');
@@ -1558,52 +1652,94 @@ function buildDay(){
 }
 
 function dayMon(segs,w){
-  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder prep — 8 min',
-    exRows(MON_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
-  const chestWithVid=[...MON_CH];
-  const chHtml=exRows(chestWithVid,w,'Chest Work')+`<div style="margin-top:10px">${vidBtn(VIDS.chest_stretch,'Doorway Chest Stretch')}</div>`;
-  segs.appendChild(mkSeg('plift','Chest','Bench · Dips · Nautilus · Incline · Pec Deck — ~45 min',chHtml,false));
-  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle — ~15 min',exRows(MON_CORE,w,'Core'),false));
+  const loc=workoutLocation();
+  const style=programStyle();
+  if(style==='runner'){
+    segs.appendChild(mkSeg('pwu','Warm-Up','Joint mobility — 5 min',strList(WU_STR.slice(0,4)),true));
+    segs.appendChild(mkSeg('plift','Light Upper Body + Core','Push-Ups · Rows · Sit-Ups · Plank — ~25 min',exRows(experienceSlice(RUN_MON_UPPER),w,'Upper Body + Core'),false));
+    segs.appendChild(mkSeg('pcd','Cool-Down','5 min static',strList(CD_STR),false));
+    return;
+  }
+  const WU=loc==='home'?MON_HOME_WU:MON_WU;
+  const CH=loc==='home'?MON_HOME_CH:MON_CH;
+  const wuLabel=loc==='home'?'Push-Up warm-up + mobility — 8 min':'Pull-ups + shoulder prep — 8 min';
+  segs.appendChild(mkSeg('pwu','Warm-Up',wuLabel,exRows(WU,w,'Activation')+strList(WU_STR.slice(0,4)),true));
+  const chHtml=exRows(experienceSlice(CH),w,'Chest Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.chest_stretch,'Doorway Chest Stretch')}</div>`:'');
+  const chMeta=loc==='home'?'Push-Ups · Decline · Diamond · Band Press · Chair Dips — ~40 min':'Bench · Dips · Nautilus · Incline · Pec Deck — ~45 min';
+  segs.appendChild(mkSeg('plift','Chest',chMeta,chHtml,false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle — ~15 min',exRows(experienceSlice(MON_CORE),w,'Core'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min static',strList(CD_STR),false));
-  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+  if(loc!=='home')segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
 
 function dayWed(segs,w){
-  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + joint prep — 8 min',
-    exRows(WED_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
-  const shHtml=exRows(WED_SH,w,'Shoulder Work')+`<div style="margin-top:10px">${vidBtn(VIDS.shoulders,'Shoulders Demo')}</div>`;
-  segs.appendChild(mkSeg('plift','Shoulders','OHP · Arnold · Lateral · Front · Cuban · KB Press — ~40 min',shHtml,false));
-  const bkHtml=exRows(WED_BK,w,'Back Work')+`<div style="margin-top:10px">${vidBtn(VIDS.back_inspo,'Back Inspiration')}</div>`;
-  segs.appendChild(mkSeg('pback','Back','Bent-Over Row · Seated Rows · Pulldowns · T-Bar · KB Deadlifts — ~25 min',bkHtml,false));
-  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist — ~12 min',exRows(WED_CORE,w,'Core'),false));
+  const loc=workoutLocation();
+  const style=programStyle();
+  if(style==='runner'){
+    segs.appendChild(mkSeg('pwu','Warm-Up','5 min',strList(WU_STR.slice(0,4)),true));
+    segs.appendChild(mkSeg('plift','Core & Mobility','Dead Bug · Bicycle · Russian Twist · Hip Flexor — ~25 min',exRows(experienceSlice(RUN_WED_CORE),w,'Core + Mobility'),false));
+    segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
+    return;
+  }
+  const WU=loc==='home'?WED_HOME_WU:WED_WU;
+  const SH=loc==='home'?WED_HOME_SH:WED_SH;
+  const BK=loc==='home'?WED_HOME_BK:WED_BK;
+  const wuLabel=loc==='home'?'Arm circles + band pull-aparts — 8 min':'Pull-ups + joint prep — 8 min';
+  segs.appendChild(mkSeg('pwu','Warm-Up',wuLabel,exRows(WU,w,'Activation')+strList(WU_STR.slice(0,4)),true));
+  const shHtml=exRows(experienceSlice(SH),w,'Shoulder Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.shoulders,'Shoulders Demo')}</div>`:'');
+  const shMeta=loc==='home'?'Pike Push-Ups · Band OHP · Lateral · Front · Cuban — ~35 min':'OHP · Arnold · Lateral · Front · Cuban · KB Press — ~40 min';
+  segs.appendChild(mkSeg('plift','Shoulders',shMeta,shHtml,false));
+  const bkHtml=exRows(experienceSlice(BK),w,'Back Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.back_inspo,'Back Inspiration')}</div>`:'');
+  const bkMeta=loc==='home'?'Inverted Rows · Band Row · Superman · Reverse Angel · Band Pulldown — ~20 min':'Bent-Over Row · Seated Rows · Pulldowns · T-Bar · KB Deadlifts — ~25 min';
+  segs.appendChild(mkSeg('pback','Back',bkMeta,bkHtml,false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist — ~12 min',exRows(experienceSlice(WED_CORE),w,'Core'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
-  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+  if(loc!=='home')segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
 
 function dayThu(segs,w){
+  const loc=workoutLocation();
+  const style=programStyle();
+  const z2=getZone2Minutes();
+  const z2Html=`<div class="rsum">
+    <div class="rsr"><span class="rsl">Duration</span><span class="rsv">${z2} MIN</span></div>
+    <div class="rsr"><span class="rsl">Effort</span><span class="rsv">ZONE 2</span></div>
+    <div class="rsr"><span class="rsl">Heart Rate</span><span class="rsv">65–75%</span></div>
+    <div class="rsr" style="border:none"><span class="rsl">Rule</span><span style="font-size:11px;color:var(--mut)">You must be able to hold a full sentence</span></div>
+  </div>`;
+  if(style==='runner'){
+    segs.appendChild(mkSeg('pwu','Warm-Up','5 min',strList(WU_STR.slice(0,4)),true));
+    segs.appendChild(mkSeg('plift','Runner Strength — Lower Body','Squats · Lunges · Glute Bridge · Calves — ~30 min',exRows(experienceSlice(RUN_THU_LOWER),w,'Running Support Strength'),false));
+    segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-strength — conversational pace`,z2Html,false));
+    segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
+    return;
+  }
+  const LF=loc==='home'?THU_HOME_LF:THU_LF;
   segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder mobility — 8 min',
     exRows(THU_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
-  const liftHtml=exRows(THU_LF,w,'Hypertrophy + Arms')+`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`;
-  segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms','Incline · Chins · Arnold · Curls · Skulls · Dips — ~50 min',liftHtml,false));
-  const z2=getZone2Minutes();
-  segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-lifting — conversational pace`,
-    `<div class="rsum">
-      <div class="rsr"><span class="rsl">Duration</span><span class="rsv">${z2} MIN</span></div>
-      <div class="rsr"><span class="rsl">Effort</span><span class="rsv">ZONE 2</span></div>
-      <div class="rsr"><span class="rsl">Heart Rate</span><span class="rsv">65–75%</span></div>
-      <div class="rsr" style="border:none"><span class="rsl">Rule</span><span style="font-size:11px;color:var(--mut)">You must be able to hold a full sentence</span></div>
-    </div>`,false));
+  const liftMeta=loc==='home'?'Incline Push-Ups · Inverted Rows · Band Curls · Dips · Plank — ~45 min':'Incline · Chins · Arnold · Curls · Skulls · Dips — ~50 min';
+  const liftHtml=exRows(experienceSlice(LF),w,'Hypertrophy + Arms')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`:'');
+  segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms',liftMeta,liftHtml,false));
+  segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-lifting — conversational pace`,z2Html,false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
-  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+  if(loc!=='home')segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
 
 function dayFri(segs,w){
+  const loc=workoutLocation();
+  const style=programStyle();
+  if(style==='runner'){
+    segs.appendChild(mkSeg('pwu','Active Recovery & Mobility','Light movement + stretching — ~20 min',exRows(RUN_FRI_ACTIVE,w,'Mobility Flow'),true));
+    segs.appendChild(mkSeg('pcd','Cool-Down & Stretch','5 min',strList(CD_STR),false));
+    return;
+  }
   segs.appendChild(mkSeg('pwu','Warm-Up','Joint mobility — 5 min',strList(WU_STR),true));
-  const kbHtml=exRows(FRI_KB,w,'Full Body KB Circuit — Complete all 7 exercises back-to-back, then rest 2 min between rounds')+`<div style="margin-top:10px">${vidBtn(VIDS.kb_circuit,'KB Circuit Demo — Full Workout')}</div>`;
-  segs.appendChild(mkSeg('pkb','KB Circuit','7 exercises · 3–4 rounds · 10–12 reps · 2 min rest between rounds — ~30 min',kbHtml,false));
+  const kbSlice=experienceSlice(FRI_KB);
+  const kbHtml=exRows(kbSlice,w,`Full Body KB Circuit — Complete all ${kbSlice.length} exercises back-to-back, then rest 2 min between rounds`)+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.kb_circuit,'KB Circuit Demo — Full Workout')}</div>`:'');
+  segs.appendChild(mkSeg('pkb','KB Circuit',`${kbSlice.length} exercises · 3–4 rounds · 2 min rest between rounds — ~30 min`,kbHtml,false));
   segs.appendChild(mkSeg('pkb','HIIT Core Finisher','3 exercises · 4 rounds · 15s rest — ~15 min',exRows(FRI_HIIT,w,'Core Cardio'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
-  segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
+  if(loc!=='home')segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
 
 function dayTue(segs,w){
@@ -1936,6 +2072,7 @@ function populateIntakeForm(){
     document.getElementById('in-exp').value='intermediate';
     document.getElementById('in-days').value='5';
     document.getElementById('in-loc').value='gym';
+    document.getElementById('in-style').value='full';
     document.getElementById('in-inj').value='';
     document.getElementById('in-run').value='ten_plus';
     document.getElementById('in-diet').value='omnivore';
@@ -1965,6 +2102,7 @@ function populateIntakeForm(){
   document.getElementById('in-exp').value=i.experience||'intermediate';
   document.getElementById('in-days').value=i.daysPerWeek||'5';
   document.getElementById('in-loc').value=i.location||'gym';
+  document.getElementById('in-style').value=i.programStyle||'full';
   document.getElementById('in-inj').value=i.injuries||'';
   document.getElementById('in-run').value=i.runningComfort||'ten_plus';
   document.getElementById('in-diet').value=i.diet||'omnivore';
@@ -2016,6 +2154,7 @@ function submitIntake(){
     experience:document.getElementById('in-exp').value,
     daysPerWeek:document.getElementById('in-days').value,
     location:document.getElementById('in-loc').value,
+    programStyle:document.getElementById('in-style').value,
     injuries:(document.getElementById('in-inj').value||'').trim(),
     runningComfort:document.getElementById('in-run').value,
     diet:document.getElementById('in-diet').value,
