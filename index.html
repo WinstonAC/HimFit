@@ -300,22 +300,20 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .sw input:checked+span::before{transform:translateX(18px)}
 #profile-strip{font-size:11px;color:var(--mut);line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
 /* AUTH GATE — full screen before app when Supabase is on and user not signed in */
-.auth-gate{position:fixed;inset:0;z-index:450;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-sizing:border-box;min-height:100vh;min-height:100dvh;padding:calc(20px + var(--st)) max(16px,env(safe-area-inset-left)) calc(24px + var(--sb)) max(16px,env(safe-area-inset-right));background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 38%,var(--bg-c) 72%,#141418 100%);background-attachment:scroll;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
-@media (min-width:480px) and (min-height:560px){
-  .auth-gate{justify-content:center;padding-top:calc(28px + var(--st));background-attachment:fixed}
-}
+.auth-gate{position:fixed;inset:0;z-index:450;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-sizing:border-box;padding:clamp(48px,10vh,100px) max(20px,env(safe-area-inset-left)) calc(32px + var(--sb)) max(20px,env(safe-area-inset-right));background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 38%,var(--bg-c) 72%,#141418 100%);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .auth-gate.hid{display:none}
-.auth-gate-card{width:100%;max-width:min(400px,100%);box-sizing:border-box;margin:0 auto;text-align:center;padding:8px 0 20px;flex-shrink:0}
-.auth-gate-brand{font-size:10px;letter-spacing:0.42em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
-.auth-gate-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,10vw,54px);line-height:0.95;color:var(--w);margin:0 0 12px;letter-spacing:0.02em;word-break:normal}
+.auth-gate-card{width:100%;max-width:360px;box-sizing:border-box;margin:0 auto;text-align:center;padding:0 0 20px;flex-shrink:0}
+.auth-gate-brand{font-size:10px;letter-spacing:0.42em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+.auth-gate-h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,11vw,56px);line-height:0.95;color:var(--w);margin:0 0 10px;letter-spacing:0.02em}
 .auth-gate-h1 em{color:var(--gold);font-style:normal}
-.auth-gate-sub{font-size:clamp(13px,3.6vw,15px);color:#c9c4bd;line-height:1.58;font-weight:400;margin:0 auto 18px;max-width:min(340px,100%);padding:0 2px;box-sizing:border-box}
-.auth-gate-status{min-height:32px;font-size:clamp(12px,3.2vw,13px);color:#a8a39c;line-height:1.55;margin-top:12px;margin-bottom:0;font-weight:400;padding:0 4px;max-width:100%;box-sizing:border-box}
-.auth-gate-status.err{color:#e06070;font-weight:500}
-.auth-gate .log-input{text-align:center;margin-bottom:12px;max-width:100%;box-sizing:border-box}
+.auth-gate-sub{font-size:13px;color:#a8a39c;line-height:1.55;font-weight:400;margin:0 auto 16px;max-width:300px;padding:0;box-sizing:border-box}
+.auth-gate-status{font-size:12px;color:#a8a39c;line-height:1.5;margin-top:10px;font-weight:400;padding:4px 6px;max-width:100%;box-sizing:border-box;border-radius:4px}
+.auth-gate-status:not(:empty){background:rgba(255,255,255,0.04)}
+.auth-gate-status.err{color:#e06070;font-weight:500;background:rgba(224,96,112,0.08)}
+.auth-gate .log-input{text-align:center;margin-bottom:10px;max-width:100%;box-sizing:border-box}
 .auth-gate .auth-gate-btn{width:100%;max-width:100%;box-sizing:border-box}
-.auth-gate-foot{margin:18px auto 0;font-size:clamp(11px,2.8vw,12px);color:var(--hint);line-height:1.55;font-weight:400;max-width:min(340px,100%);padding:0 4px;text-align:center;box-sizing:border-box}
-.auth-gate-link{display:block;width:100%;margin:-2px 0 12px;padding:10px 4px;background:none;border:none;font-size:12px;color:var(--gold);text-decoration:underline;cursor:pointer;font-weight:500;font-family:inherit;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+.auth-gate-foot{margin:16px auto 0;font-size:11px;color:var(--hint);line-height:1.55;font-weight:400;max-width:300px;padding:0;text-align:center;box-sizing:border-box}
+.auth-gate-link{display:block;width:100%;margin:0 0 10px;padding:9px 4px;background:none;border:none;font-size:12px;color:var(--gold);text-decoration:underline;cursor:pointer;font-weight:500;font-family:inherit;text-align:center;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 .auth-gate-link:disabled{opacity:0.45;cursor:not-allowed;text-decoration:none}
 .password-recovery-overlay{position:fixed;inset:0;background:rgba(8,3,6,0.94);z-index:520;display:flex;align-items:flex-start;justify-content:center;padding:calc(20px + var(--st)) 16px calc(24px + var(--sb));overflow-y:auto;-webkit-overflow-scrolling:touch}
 .password-recovery-overlay.hid{display:none}
@@ -435,14 +433,14 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   <div class="auth-gate-card">
     <p class="auth-gate-brand">Winston Fit</p>
     <h1 class="auth-gate-h1">Sign <em>in</em></h1>
-    <p class="auth-gate-sub">Use your email and password to sync your journey to your account. New here? Enter the same email and password and tap <strong>Create Account</strong>.</p>
+    <p class="auth-gate-sub">Sign in to sync across devices. New here? Tap <strong>Create Account</strong> below.</p>
     <input type="email" class="log-input" id="cloud-email" placeholder="Email" autocomplete="email" inputmode="email">
     <input type="password" class="log-input" id="cloud-password" placeholder="Password" autocomplete="current-password">
     <button type="button" class="auth-gate-link" id="cloud-forgot-btn" onclick="winstonFitSendPasswordReset()">Forgot password?</button>
     <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-signin-btn" onclick="winstonFitSignInWithPassword()">Sign In</button>
     <button type="button" class="log-save intake-skip auth-gate-btn" id="cloud-signup-btn" onclick="winstonFitSignUpWithPassword()" style="width:100%;margin-top:10px">Create Account</button>
     <div id="cloud-auth-status" class="auth-gate-status" role="status" aria-live="polite"></div>
-    <p class="auth-gate-foot"><strong>Sign out</strong> anytime from <strong>Overview</strong> → <strong>Account</strong>. Same email and password work on every device once you’re set up.</p>
+    <p class="auth-gate-foot">Sign out anytime from Overview → Account.</p>
   </div>
 </div>
 
