@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="application-name" content="HimFit">
+<meta name="application-name" content="Winston Fit">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HimFit">
+<meta name="apple-mobile-web-app-title" content="Winston Fit">
 <meta name="theme-color" content="#1a0a0f">
 <meta name="msapplication-TileColor" content="#1a0a0f">
 <meta name="msapplication-TileImage" content="icon-512.png">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 <link rel="apple-touch-icon" href="icon-512.png" sizes="180x180">
-<title>HimFit</title>
+<title>Winston Fit</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -59,7 +59,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .hero{background:linear-gradient(135deg,rgba(139,38,53,0.38) 0%,rgba(70,15,28,0.28) 55%,rgba(28,28,34,0.38) 100%);border:.5px solid rgba(139,38,53,0.25);border-radius:var(--rad);padding:26px max(18px,env(safe-area-inset-left)) 20px max(18px,env(safe-area-inset-right));margin-bottom:16px;position:relative;overflow:hidden;text-align:center;box-sizing:border-box}
 .hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:min(420px,140vw);height:min(420px,140vw);border-radius:50%;background:radial-gradient(circle,rgba(139,38,53,0.14) 0%,transparent 68%);pointer-events:none}
 .h-eye{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
-.h-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,14vw,54px);line-height:.92;margin:0 auto 18px;max-width:100%;display:block}
+.h-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,10.5vw,46px);line-height:.92;margin:0 auto 18px;max-width:100%;display:block;letter-spacing:.04em}
 .h-name em{color:var(--gold);font-style:normal}
 .h-stats{display:flex;justify-content:space-evenly;align-items:flex-start;border-top:.5px solid var(--bdr);padding-top:14px;margin-bottom:14px;text-align:center}
 .hst{flex:1;min-width:0;padding:0 6px;border:none;position:relative}
@@ -433,14 +433,14 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 
 <div id="auth-gate" class="auth-gate hid" aria-hidden="true">
   <div class="auth-gate-card">
-    <p class="auth-gate-brand">HimFit</p>
+    <p class="auth-gate-brand">Winston Fit</p>
     <h1 class="auth-gate-h1">Sign <em>in</em></h1>
     <p class="auth-gate-sub">Use your email and password to sync your journey to your account. New here? Enter the same email and password and tap <strong>Create Account</strong>.</p>
     <input type="email" class="log-input" id="cloud-email" placeholder="Email" autocomplete="email" inputmode="email">
     <input type="password" class="log-input" id="cloud-password" placeholder="Password" autocomplete="current-password">
-    <button type="button" class="auth-gate-link" id="cloud-forgot-btn" onclick="himfitSendPasswordReset()">Forgot password?</button>
-    <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-signin-btn" onclick="himfitSignInWithPassword()">Sign In</button>
-    <button type="button" class="log-save intake-skip auth-gate-btn" id="cloud-signup-btn" onclick="himfitSignUpWithPassword()" style="width:100%;margin-top:10px">Create Account</button>
+    <button type="button" class="auth-gate-link" id="cloud-forgot-btn" onclick="winstonFitSendPasswordReset()">Forgot password?</button>
+    <button type="button" class="cta cta-luxe auth-gate-btn" id="cloud-signin-btn" onclick="winstonFitSignInWithPassword()">Sign In</button>
+    <button type="button" class="log-save intake-skip auth-gate-btn" id="cloud-signup-btn" onclick="winstonFitSignUpWithPassword()" style="width:100%;margin-top:10px">Create Account</button>
     <div id="cloud-auth-status" class="auth-gate-status" role="status" aria-live="polite"></div>
     <p class="auth-gate-foot"><strong>Sign out</strong> anytime from <strong>Overview</strong> → <strong>Account</strong>. Same email and password work on every device once you’re set up.</p>
   </div>
@@ -455,7 +455,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
       <input type="password" class="log-input" id="recovery-new-password" autocomplete="new-password" placeholder="At least 6 characters">
     </div>
     <div id="recovery-auth-status" class="auth-gate-status" style="margin-top:8px"></div>
-    <button type="button" class="log-save" style="width:100%;margin-top:4px" onclick="himfitCompletePasswordRecovery()">Save password</button>
+    <button type="button" class="log-save" style="width:100%;margin-top:4px" onclick="winstonFitCompletePasswordRecovery()">Save password</button>
   </div>
 </div>
 
@@ -491,7 +491,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 <div id="view-overview" class="view active">
   <div class="hero">
     <div class="h-eye">12-Week Training Program</div>
-    <div class="h-name">HIM<em>FIT</em></div>
+    <div class="h-name">WINSTON <em>FIT</em></div>
     <div class="h-stats">
       <div class="hst"><span class="hst-n">5</span><span class="hst-l">Days/Wk</span></div>
       <div class="hst"><span class="hst-n">60</span><span class="hst-l">Sessions</span></div>
@@ -554,7 +554,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="slbl" style="margin-bottom:6px">Account</div>
     <p id="overview-account-email" style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:4px"></p>
     <p class="sub" style="margin:0 0 10px;font-size:10px">Each phone or browser signs in separately. Sign out here to use another email or see the sign-in screen on this device.</p>
-    <button type="button" class="log-save intake-skip overview-signout" onclick="himfitSignOut()">Sign out</button>
+    <button type="button" class="log-save intake-skip overview-signout" onclick="winstonFitSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -665,7 +665,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 </div>
 </div><!-- /#app-shell -->
 
-<script src="himfit-config.js"></script>
+<script src="winston-fit-config.js"></script>
 <script>
 // ─────────────────────────────────────────────
 // DAYS
@@ -2045,17 +2045,17 @@ function refreshProfileStrip(){
   el.innerHTML=`${fn}${sx} · ${i.age||'—'}y · ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${gl} · ${dl} · Run: ${runLab} · Plan <strong>${S.planKey}</strong>`;
 }
 
-function himfitStravaOwnerId(){
-  return (window.HIMFIT_STRAVA_OWNER_USER_ID||'').trim();
+function winstonFitStravaOwnerId(){
+  return (window.WINSTONFIT_STRAVA_OWNER_USER_ID||'').trim();
 }
-function himfitStravaToggleAllowed(){
-  const owner=himfitStravaOwnerId();
-  if(!owner||!himfitCloudConfigured)return false;
-  const uid=(himfitAuthUser&&himfitAuthUser.id)||'';
+function winstonFitStravaToggleAllowed(){
+  const owner=winstonFitStravaOwnerId();
+  if(!owner||!winstonFitCloudConfigured)return false;
+  const uid=(winstonFitAuthUser&&winstonFitAuthUser.id)||'';
   return !!uid&&uid.toLowerCase()===owner.toLowerCase();
 }
 function refreshStravaOwnerUI(){
-  const allowed=himfitStravaToggleAllowed();
+  const allowed=winstonFitStravaToggleAllowed();
   if(!allowed&&S.stravaConnected){
     S.stravaConnected=false;
     save();
@@ -2076,7 +2076,7 @@ function syncStravaSettingsCheckbox(){
 }
 
 function toggleStravaConnected(on){
-  if(!himfitStravaToggleAllowed())return;
+  if(!winstonFitStravaToggleAllowed())return;
   S.stravaConnected=!!on;
   save();
   buildStravaSection();
@@ -2143,13 +2143,13 @@ function refreshFuelMacroSlbl(){
 }
 
 // ─────────────────────────────────────────────
-// OPTIONAL SUPABASE (himfit-config.js)
+// OPTIONAL SUPABASE (winstonFit-config.js)
 // ─────────────────────────────────────────────
-let himfitSupabase=null;
-let himfitAuthUser=null;
-let himfitCloudConfigured=false;
-function himfitAuthSiteUrl(){
-  const fixed=(window.HIMFIT_AUTH_REDIRECT_URL||'').trim();
+let winstonFitSupabase=null;
+let winstonFitAuthUser=null;
+let winstonFitCloudConfigured=false;
+function winstonFitAuthSiteUrl(){
+  const fixed=(window.WINSTONFIT_AUTH_REDIRECT_URL||'').trim();
   if(fixed){
     try{
       const u=new URL(fixed);
@@ -2157,13 +2157,13 @@ function himfitAuthSiteUrl(){
       if(path===''||path==='/')path='/';
       if(!path.endsWith('/'))path+='/';
       return u.origin+path;
-    }catch(e){console.warn('HimFit: invalid HIMFIT_AUTH_REDIRECT_URL — check himfit-config.js',e);}
+    }catch(e){console.warn('Winston Fit: invalid WINSTONFIT_AUTH_REDIRECT_URL — check winstonFit-config.js',e);}
   }
   let p=window.location.pathname.replace(/\/index\.html$/i,'');
   if(!p.endsWith('/'))p+='/';
   return window.location.origin+p;
 }
-function himfitFriendlyAuthError(error,context){
+function winstonFitFriendlyAuthError(error,context){
   const raw=(error&&error.message)?String(error.message).trim():'Something went wrong.';
   const lower=raw.toLowerCase();
   if(context==='signin'){
@@ -2181,23 +2181,23 @@ function himfitFriendlyAuthError(error,context){
   }
   return raw;
 }
-function himfitSetCloudAuthStatus(msg,isError){
+function winstonFitSetCloudAuthStatus(msg,isError){
   const st=document.getElementById('cloud-auth-status');
   if(!st)return;
   st.textContent=msg||'';
   st.classList.toggle('err',!!isError);
 }
 async function initHimfitCloud(){
-  const url=(window.HIMFIT_SUPABASE_URL||'').trim();
-  const key=(window.HIMFIT_SUPABASE_ANON_KEY||'').trim();
+  const url=(window.WINSTONFIT_SUPABASE_URL||'').trim();
+  const key=(window.WINSTONFIT_SUPABASE_ANON_KEY||'').trim();
   const st=document.getElementById('cloud-auth-status');
   const em=document.getElementById('cloud-email');
   const pw=document.getElementById('cloud-password');
   const signInBtn=document.getElementById('cloud-signin-btn');
   const signUpBtn=document.getElementById('cloud-signup-btn');
   const forgotBtn=document.getElementById('cloud-forgot-btn');
-  himfitCloudConfigured=!!(url&&key);
-  if(!himfitCloudConfigured){
+  winstonFitCloudConfigured=!!(url&&key);
+  if(!winstonFitCloudConfigured){
     if(st){st.textContent='';st.classList.remove('err');}
     if(em){em.disabled=true;em.style.opacity='0.5';}
     if(pw){pw.disabled=true;pw.style.opacity='0.5';}
@@ -2213,7 +2213,7 @@ async function initHimfitCloud(){
   if(forgotBtn){forgotBtn.disabled=false;}
   try{
     const mod=await import('https://esm.sh/@supabase/supabase-js@2.49.8');
-    himfitSupabase=mod.createClient(url,key,{auth:{
+    winstonFitSupabase=mod.createClient(url,key,{auth:{
       detectSessionInUrl:true,
       flowType:'pkce',
       storage:window.localStorage,
@@ -2221,7 +2221,7 @@ async function initHimfitCloud(){
       autoRefreshToken:true,
     }});
   }catch(e){
-    console.warn('HimFit cloud init failed',e);
+    console.warn('Winston Fit cloud init failed',e);
     if(st)st.textContent='Could not load sign-in. Check network or Supabase keys.';
     return;
   }
@@ -2232,8 +2232,8 @@ async function initHimfitCloud(){
     const clean=window.location.pathname+(window.location.hash||'');
     try{history.replaceState({},'',clean);}catch(e){}
   }
-  himfitSupabase.auth.onAuthStateChange(async (event,session)=>{
-    himfitAuthUser=session?.user||null;
+  winstonFitSupabase.auth.onAuthStateChange(async (event,session)=>{
+    winstonFitAuthUser=session?.user||null;
     if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&session?.user)stripAuthQueryFromUrl();
     if(event==='PASSWORD_RECOVERY'){
       const ro=document.getElementById('password-recovery-overlay');
@@ -2243,7 +2243,7 @@ async function initHimfitCloud(){
       if(rp)rp.value='';
       if(rs){rs.textContent='';rs.classList.remove('err');}
     }
-    updateCloudSettingsUI(himfitAuthUser);
+    updateCloudSettingsUI(winstonFitAuthUser);
     updateAuthShellVisibility();
     refreshStravaOwnerUI();
     if(event==='SIGNED_IN'&&session?.user){
@@ -2251,22 +2251,22 @@ async function initHimfitCloud(){
       if(!merged)await pushStateToCloud();
     }
   });
-  let {data:{session}}=await himfitSupabase.auth.getSession();
+  let {data:{session}}=await winstonFitSupabase.auth.getSession();
   if(!session&&window.location.search.includes('code=')){
     await new Promise(r=>setTimeout(r,120));
-    ({data:{session}}=await himfitSupabase.auth.getSession());
+    ({data:{session}}=await winstonFitSupabase.auth.getSession());
   }
   if(!session&&window.location.search.includes('code=')){
     const code=new URLSearchParams(window.location.search).get('code');
     if(code){
-      const{error:exErr}=await himfitSupabase.auth.exchangeCodeForSession(code);
-      if(exErr)console.warn('HimFit PKCE exchange',exErr);
-      else ({data:{session}}=await himfitSupabase.auth.getSession());
+      const{error:exErr}=await winstonFitSupabase.auth.exchangeCodeForSession(code);
+      if(exErr)console.warn('Winston Fit PKCE exchange',exErr);
+      else ({data:{session}}=await winstonFitSupabase.auth.getSession());
     }
   }
-  himfitAuthUser=session?.user||null;
-  if(himfitAuthUser)stripAuthQueryFromUrl();
-  updateCloudSettingsUI(himfitAuthUser);
+  winstonFitAuthUser=session?.user||null;
+  if(winstonFitAuthUser)stripAuthQueryFromUrl();
+  updateCloudSettingsUI(winstonFitAuthUser);
   if(session?.user){
     const merged=await pullCloudStateIntoApp();
     if(!merged)await pushStateToCloud();
@@ -2276,7 +2276,7 @@ function updateAuthShellVisibility(){
   const gate=document.getElementById('auth-gate');
   const shell=document.getElementById('app-shell');
   if(!gate||!shell)return;
-  const needSignIn=himfitCloudConfigured&&!himfitAuthUser;
+  const needSignIn=winstonFitCloudConfigured&&!winstonFitAuthUser;
   if(needSignIn){
     gate.classList.remove('hid');
     gate.setAttribute('aria-hidden','false');
@@ -2296,7 +2296,7 @@ function updateCloudSettingsUI(user){
   const forgotBtn=document.getElementById('cloud-forgot-btn');
   const ovw=document.getElementById('overview-cloud-account');
   const ove=document.getElementById('overview-account-email');
-  if(!himfitCloudConfigured){
+  if(!winstonFitCloudConfigured){
     if(st){st.textContent='';st.classList.remove('err');}
     if(ovw)ovw.style.display='none';
     if(em){em.disabled=true;em.style.opacity='0.5';}
@@ -2312,7 +2312,7 @@ function updateCloudSettingsUI(user){
   if(signUpBtn){signUpBtn.disabled=false;signUpBtn.style.opacity='';}
   if(forgotBtn){forgotBtn.disabled=false;}
   if(user){
-    himfitSetCloudAuthStatus('',false);
+    winstonFitSetCloudAuthStatus('',false);
     if(em)em.style.display='none';
     if(pw)pw.style.display='none';
     if(signInBtn)signInBtn.style.display='none';
@@ -2328,29 +2328,29 @@ function updateCloudSettingsUI(user){
     if(ovw)ovw.style.display='none';
   }
 }
-async function himfitSendPasswordReset(){
-  himfitSetCloudAuthStatus('',false);
-  if(!himfitCloudConfigured||!himfitSupabase){
-    himfitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
+async function winstonFitSendPasswordReset(){
+  winstonFitSetCloudAuthStatus('',false);
+  if(!winstonFitCloudConfigured||!winstonFitSupabase){
+    winstonFitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
     return;
   }
   const email=(document.getElementById('cloud-email')?.value||'').trim();
-  if(!email){himfitSetCloudAuthStatus('Enter your email, then tap Forgot password again.',true);return;}
-  const redirectTo=himfitAuthSiteUrl();
-  const {error}=await himfitSupabase.auth.resetPasswordForEmail(email,{redirectTo});
-  if(error)himfitSetCloudAuthStatus(himfitFriendlyAuthError(error,'reset')||error.message,true);
-  else himfitSetCloudAuthStatus('If an account exists for that email, we sent a reset link. Check spam — open the link on this device.',false);
+  if(!email){winstonFitSetCloudAuthStatus('Enter your email, then tap Forgot password again.',true);return;}
+  const redirectTo=winstonFitAuthSiteUrl();
+  const {error}=await winstonFitSupabase.auth.resetPasswordForEmail(email,{redirectTo});
+  if(error)winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'reset')||error.message,true);
+  else winstonFitSetCloudAuthStatus('If an account exists for that email, we sent a reset link. Check spam — open the link on this device.',false);
 }
-async function himfitCompletePasswordRecovery(){
+async function winstonFitCompletePasswordRecovery(){
   const st=document.getElementById('recovery-auth-status');
   const ro=document.getElementById('password-recovery-overlay');
-  if(!himfitSupabase)return;
+  if(!winstonFitSupabase)return;
   const password=(document.getElementById('recovery-new-password')?.value||'').trim();
   if(password.length<6){
     if(st){st.textContent='Use at least 6 characters.';st.classList.add('err');}
     return;
   }
-  const {error}=await himfitSupabase.auth.updateUser({password});
+  const {error}=await winstonFitSupabase.auth.updateUser({password});
   if(error){
     if(st){st.textContent=error.message||'Could not update password.';st.classList.add('err');}
     return;
@@ -2359,40 +2359,40 @@ async function himfitCompletePasswordRecovery(){
   if(ro){ro.classList.add('hid');ro.setAttribute('aria-hidden','true');}
   document.getElementById('recovery-new-password').value='';
 }
-async function himfitSignInWithPassword(){
-  himfitSetCloudAuthStatus('',false);
-  if(!himfitCloudConfigured||!himfitSupabase){
-    himfitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
+async function winstonFitSignInWithPassword(){
+  winstonFitSetCloudAuthStatus('',false);
+  if(!winstonFitCloudConfigured||!winstonFitSupabase){
+    winstonFitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
     return;
   }
   const email=(document.getElementById('cloud-email')?.value||'').trim();
   const password=(document.getElementById('cloud-password')?.value||'').trim();
-  if(!email){himfitSetCloudAuthStatus('Enter your email.',true);return;}
-  if(!password){himfitSetCloudAuthStatus('Enter your password.',true);return;}
-  const {error}=await himfitSupabase.auth.signInWithPassword({email,password});
-  if(error)himfitSetCloudAuthStatus(himfitFriendlyAuthError(error,'signin'),true);
+  if(!email){winstonFitSetCloudAuthStatus('Enter your email.',true);return;}
+  if(!password){winstonFitSetCloudAuthStatus('Enter your password.',true);return;}
+  const {error}=await winstonFitSupabase.auth.signInWithPassword({email,password});
+  if(error)winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'signin'),true);
 }
-async function himfitSignUpWithPassword(){
-  himfitSetCloudAuthStatus('',false);
-  if(!himfitCloudConfigured||!himfitSupabase){
-    himfitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
+async function winstonFitSignUpWithPassword(){
+  winstonFitSetCloudAuthStatus('',false);
+  if(!winstonFitCloudConfigured||!winstonFitSupabase){
+    winstonFitSetCloudAuthStatus('Sign-in isn’t configured yet — see docs/SUPABASE_FULL_SETUP.md.',true);
     return;
   }
   const email=(document.getElementById('cloud-email')?.value||'').trim();
   const password=(document.getElementById('cloud-password')?.value||'').trim();
-  if(!email){himfitSetCloudAuthStatus('Enter your email.',true);return;}
-  if(!password){himfitSetCloudAuthStatus('Choose a password (min. length set in Supabase).',true);return;}
-  const {data,error}=await himfitSupabase.auth.signUp({email,password});
+  if(!email){winstonFitSetCloudAuthStatus('Enter your email.',true);return;}
+  if(!password){winstonFitSetCloudAuthStatus('Choose a password (min. length set in Supabase).',true);return;}
+  const {data,error}=await winstonFitSupabase.auth.signUp({email,password});
   if(error){
-    himfitSetCloudAuthStatus(himfitFriendlyAuthError(error,'signup'),true);
+    winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'signup'),true);
     return;
   }
-  if(data.session)himfitSetCloudAuthStatus('',false);
-  else himfitSetCloudAuthStatus('Account created. If your project still requires email confirmation, check your inbox; otherwise try Sign In.',false);
+  if(data.session)winstonFitSetCloudAuthStatus('',false);
+  else winstonFitSetCloudAuthStatus('Account created. If your project still requires email confirmation, check your inbox; otherwise try Sign In.',false);
 }
-async function himfitSignOut(){
-  if(himfitSupabase)await himfitSupabase.auth.signOut();
-  himfitAuthUser=null;
+async function winstonFitSignOut(){
+  if(winstonFitSupabase)await winstonFitSupabase.auth.signOut();
+  winstonFitAuthUser=null;
   updateCloudSettingsUI(null);
   updateAuthShellVisibility();
   refreshStravaOwnerUI();
@@ -2401,21 +2401,21 @@ function stateToCloudPayload(){
   return{week:S.week,day:S.day,done:S.done||{},runs:S.runs||[],shopList:S.shopList||[],stravaConnected:!!S.stravaConnected,intakeComplete:!!S.intakeComplete,planKey:S.planKey||'default',intake:S.intake};
 }
 async function pushStateToCloud(){
-  if(!himfitSupabase||!himfitAuthUser)return;
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
   const state=stateToCloudPayload();
-  const {error}=await himfitSupabase.from('himfit_profiles').upsert({id:himfitAuthUser.id,state,updated_at:new Date().toISOString()},{onConflict:'id'});
-  if(error)console.warn('HimFit cloud save',error);
+  const {error}=await winstonFitSupabase.from('winstonfit_profiles').upsert({id:winstonFitAuthUser.id,state,updated_at:new Date().toISOString()},{onConflict:'id'});
+  if(error)console.warn('Winston Fit cloud save',error);
 }
 let _cloudSaveTimer;
 function scheduleCloudSave(){
-  if(!himfitSupabase||!himfitAuthUser)return;
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
   clearTimeout(_cloudSaveTimer);
   _cloudSaveTimer=setTimeout(()=>pushStateToCloud(),1100);
 }
 async function pullCloudStateIntoApp(){
-  if(!himfitSupabase||!himfitAuthUser)return false;
-  const {data,error}=await himfitSupabase.from('himfit_profiles').select('state').eq('id',himfitAuthUser.id).maybeSingle();
-  if(error){console.warn('HimFit cloud load',error);return false;}
+  if(!winstonFitSupabase||!winstonFitAuthUser)return false;
+  const {data,error}=await winstonFitSupabase.from('winstonfit_profiles').select('state').eq('id',winstonFitAuthUser.id).maybeSingle();
+  if(error){console.warn('Winston Fit cloud load',error);return false;}
   if(!data||!data.state||typeof data.state!=='object'||Object.keys(data.state).length===0)return false;
   const r=data.state;
   const keys=['week','day','done','runs','shopList','stravaConnected','intakeComplete','planKey','intake'];
@@ -2438,14 +2438,14 @@ async function pullCloudStateIntoApp(){
 (async function runHimfitInit(){
   await initHimfitCloud();
   const hash=(location.hash||'').toLowerCase();
-  if((hash==='#signin'||hash==='#login')&&himfitCloudConfigured&&himfitAuthUser){
-    await himfitSignOut();
+  if((hash==='#signin'||hash==='#login')&&winstonFitCloudConfigured&&winstonFitAuthUser){
+    await winstonFitSignOut();
   }
   if(hash==='#signin'||hash==='#login'){
     try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
   }
   updateAuthShellVisibility();
-  const blocked=himfitCloudConfigured&&!himfitAuthUser;
+  const blocked=winstonFitCloudConfigured&&!winstonFitAuthUser;
   refreshStravaOwnerUI();
   refreshProfileStrip();
   const io=document.getElementById('intake-overlay');
