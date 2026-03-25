@@ -1368,6 +1368,12 @@ function save(opts){
 // ─────────────────────────────────────────────
 // UTILS
 // ─────────────────────────────────────────────
+function activeDays(){
+  return Math.max(1,Math.min(6,parseInt((S.intake||{}).daysPerWeek)||6));
+}
+function experienceLevel(){
+  return (S.intake||{}).experience||'intermediate';
+}
 function workoutRepBias(){
   const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
   const mus=g.includes('build_muscle');
@@ -1379,16 +1385,23 @@ function workoutRepBias(){
 }
 function reps(ex,w){
   const bias=workoutRepBias();
+  const exp=experienceLevel();
   const p=ex[2].split('/');
   let idx=w<=4?0:(w<=8?1:Math.min(2,p.length-1));
   if(bias==='muscle')idx=Math.max(0,idx-1);
   if(bias==='metabolic')idx=Math.min(p.length-1,idx+1);
+  // Beginners stay at the easier phase; advanced progress faster
+  if(exp==='beginner')idx=Math.max(0,idx-1);
+  if(exp==='advanced')idx=Math.min(p.length-1,idx+1);
   return p[idx].trim();
 }
 function rest(w){
   const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
+  const exp=experienceLevel();
   if(g.includes('fertility'))return w<=4?'Rest 2 min · quality over ego':w<=8?'Rest 90s · ease off if overheating':'Rest 60s · modulate with your cycle';
   if(g.includes('lose_fat'))return w<=4?'Rest 90s · keep pace up':w<=8?'Rest 60s':'Rest 45s';
+  if(exp==='beginner')return w<=4?'Rest 3 min between sets — form first':w<=8?'Rest 2.5 min between sets':'Rest 2 min between sets';
+  if(exp==='advanced')return w<=4?'Rest 90s between sets':w<=8?'Rest 60s between sets':'Rest 45s between sets';
   return w<=4?'Rest 2 min between sets':w<=8?'Rest 90s between sets':'Rest 60s between sets';
 }
 function getZone2Minutes(){
@@ -1435,8 +1448,10 @@ function go(v,btn){
 
 function updProg(){
   const n=done();
-  document.getElementById('prog-fi').style.width=Math.max(2,Math.round(n/60*100))+'%';
-  document.getElementById('prog-lbl').textContent=`Week ${Math.min(Math.ceil((n+1)/6),12)} of 12`;
+  const dpw=activeDays();
+  const total=12*dpw;
+  document.getElementById('prog-fi').style.width=Math.max(2,Math.round(n/total*100))+'%';
+  document.getElementById('prog-lbl').textContent=`Week ${Math.min(Math.ceil((n+1)/dpw),12)} of 12`;
 }
 
 // ─────────────────────────────────────────────
@@ -1456,7 +1471,8 @@ function buildPlan(){
   for(let w=1;w<=12;w++){
     const pc=w<=4?'b':w<=8?'d':'p',pn=w<=4?'Build':w<=8?'Drive':'Peak';
     const d=document.createElement('div');d.className='wk'+(w===S.week?' cur':'');
-    d.innerHTML=`<div class="wk-n">${w}</div><div class="wk-p p${pc}">${pn}</div><div class="dots">${[0,1,2,3,4,5].map(i=>{const k=`${w}-${i}`;return`<div class="dot${S.done[k]?' dn':''}${w===S.week&&i===S.day?' ac':''}"></div>`}).join('')}</div>`;
+    const dpw=activeDays();
+    d.innerHTML=`<div class="wk-n">${w}</div><div class="wk-p p${pc}">${pn}</div><div class="dots">${Array.from({length:dpw},(_,i)=>{const k=`${w}-${i}`;return`<div class="dot${S.done[k]?' dn':''}${w===S.week&&i===S.day?' ac':''}"></div>`}).join('')}</div>`;
     d.onclick=()=>{S.week=w;S.day=0;save();go('today',document.querySelectorAll('.bni')[1])};
     g.appendChild(d);
   }
@@ -1518,8 +1534,10 @@ function buildDay(){
     day.name==='Thursday'?'~95 min total · Hypertrophy + Zone 2 · Sauna':
     'Lift · Sauna · Recover')+gExtra;
 
+  const dpw=activeDays();
+  if(S.day>=dpw)S.day=dpw-1;
   const tabs=document.getElementById('dtabs');
-  tabs.innerHTML=DAYS.map((x,i)=>{
+  tabs.innerHTML=DAYS.slice(0,dpw).map((x,i)=>{
     const ac=i===S.day?(x.type==='run'||x.type==='longrun'?'ar':x.type==='kb'?'ak':'al'):'';
     return`<button class="dtab ${ac}" onclick="S.day=${i};save();buildDay()">${x.name.slice(0,3)}</button>`;
   }).join('');
@@ -1770,7 +1788,7 @@ function buildShopView(){
   el.innerHTML=row(active)+(ticked.length?'<div style="padding:8px 0 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hint)">Done</div>'+row(ticked):'');
 }
 
-function chDay(dir){S.day=(S.day+dir+6)%6;save();buildDay()}
+function chDay(dir){const dpw=activeDays();S.day=(S.day+dir+dpw)%dpw;save();buildDay()}
 function toggleDone(){const k=dkey();S.done[k]=!S.done[k];save();buildDay();updProg()}
 
 // ─────────────────────────────────────────────
