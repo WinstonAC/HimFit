@@ -147,6 +147,8 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .vid-btn svg{width:10px;height:10px;fill:currentColor;flex-shrink:0}
 
 .rest-n{margin-top:7px;padding:6px 10px;border-left:2px solid var(--hint);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--hint)}
+.ss-block{background:rgba(255,255,255,0.03);border-radius:6px;padding:2px 8px;margin:4px 0;border:.5px solid rgba(255,255,255,0.1)}
+.ss-lbl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);padding:4px 0 2px}
 
 /* SET TABLE */
 .stbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px}
@@ -517,7 +519,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="sp-item"><div class="sp-day">Mon</div><div class="sp-foc">Chest + Core — ~70 min</div><div class="tag tl">Lift</div></div>
     <div class="sp-item"><div class="sp-day">Tue</div><div class="sp-foc">Quality Run — 5k / 10k alternating</div><div class="tag tr">Run</div></div>
     <div class="sp-item"><div class="sp-day">Wed</div><div class="sp-foc">Shoulders + Back + Core — ~80 min</div><div class="tag tl">Lift</div></div>
-    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Upper Hypertrophy + Zone 2 — ~90 min</div><div class="tag tl">Lift+Run</div></div>
+    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Hypertrophy + Zone 2 — ~95 min</div><div class="tag tl">Lift+Run</div></div>
     <div class="sp-item"><div class="sp-day">Fri</div><div class="sp-foc">Kettlebell Circuit — ~50 min</div><div class="tag tk">KB</div></div>
     <div class="sp-item"><div class="sp-day">Sat</div><div class="sp-foc">Long Run — Half Marathon Build</div><div class="tag tr">Long</div></div>
   </div>
@@ -672,7 +674,7 @@ const DAYS=[
   {name:'Monday',   sub:'Chest + Core — ~70 min',        type:'lift'},
   {name:'Tuesday',  sub:'Quality Run',                  type:'run'},
   {name:'Wednesday',sub:'Shoulders + Back + Core — ~80 min', type:'lift'},
-  {name:'Thursday', sub:'Upper Hypertrophy + Zone 2 — ~90 min', type:'lift'},
+  {name:'Thursday', sub:'Hypertrophy + Zone 2 — ~95 min', type:'lift'},
   {name:'Friday',   sub:'Kettlebell Circuit — ~50 min', type:'kb'},
   {name:'Saturday', sub:'Long Run — Half Marathon Build',type:'longrun'},
 ];
@@ -694,8 +696,10 @@ function vidBtn(url,label){
 const MON_WU=[["Wide-Grip Pull-Ups","Full dead hang to chin over bar — 10 warm-up reps","2×10 / 2×10 / 3×10"]];
 const MON_CH=[
   ["Push-Ups","Hands shoulder-width; core engaged; full ROM","3×12 / 3×15 / 4×15"],
-  ["Bench Press","Set 1: 40kg×20  ·  Set 2: 60kg×10  ·  Set 3: 70kg×10  ·  Set 4: 80kg×8","4 sets / 4 sets / 4 sets","40–80kg progressive",'https://www.youtube.com/watch?v=vcBig73ojpE'],
-  ["Weighted Dips","Lean forward slightly for chest focus; full ROM; add belt weight","3×10 / 3×12 / 4×12","BW+10–20kg"],
+  [
+    ["Bench Press","Set 1: 40kg×20  ·  Set 2: 60kg×10  ·  Set 3: 70kg×10  ·  Set 4: 80kg×8","4 sets / 4 sets / 4 sets","40–80kg progressive",'https://www.youtube.com/watch?v=vcBig73ojpE'],
+    ["Weighted Dips","Lean forward slightly for chest focus; full ROM; add belt weight","3×10 / 3×12 / 4×12","BW+10–20kg"],
+  ],
   ["Nautilus Press","15kg×12  ·  20kg×10  ·  30kg×8","3 sets / 3 sets / 3 sets","15–30kg",'https://www.youtube.com/watch?v=nhmazE9cnKQ'],
   ["Incline Barbell Press","50kg×12  ·  70kg×10  ·  75kg×8","3 sets / 3 sets / 3 sets","50–75kg"],
   ["Pec Deck Machine","20kg×12  ·  30kg×10  ·  40kg×8","3 sets / 3 sets / 3 sets","20–40kg",'https://www.youtube.com/watch?v=Dbly77Jgbo8'],
@@ -711,8 +715,10 @@ const MON_CORE=[
 
 const WED_WU=[["Close-Grip Pull-Ups","Full dead hang; chin over bar","2×10 / 2×10 / 3×10"]];
 const WED_SH=[
-  ["Barbell Overhead Press","Standing; press bar from shoulders to full lockout; brace core","4×8 / 4×10 / 4×10","40–60kg"],
-  ["Arnold Press (Barbell)","20kg; rotate palms during press; brace core","3×10 / 3×12 / 4×12","20kg",'https://www.youtube.com/watch?v=X60-yTMOJfw'],
+  [
+    ["Barbell Overhead Press","Standing; press bar from shoulders to full lockout; brace core","4×8 / 4×10 / 4×10","40–60kg"],
+    ["Arnold Press (Barbell)","20kg; rotate palms during press; brace core","3×10 / 3×12 / 4×12","20kg",'https://www.youtube.com/watch?v=X60-yTMOJfw'],
+  ],
   ["Lateral Raises (Barbell)","10kg; no momentum; 3s eccentric","3×12 / 3×15 / 4×15","10kg",'https://www.youtube.com/watch?v=HeovYNoZDRg'],
   ["Front Raises (Barbell)","6.5kg; alternate arms; control descent","3×10 / 3×12 / 3×15","6.5kg",'https://www.youtube.com/watch?v=gDg_ttrtA7w'],
   ["Cuban Press (Barbell)","8kg; external rotation emphasis","3×10 / 3×12 / 3×12","8kg",'https://www.youtube.com/watch?v=8KX39zMgIPY'],
@@ -721,8 +727,10 @@ const WED_SH=[
   ["Shoulder Shrugs","20kg; hold 1s at top; slow lower","3×20 / 3×20 / 4×20","20kg",'https://www.youtube.com/watch?v=cJRVVx_llGY'],
 ];
 const WED_BK=[
-  ["Barbell Bent-Over Row","Hinge 45°; pull bar to lower chest; retract scapulae; explosive row","4×8 / 4×10 / 4×10","40–60kg"],
-  ["Seated Rows","20kg×12  ·  30kg×10  ·  35kg×8; squeeze scapulae at top","3 sets / 3 sets / 3 sets","20–35kg",'https://www.youtube.com/watch?v=sP_4vybjVJs'],
+  [
+    ["Barbell Bent-Over Row","Hinge 45°; pull bar to lower chest; retract scapulae; explosive row","4×8 / 4×10 / 4×10","40–60kg"],
+    ["Seated Rows","20kg×12  ·  30kg×10  ·  35kg×8; squeeze scapulae at top","3 sets / 3 sets / 3 sets","20–35kg",'https://www.youtube.com/watch?v=sP_4vybjVJs'],
+  ],
   ["Lat Pulldowns","20kg×12  ·  30kg×10  ·  40kg×8; elbows to ribs","3 sets / 3 sets / 3 sets","20–40kg",'https://www.youtube.com/watch?v=SALxEARiMkw'],
   ["T-Bar Rows","10kg×10  ·  15kg×10  ·  25kg×8; explosive row","3 sets / 3 sets / 3 sets","10–25kg",'https://www.youtube.com/watch?v=SbZycT7Eq58'],
   ["Kettlebell Deadlifts","12kg; hinge at hip; drive through heels","3×10 / 3×12 / 3×12","12kg KB",'https://www.youtube.com/watch?v=LDfnyt0Rmaw'],
@@ -1467,8 +1475,23 @@ function mkSeg(pip,label,meta,html,open){
 }
 function togS(id,h){document.getElementById(id).classList.toggle('op');h.querySelector('.schev').classList.toggle('op')}
 
+function exRow(e,lbl,w,style){
+  return`<div class="exr"${style?` style="${style}"`:''}><div class="exi">${lbl}</div><div><div class="exn">${e[0]}</div><div class="exno">${e[1]}</div>${e[3]?`<div class="exw">${e[3]}</div>`:''}${e[4]?vidBtn(e[4],e[0]):''}${e[5]?vidBtn(e[5],e[0]):''}  </div><div class="exs">${reps(e,w)}</div></div>`;
+}
 function exRows(arr,w,titleStr){
-  return`<div class="ext">${titleStr}</div>${arr.map((e,i)=>`<div class="exr"><div class="exi">${i+1}</div><div><div class="exn">${e[0]}</div><div class="exno">${e[1]}</div>${e[3]?`<div class="exw">${e[3]}</div>`:''}${e[4]?vidBtn(e[4],e[0]):''}${e[5]?vidBtn(e[5],e[0]):''}  </div><div class="exs">${reps(e,w)}</div></div>`).join('')}<div class="rest-n">${rest(w)}</div>`;
+  let n=1;
+  const rows=arr.map(e=>{
+    if(Array.isArray(e[0])){
+      const [a,b]=e;
+      const block=`<div class="ss-block"><div class="ss-lbl">Superset</div>`+
+        exRow(a,n+'A',w,'border-bottom:.5px solid rgba(255,255,255,0.06)')+
+        exRow(b,n+'B',w,'border:none')+
+        `</div>`;
+      n++;return block;
+    }
+    return exRow(e,n++,w,'');
+  });
+  return`<div class="ext">${titleStr}</div>${rows.join('')}<div class="rest-n">${rest(w)}</div>`;
 }
 
 function strList(arr){
@@ -1494,7 +1517,7 @@ function buildDay(){
     day.type==='kb'?'~50 min total · 3–4 circuit rounds · 2 min rest between rounds':
     day.name==='Monday'?'~70 min total · Lift · Sauna · Recover':
     day.name==='Wednesday'?'~90 min total · Lift · Sauna · Recover':
-    day.name==='Thursday'?'~95 min total · Lift + Zone 2 · Sauna · Recover':
+    day.name==='Thursday'?'~95 min total · Hypertrophy + Zone 2 · Sauna':
     'Lift · Sauna · Recover')+gExtra;
 
   const tabs=document.getElementById('dtabs');
