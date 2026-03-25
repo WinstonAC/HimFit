@@ -1491,7 +1491,10 @@ function buildDay(){
   document.getElementById('d-meta').textContent=
     (day.type==='run'?`Quality run · Week ${w} · ${w%2!==0?'5k — odd week':'10k — even week'}`:
     day.type==='longrun'?`Long run · ${getSatRunEntry(w-1).d} · Half marathon build`:
-    day.type==='kb'?'~50 min · 3–4 circuit rounds · 2 min rest between rounds':
+    day.type==='kb'?'~50 min total · 3–4 circuit rounds · 2 min rest between rounds':
+    day.name==='Monday'?'~70 min total · Lift · Sauna · Recover':
+    day.name==='Wednesday'?'~90 min total · Lift · Sauna · Recover':
+    day.name==='Thursday'?'~95 min total · Lift + Zone 2 · Sauna · Recover':
     'Lift · Sauna · Recover')+gExtra;
 
   const tabs=document.getElementById('dtabs');
