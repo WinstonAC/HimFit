@@ -2185,7 +2185,7 @@ function winstonFitSetCloudAuthStatus(msg,isError){
   st.textContent=msg||'';
   st.classList.toggle('err',!!isError);
 }
-async function initHimfitCloud(){
+async function initWinstonFitCloud(){
   const url=(window.WINSTONFIT_SUPABASE_URL||'').trim();
   const key=(window.WINSTONFIT_SUPABASE_ANON_KEY||'').trim();
   const st=document.getElementById('cloud-auth-status');
@@ -2433,8 +2433,8 @@ async function pullCloudStateIntoApp(){
 // ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
-(async function runHimfitInit(){
-  await initHimfitCloud();
+(async function runWinstonFitInit(){
+  await initWinstonFitCloud();
   const hash=(location.hash||'').toLowerCase();
   if((hash==='#signin'||hash==='#login')&&winstonFitCloudConfigured&&winstonFitAuthUser){
     await winstonFitSignOut();

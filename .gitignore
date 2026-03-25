@@ -3,4 +3,4 @@
 .env.*
 node_modules/
 .vercel/
-himfit-config.local.js
+winston-fit-config.local.js

@@ -1,10 +1,10 @@
-# HimFit
+# Winston Fit
 
 **12-week** half-marathon build **plus** strength training. Mobile-first, **PWA-ready**, static web app (single `index.html` + assets).
 
-**Live site (GitHub Pages):** [https://winstonac.github.io/HimFit/](https://winstonac.github.io/HimFit/)
+**Live site (GitHub Pages):** [https://winstonac.github.io/Winston Fit/](https://winstonac.github.io/Winston Fit/)
 
-**Repository:** [https://github.com/WinstonAC/HimFit](https://github.com/WinstonAC/HimFit)
+**Repository:** [https://github.com/WinstonAC/Winston Fit](https://github.com/WinstonAC/Winston Fit)
 
 ---
 
@@ -31,14 +31,14 @@
 ### Data: device vs cloud
 
 - **Default:** everything lives in the browser **`localStorage`** key `hf4` (this device only). Different phones = different people; nothing is mixed automatically.
-- **Optional cloud:** with **Supabase** + keys in `himfit-config.js`, use **Sign in** on the hero or under **Settings**. Full order-of-operations + **branded HimFit email HTML**: **[`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md)**. The magic link returns to the **same app URL**; profile/intake still runs on the device. Without keys, **Sign in** stays visible with a short explanation.
+- **Optional cloud:** with **Supabase** + keys in `winston-fit-config.js`, use **Sign in** on the hero or under **Settings**. Full order-of-operations + **branded Winston Fit email HTML**: **[`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md)**. The magic link returns to the **same app URL**; profile/intake still runs on the device. Without keys, **Sign in** stays visible with a short explanation.
 
 ---
 
 ## Run locally
 
 ```bash
-cd /path/to/HimFit
+cd /path/to/Winston Fit
 python3 -m http.server 8081
 ```
 
@@ -53,7 +53,7 @@ Use a **private/incognito** window for a clean first-run intake test; a normal w
 Pages serves **static files** from this repo—**no Vercel required** for the app to work or for optional Supabase login (the browser talks to Supabase directly).
 
 1. Repo → **Settings → Pages** → source: **`main`**, folder **`/` (root)**.
-2. Site URL: **https://winstonac.github.io/HimFit/**
+2. Site URL: **https://winstonac.github.io/Winston Fit/**
 
 Merge to **`main`** when you want the live site updated.
 
@@ -65,7 +65,7 @@ Any **static host** works the same way: connect the repo, no build step, publish
 
 ## Optional cloud sign-in (maintainers)
 
-Follow **[`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md)** (SQL, Auth URLs, **custom email templates**, optional SMTP, `himfit-config.js`, test). Shorthand pointer: [`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md).
+Follow **[`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md)** (SQL, Auth URLs, **custom email templates**, optional SMTP, `winston-fit-config.js`, test). Shorthand pointer: [`docs/SUPABASE_NEXT_STEPS.md`](docs/SUPABASE_NEXT_STEPS.md).
 
 If keys are empty, the app is **offline-first** only, but **Sign in** still appears with a calm explanation.
 
@@ -91,7 +91,7 @@ If keys are empty, the app is **offline-first** only, but **Sign in** still appe
 |-------|----------|
 | **Accounts, sync, roadmap (Strava, analytics)** | [`docs/ACCOUNTS_AND_SYNC.md`](docs/ACCOUNTS_AND_SYNC.md) |
 | **Supabase + branded email — full checklist** | [`docs/SUPABASE_FULL_SETUP.md`](docs/SUPABASE_FULL_SETUP.md) |
-| **Supabase config template** | `himfit-config.example.js` → `himfit-config.js` |
+| **Supabase config template** | `winston-fit-config.example.js` → `winston-fit-config.js` |
 
 ### Macro calculation
 
@@ -120,4 +120,4 @@ Rough shape: `week`, `day`, `done`, `runs`, `shopList`, `stravaConnected`, `inta
 
 ## Related
 
-- **HerFit** (Melody’s program) is a **separate repo**; this repo is **HimFit** only.
+- **HerFit** (Melody’s program) is a **separate repo**; this repo is **Winston Fit** only.
