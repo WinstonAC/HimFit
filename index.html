@@ -682,9 +682,14 @@ const DAYS=[
 // ─────────────────────────────────────────────
 const VIDS={
   chest_stretch:'https://www.youtube.com/watch?v=oMopg7M5tdQ',
+  shoulders:'https://www.youtube.com/watch?v=21lYP86dHW4',
+  back_inspo:'https://www.youtube.com/watch?v=DXL18E7QRbk',
+  arms:'',
+  kb_circuit:'',
 };
 
 function vidBtn(url,label){
+  if(!url) return '';
   return `<a href="${url}" target="_blank" class="vid-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${label||'Watch'}</a>`;
 }
 
@@ -2461,5 +2466,6 @@ async function pullCloudStateIntoApp(){
   buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
 })();
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{});}</script>
 </body>
 </html>
