@@ -507,18 +507,18 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 
   <div class="slbl">Three Phases</div>
   <div class="ph-row">
-    <div class="phc phc1"><div class="phc-n">Build</div><div class="phc-w">Wks 1–4</div><div class="phc-d">Form base<br>90s rest</div></div>
-    <div class="phc phc2"><div class="phc-n">Drive</div><div class="phc-w">Wks 5–8</div><div class="phc-d">Volume up<br>60s rest</div></div>
-    <div class="phc phc3"><div class="phc-n">Peak</div><div class="phc-w">Wks 9–12</div><div class="phc-d">Max output<br>45s rest</div></div>
+    <div class="phc phc1"><div class="phc-n">Build</div><div class="phc-w">Wks 1–4</div><div class="phc-d">Form base<br>2 min rest</div></div>
+    <div class="phc phc2"><div class="phc-n">Drive</div><div class="phc-w">Wks 5–8</div><div class="phc-d">Volume up<br>90s rest</div></div>
+    <div class="phc phc3"><div class="phc-n">Peak</div><div class="phc-w">Wks 9–12</div><div class="phc-d">Max output<br>60s rest</div></div>
   </div>
 
   <div class="slbl">Weekly Split</div>
   <div class="sp-list">
-    <div class="sp-item"><div class="sp-day">Mon</div><div class="sp-foc">Chest + Core</div><div class="tag tl">Lift</div></div>
+    <div class="sp-item"><div class="sp-day">Mon</div><div class="sp-foc">Chest + Core — ~70 min</div><div class="tag tl">Lift</div></div>
     <div class="sp-item"><div class="sp-day">Tue</div><div class="sp-foc">Quality Run — 5k / 10k alternating</div><div class="tag tr">Run</div></div>
-    <div class="sp-item"><div class="sp-day">Wed</div><div class="sp-foc">Shoulders + Back + Core</div><div class="tag tl">Lift</div></div>
-    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Upper Hypertrophy + Zone 2</div><div class="tag tl">Lift+Run</div></div>
-    <div class="sp-item"><div class="sp-day">Fri</div><div class="sp-foc">Kettlebell Circuit — 43 min</div><div class="tag tk">KB</div></div>
+    <div class="sp-item"><div class="sp-day">Wed</div><div class="sp-foc">Shoulders + Back + Core — ~80 min</div><div class="tag tl">Lift</div></div>
+    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Upper Hypertrophy + Zone 2 — ~90 min</div><div class="tag tl">Lift+Run</div></div>
+    <div class="sp-item"><div class="sp-day">Fri</div><div class="sp-foc">Kettlebell Circuit — ~50 min</div><div class="tag tk">KB</div></div>
     <div class="sp-item"><div class="sp-day">Sat</div><div class="sp-foc">Long Run — Half Marathon Build</div><div class="tag tr">Long</div></div>
   </div>
 
@@ -669,11 +669,11 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 // DAYS
 // ─────────────────────────────────────────────
 const DAYS=[
-  {name:'Monday',   sub:'Chest + Core',                type:'lift'},
+  {name:'Monday',   sub:'Chest + Core — ~70 min',        type:'lift'},
   {name:'Tuesday',  sub:'Quality Run',                  type:'run'},
-  {name:'Wednesday',sub:'Shoulders + Back + Core',      type:'lift'},
-  {name:'Thursday', sub:'Upper Hypertrophy + Zone 2',   type:'lift'},
-  {name:'Friday',   sub:'Kettlebell Circuit — 43 min',  type:'kb'},
+  {name:'Wednesday',sub:'Shoulders + Back + Core — ~80 min', type:'lift'},
+  {name:'Thursday', sub:'Upper Hypertrophy + Zone 2 — ~90 min', type:'lift'},
+  {name:'Friday',   sub:'Kettlebell Circuit — ~50 min', type:'kb'},
   {name:'Saturday', sub:'Long Run — Half Marathon Build',type:'longrun'},
 ];
 
@@ -695,6 +695,7 @@ const MON_WU=[["Wide-Grip Pull-Ups","Full dead hang to chin over bar — 10 warm
 const MON_CH=[
   ["Push-Ups","Hands shoulder-width; core engaged; full ROM","3×12 / 3×15 / 4×15"],
   ["Bench Press","Set 1: 40kg×20  ·  Set 2: 60kg×10  ·  Set 3: 70kg×10  ·  Set 4: 80kg×8","4 sets / 4 sets / 4 sets","40–80kg progressive",'https://www.youtube.com/watch?v=vcBig73ojpE'],
+  ["Weighted Dips","Lean forward slightly for chest focus; full ROM; add belt weight","3×10 / 3×12 / 4×12","BW+10–20kg"],
   ["Nautilus Press","15kg×12  ·  20kg×10  ·  30kg×8","3 sets / 3 sets / 3 sets","15–30kg",'https://www.youtube.com/watch?v=nhmazE9cnKQ'],
   ["Incline Barbell Press","50kg×12  ·  70kg×10  ·  75kg×8","3 sets / 3 sets / 3 sets","50–75kg"],
   ["Pec Deck Machine","20kg×12  ·  30kg×10  ·  40kg×8","3 sets / 3 sets / 3 sets","20–40kg",'https://www.youtube.com/watch?v=Dbly77Jgbo8'],
@@ -710,6 +711,7 @@ const MON_CORE=[
 
 const WED_WU=[["Close-Grip Pull-Ups","Full dead hang; chin over bar","2×10 / 2×10 / 3×10"]];
 const WED_SH=[
+  ["Barbell Overhead Press","Standing; press bar from shoulders to full lockout; brace core","4×8 / 4×10 / 4×10","40–60kg"],
   ["Arnold Press (Barbell)","20kg; rotate palms during press; brace core","3×10 / 3×12 / 4×12","20kg",'https://www.youtube.com/watch?v=X60-yTMOJfw'],
   ["Lateral Raises (Barbell)","10kg; no momentum; 3s eccentric","3×12 / 3×15 / 4×15","10kg",'https://www.youtube.com/watch?v=HeovYNoZDRg'],
   ["Front Raises (Barbell)","6.5kg; alternate arms; control descent","3×10 / 3×12 / 3×15","6.5kg",'https://www.youtube.com/watch?v=gDg_ttrtA7w'],
@@ -719,6 +721,7 @@ const WED_SH=[
   ["Shoulder Shrugs","20kg; hold 1s at top; slow lower","3×20 / 3×20 / 4×20","20kg",'https://www.youtube.com/watch?v=cJRVVx_llGY'],
 ];
 const WED_BK=[
+  ["Barbell Bent-Over Row","Hinge 45°; pull bar to lower chest; retract scapulae; explosive row","4×8 / 4×10 / 4×10","40–60kg"],
   ["Seated Rows","20kg×12  ·  30kg×10  ·  35kg×8; squeeze scapulae at top","3 sets / 3 sets / 3 sets","20–35kg",'https://www.youtube.com/watch?v=sP_4vybjVJs'],
   ["Lat Pulldowns","20kg×12  ·  30kg×10  ·  40kg×8; elbows to ribs","3 sets / 3 sets / 3 sets","20–40kg",'https://www.youtube.com/watch?v=SALxEARiMkw'],
   ["T-Bar Rows","10kg×10  ·  15kg×10  ·  25kg×8; explosive row","3 sets / 3 sets / 3 sets","10–25kg",'https://www.youtube.com/watch?v=SbZycT7Eq58'],
@@ -747,13 +750,13 @@ const THU_LF=[
 ];
 
 const FRI_KB=[
-  ["Dual KB Flat Bench Press","Both kettlebells; controlled descent","3×12 / 3×12 / 4×12",'', 'https://www.youtube.com/watch?v=jNyLcWBBmmo'],
-  ["Half Kneeling KB Press","12 reps each side; rear knee on floor","3×12 R/L / 3×12 R/L / 4×12 R/L",'', 'https://www.youtube.com/watch?v=9VdiUI2tzw8'],
-  ["Lift-Off Push-Up to Shoulder Tap","6 each side; push up then tap opposite shoulder","3×6 R/L / 3×8 R/L / 3×10 R/L",'', 'https://www.youtube.com/watch?v=IODxDxX7oi4'],
-  ["Reverse Nordic to KB Halo","Lower forward then halo; full control","3×12 / 3×12 / 4×12",'', 'https://www.youtube.com/watch?v=3wPs_J5q0W8'],
-  ["KB Upright Row to Press","Row to chin then press overhead","3×10 / 3×12 / 4×12",'', 'https://www.youtube.com/watch?v=iGGe2XCv58c'],
-  ["KB Bicep Curl","Full supination at top; no swinging","3×10 / 3×12 / 4×12",'', 'https://www.youtube.com/watch?v=qgNrSj_j6yc'],
-  ["KB Overhead Tricep Extension","Elbows in tight; full extension","3×10 / 3×12 / 4×12",'', 'https://www.youtube.com/watch?v=bEQJqPv6lRQ'],
+  ["KB Swing","Drive hips hard; bell to shoulder height; snap at top","3×15 / 4×12 / 4×15","16–24kg KB"],
+  ["KB Goblet Squat","Heels shoulder-width; elbows inside knees at bottom; stand tall","3×12 / 4×12 / 4×12","16–20kg KB"],
+  ["KB Single-Arm Overhead Press","Each side; wrist neutral; full lockout; brace core","3×10 R/L / 4×10 R/L / 4×12 R/L","16kg KB"],
+  ["KB Bent-Over Row","Hinge; pull KB to hip; squeeze at top — each side","3×10 R/L / 4×10 R/L / 4×12 R/L","16–20kg KB"],
+  ["KB Romanian Deadlift","Soft knees; hinge deep; feel hamstring stretch; drive hips forward","3×12 / 4×12 / 4×12","20–24kg KB"],
+  ["KB Upright Row to Press","Row to chin then press overhead in one fluid movement","3×10 / 4×10 / 4×12","16kg KB"],
+  ["KB Push-Up","Handles on floor; maintain plank; full range of motion","3×10 / 4×10 / 4×12","Bodyweight"],
 ];
 const FRI_HIIT=[
   ["Jump Rope or Jumping Jacks","30s max effort cardio burst","4×30s / 4×30s / 4×30s"],
@@ -1378,9 +1381,9 @@ function reps(ex,w){
 }
 function rest(w){
   const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
-  if(g.includes('fertility'))return w<=4?'Rest 90s · quality over ego':w<=8?'Rest 60–75s · ease off if overheating':'Rest 45–60s · modulate with your cycle';
-  if(g.includes('lose_fat'))return w<=4?'Rest 60–75s · keep pace up':w<=8?'Rest 45–60s':'Rest 30–45s';
-  return w<=4?'Rest 90s between sets':w<=8?'Rest 60s between sets':'Rest 45s between sets';
+  if(g.includes('fertility'))return w<=4?'Rest 2 min · quality over ego':w<=8?'Rest 90s · ease off if overheating':'Rest 60s · modulate with your cycle';
+  if(g.includes('lose_fat'))return w<=4?'Rest 90s · keep pace up':w<=8?'Rest 60s':'Rest 45s';
+  return w<=4?'Rest 2 min between sets':w<=8?'Rest 90s between sets':'Rest 60s between sets';
 }
 function getZone2Minutes(){
   const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
@@ -1488,7 +1491,7 @@ function buildDay(){
   document.getElementById('d-meta').textContent=
     (day.type==='run'?`Quality run · Week ${w} · ${w%2!==0?'5k — odd week':'10k — even week'}`:
     day.type==='longrun'?`Long run · ${getSatRunEntry(w-1).d} · Half marathon build`:
-    day.type==='kb'?'43 min · 3 circuit rounds + 4 HIIT rounds':
+    day.type==='kb'?'~50 min · 3–4 circuit rounds · 2 min rest between rounds':
     'Lift · Sauna · Recover')+gExtra;
 
   const tabs=document.getElementById('dtabs');
@@ -1513,34 +1516,33 @@ function buildDay(){
 }
 
 function dayMon(segs,w){
-  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder prep',
+  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder prep — 8 min',
     exRows(MON_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
   const chestWithVid=[...MON_CH];
-  // add video button to bench press row
   const chHtml=exRows(chestWithVid,w,'Chest Work')+`<div style="margin-top:10px">${vidBtn(VIDS.chest_stretch,'Doorway Chest Stretch')}</div>`;
-  segs.appendChild(mkSeg('plift','Chest','Bench · Nautilus · Incline · Fly · Pec Deck',chHtml,false));
-  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle',exRows(MON_CORE,w,'Core'),false));
+  segs.appendChild(mkSeg('plift','Chest','Bench · Dips · Nautilus · Incline · Pec Deck — ~45 min',chHtml,false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle — ~15 min',exRows(MON_CORE,w,'Core'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min static',strList(CD_STR),false));
   segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
 
 function dayWed(segs,w){
-  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + joint prep',
+  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + joint prep — 8 min',
     exRows(WED_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
-  const shHtml=exRows(WED_SH,w,'Shoulder Work');
-  segs.appendChild(mkSeg('plift','Shoulders','Arnold · Lateral · Front · Cuban · KB Press',shHtml,false));
-  const bkHtml=exRows(WED_BK,w,'Back Work — Layered in from original Tuesday split');
-  segs.appendChild(mkSeg('pback','Back','Rows · Pulldowns · T-Bar · KB Deadlifts',bkHtml,false));
-  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist',exRows(WED_CORE,w,'Core'),false));
+  const shHtml=exRows(WED_SH,w,'Shoulder Work')+`<div style="margin-top:10px">${vidBtn(VIDS.shoulders,'Shoulders Demo')}</div>`;
+  segs.appendChild(mkSeg('plift','Shoulders','OHP · Arnold · Lateral · Front · Cuban · KB Press — ~40 min',shHtml,false));
+  const bkHtml=exRows(WED_BK,w,'Back Work')+`<div style="margin-top:10px">${vidBtn(VIDS.back_inspo,'Back Inspiration')}</div>`;
+  segs.appendChild(mkSeg('pback','Back','Bent-Over Row · Seated Rows · Pulldowns · T-Bar · KB Deadlifts — ~25 min',bkHtml,false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist — ~12 min',exRows(WED_CORE,w,'Core'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
   segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
 
 function dayThu(segs,w){
-  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder mobility',
+  segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder mobility — 8 min',
     exRows(THU_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
-  const liftHtml=exRows(THU_LF,w,'Hypertrophy + Arms');
-  segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms','Incline · Chins · Arnold · Curls · Skulls · Dips',liftHtml,false));
+  const liftHtml=exRows(THU_LF,w,'Hypertrophy + Arms')+`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`;
+  segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms','Incline · Chins · Arnold · Curls · Skulls · Dips — ~50 min',liftHtml,false));
   const z2=getZone2Minutes();
   segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-lifting — conversational pace`,
     `<div class="rsum">
@@ -1555,9 +1557,9 @@ function dayThu(segs,w){
 
 function dayFri(segs,w){
   segs.appendChild(mkSeg('pwu','Warm-Up','Joint mobility — 5 min',strList(WU_STR),true));
-  const kbHtml=exRows(FRI_KB,w,'Upper Push Circuit — 3 Rounds · 30s rest');
-  segs.appendChild(mkSeg('pkb','KB Circuit','7 exercises · 3 rounds · 30s rest',kbHtml,false));
-  segs.appendChild(mkSeg('pkb','HIIT Core Finisher','3 exercises · 4 rounds · 15s rest',exRows(FRI_HIIT,w,'Core Cardio'),false));
+  const kbHtml=exRows(FRI_KB,w,'Full Body KB Circuit — Complete all 7 exercises back-to-back, then rest 2 min between rounds')+`<div style="margin-top:10px">${vidBtn(VIDS.kb_circuit,'KB Circuit Demo — Full Workout')}</div>`;
+  segs.appendChild(mkSeg('pkb','KB Circuit','7 exercises · 3–4 rounds · 10–12 reps · 2 min rest between rounds — ~30 min',kbHtml,false));
+  segs.appendChild(mkSeg('pkb','HIIT Core Finisher','3 exercises · 4 rounds · 15s rest — ~15 min',exRows(FRI_HIIT,w,'Core Cardio'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
   segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
