@@ -1583,8 +1583,28 @@ function mkSeg(pip,label,meta,html,open){
 }
 function togS(id,h){document.getElementById(id).classList.toggle('op');h.querySelector('.schev').classList.toggle('op')}
 
+// Scale every kg value in a weight/note string to the user's bodyweight + sex.
+// Reference: 80 kg male. Females use 60 % of the male weight as their base
+// (typical population average), then both sexes scale further by bodyweight ratio.
+// Min 0.4×, max 1.5×. Values snapped to nearest 2.5 kg (minimum 2.5 kg).
+function scaledWeight(raw){
+  const i=S.intake;
+  if(!raw||typeof raw!=='string')return raw;
+  if(!i||!S.intakeComplete)return raw;
+  const userKg=i.weightKg||0;
+  if(!userKg)return raw;
+  const sex=i.sex||'male';
+  const refBW=sex==='female'?58:80;    // reference body-weight for each sex
+  const sexBase=sex==='female'?0.60:1.0; // female absolute strength base
+  const scale=sexBase*Math.max(0.4,Math.min(1.5,userKg/refBW));
+  const snap=v=>Math.max(2.5,Math.round(v/2.5)*2.5);
+  return raw.replace(/(\d+(?:\.\d+)?)\s*kg/gi,(_,n)=>snap(parseFloat(n)*scale)+'kg');
+}
+
 function exRow(e,lbl,w,style){
-  return`<div class="exr"${style?` style="${style}"`:''}><div class="exi">${lbl}</div><div><div class="exn">${e[0]}</div><div class="exno">${e[1]}</div>${e[3]?`<div class="exw">${e[3]}</div>`:''}${e[4]?vidBtn(e[4],e[0]):''}${e[5]?vidBtn(e[5],e[0]):''}  </div><div class="exs">${reps(e,w)}</div></div>`;
+  const note=scaledWeight(e[1]);
+  const wt=scaledWeight(e[3]);
+  return`<div class="exr"${style?` style="${style}"`:''}><div class="exi">${lbl}</div><div><div class="exn">${e[0]}</div><div class="exno">${note}</div>${wt?`<div class="exw">${wt}</div>`:''}${e[4]?vidBtn(e[4],e[0]):''}${e[5]?vidBtn(e[5],e[0]):''}  </div><div class="exs">${reps(e,w)}</div></div>`;
 }
 function exRows(arr,w,titleStr){
   let n=1;
