@@ -691,7 +691,8 @@ const VIDS={
 };
 
 function vidBtn(url,label){
-  return `<a href="${url}" target="_blank" class="vid-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${label||'Watch'}</a>`;
+  if(!url||url==='undefined')return'';
+  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="vid-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>${label||'Watch'}</a>`;
 }
 
 // ─────────────────────────────────────────────
@@ -1658,6 +1659,15 @@ function buildDay(){
 
   const segs=document.getElementById('segs');segs.innerHTML='';
 
+  // Injury reminder card — shown if the user reported injuries in their profile
+  const injText=((S.intake||{}).injuries||'').trim();
+  if(S.intakeComplete&&injText){
+    const injEl=document.createElement('div');
+    injEl.style.cssText='padding:10px 14px;background:rgba(255,160,50,0.08);border:1px solid rgba(255,160,50,0.25);border-radius:8px;margin-bottom:10px';
+    injEl.innerHTML=`<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,160,50,0.9);margin-bottom:4px">INJURY / LIMITATION NOTE</div><div style="font-size:12px;color:var(--mut);line-height:1.5">${escapeHtml(injText)}</div>`;
+    segs.appendChild(injEl);
+  }
+
   if(day.name==='Monday') dayMon(segs,w);
   else if(day.name==='Wednesday') dayWed(segs,w);
   else if(day.name==='Thursday') dayThu(segs,w);
@@ -1840,7 +1850,7 @@ function buildRunLog(){
   const hist=document.getElementById('run-hist');
   if(!hist)return;
   if(!S.runs.length){hist.innerHTML='<div style="font-size:12px;color:var(--hint);padding:8px 0">No runs logged yet.</div>';return}
-  hist.innerHTML=`<div class="log-history">${S.runs.map((r,i)=>`<div class="log-entry"><div class="le-date">${r.date}</div><div class="le-dist">${r.dist}km</div><div class="le-pace">${r.pace}${r.hr?' · '+r.hr+'bpm':''}</div><div class="le-note">${r.note||r.day||''}</div><button class="le-del" onclick="delRun(${i})">&#215;</button></div>`).join('')}</div>`;
+  hist.innerHTML=`<div class="log-history">${S.runs.map((r,i)=>`<div class="log-entry"><div class="le-date">${escapeHtml(r.date||'')}</div><div class="le-dist">${escapeHtml(String(r.dist||''))}km</div><div class="le-pace">${escapeHtml(r.pace||'')}${r.hr?' · '+escapeHtml(String(r.hr))+'bpm':''}</div><div class="le-note">${escapeHtml(r.note||r.day||'')}</div><button class="le-del" onclick="delRun(${i})">&#215;</button></div>`).join('')}</div>`;
 }
 
 function delRun(i){S.runs.splice(i,1);save();buildRunLog()}
@@ -1872,7 +1882,7 @@ function buildFuel(){
     const ings=parseIngs(m.i);
     const ingRows=ings.map((ing,ii)=>{
       const added=(S.shopList||[]).some(x=>x.text===ing);
-      return`<div class="ing-row"><div class="ing-name">${ing}</div><button class="ing-add${added?' added':''}" onclick="addToShop('${ing.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}',this)">${added?'&#10003;':'+'}</button></div>`;
+      return`<div class="ing-row"><div class="ing-name">${escapeHtml(ing)}</div><button class="ing-add${added?' added':''}" onclick="addToShop('${ing.replace(/'/g,'&#39;').replace(/"/g,'&quot;')}',this)">${added?'&#10003;':'+'}</button></div>`;
     }).join('');
     return`<div class="mcard"><div class="mt">${m.t}</div><div class="mn">${m.n}</div><div class="mi">${m.i.replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${m.note}</div>`:''
     }${ings.length?`<button class="mcard-expand" onclick="toggleIngList(this)">Ingredients</button><div class="ing-list" style="display:none">${ingRows}</div>`:''}</div>`;
@@ -1940,7 +1950,7 @@ function buildShopView(){
   }
   const active=S.shopList.map((x,i)=>({...x,i})).filter(x=>!x.done);
   const ticked=S.shopList.map((x,i)=>({...x,i})).filter(x=>x.done);
-  const row=items=>items.map(x=>`<div class="sl-item${x.done?' on':''}" onclick="toggleShopItem(${x.i})"><div class="sl-check${x.done?' on':''}"></div><div class="sl-name">${x.text}</div><button class="sl-del" onclick="event.stopPropagation();delShopItem(${x.i})">&#215;</button></div>`).join('');
+  const row=items=>items.map(x=>`<div class="sl-item${x.done?' on':''}" onclick="toggleShopItem(${x.i})"><div class="sl-check${x.done?' on':''}"></div><div class="sl-name">${escapeHtml(x.text||'')}</div><button class="sl-del" onclick="event.stopPropagation();delShopItem(${x.i})">&#215;</button></div>`).join('');
   el.innerHTML=row(active)+(ticked.length?'<div style="padding:8px 0 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hint)">Done</div>'+row(ticked):'');
 }
 
