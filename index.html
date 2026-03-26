@@ -139,7 +139,17 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .exn{font-size:13px;font-weight:500;line-height:1.3}
 .exno{font-size:11px;color:var(--mut);margin-top:2px;line-height:1.4}
 .exw{display:inline-block;background:var(--red-lt);color:#e06070;font-size:10px;padding:1px 5px;border-radius:3px;margin-top:2px}
-.exs{font-size:12px;font-weight:500;color:var(--w);white-space:nowrap;text-align:right;padding-top:1px}
+.exs{font-size:12px;font-weight:500;color:var(--w);white-space:nowrap;text-align:right;padding-top:1px;display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.ex-skip{background:none;border:none;color:var(--mut);font-size:13px;padding:0;cursor:pointer;opacity:0.45;line-height:1;margin-top:2px}
+.ex-skip:hover{opacity:1;color:#e06070}
+.exr.skipped{opacity:0.25;pointer-events:none}
+.exr.skipped .ex-skip{pointer-events:auto;opacity:0.7;color:var(--hint)}
+
+/* TIME SELECTOR */
+.time-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tpill{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px;border:.5px solid rgba(255,255,255,0.12);color:var(--mut);background:rgba(255,255,255,0.04);cursor:pointer}
+.tpill.ac{background:var(--red);border-color:var(--red);color:#fff}
+.d-est{font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--hint);margin-top:3px}
 
 /* VIDEO LINK BUTTON */
 .vid-btn{display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:3px 8px;border-radius:3px;background:rgba(255,100,100,0.1);border:.5px solid rgba(255,100,100,0.25);color:#ff8080;font-size:10px;font-weight:500;letter-spacing:.5px;text-decoration:none;cursor:pointer}
@@ -574,6 +584,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="d-big" id="d-big">Monday</div>
     <div class="d-sub" id="d-sub">Chest + Core</div>
     <div class="d-meta" id="d-meta"></div>
+    <div class="d-est" id="d-est"></div>
   </div>
   <div id="segs"></div>
   <div class="cta-w"><button class="cta" id="cta" onclick="toggleDone()">Mark Complete</button></div>
@@ -757,11 +768,11 @@ const THU_LF=[
   ["Arnold Press","Moderate load; full rotation","3×12 / 3×12 / 3×15",'', 'https://www.youtube.com/watch?v=6Z15_WdXmVw'],
   ["Lateral Raises","Strict; no momentum","3×15 / 3×15 / 4×15",'', 'https://www.youtube.com/watch?v=HeovYNoZDRg'],
   ["Skull Crushers","Elbows warm first; bar to forehead","3×12 / 3×12 / 4×12",'', 'https://www.youtube.com/watch?v=_gsUck-7M74'],
-  ["Preacher Curls Machine","20kg  ·  27.5kg  ·  30kg; full extension at bottom","3 sets / 3 sets / 3 sets","20–30kg",'https://www.youtube.com/watch?v=fIpy-FRuFP8'],
-  ["EZ Curls Cable","12kg  ·  17kg  ·  20kg; squeeze at top","3 sets / 3 sets / 3 sets","12–20kg",'https://www.youtube.com/watch?v=zG2cAZ5qgwg'],
-  ["Hammer Curls","13.6kg  ·  20.4kg  ·  25kg; neutral grip","3 sets / 3 sets / 3 sets","13–25kg",'https://www.youtube.com/watch?v=zC3nCuE13vk'],
-  ["Tricep Pulldowns","10kg  ·  15kg  ·  22.5kg; lockout each rep","3 sets / 3 sets / 3 sets","10–22.5kg",'https://www.youtube.com/watch?v=2-LAMcpzHYU'],
-  ["Dumbbell Pullover","13.6kg  ·  20.4kg  ·  25kg; lats + triceps","3 sets / 3 sets / 3 sets","13–25kg",'https://www.youtube.com/watch?v=FK4YrHNNvYc'],
+  ["Preacher Curls Machine","20kg×12  ·  27.5kg×10  ·  30kg×8; full extension at bottom","3×12 / 3×10 / 3×8","20–30kg",'https://www.youtube.com/watch?v=fIpy-FRuFP8'],
+  ["EZ Curls Cable","12kg×12  ·  17kg×10  ·  20kg×8; squeeze at top","3×12 / 3×10 / 3×8","12–20kg",'https://www.youtube.com/watch?v=zG2cAZ5qgwg'],
+  ["Hammer Curls","13.6kg×12  ·  20.4kg×10  ·  25kg×8; neutral grip","3×12 / 3×10 / 3×8","13–25kg",'https://www.youtube.com/watch?v=zC3nCuE13vk'],
+  ["Tricep Pulldowns","10kg×12  ·  15kg×12  ·  22.5kg×10; lockout each rep","3×12 / 3×12 / 3×10","10–22.5kg",'https://www.youtube.com/watch?v=2-LAMcpzHYU'],
+  ["Dumbbell Pullover","13.6kg×12  ·  20.4kg×10  ·  25kg×8; lats + triceps","3×12 / 3×10 / 3×8","13–25kg",'https://www.youtube.com/watch?v=FK4YrHNNvYc'],
   ["Tricep Dips","Bodyweight; lean forward slightly","3×12 / 3×12 / 3×15","Bodyweight",'https://www.youtube.com/watch?v=yN6Q1UI_xkE'],
   ["Weighted Plank Hold","Plate on back","3×45s / 3×45s / 3×60s"],
 ];
@@ -1430,7 +1441,7 @@ function normalizeIntakeShape(i){
 // ─────────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────────
-let S={week:1,day:0,done:{},runs:[],shopList:[],stravaConnected:false,intakeComplete:false,planKey:'default',intake:null};
+let S={week:1,day:0,done:{},runs:[],shopList:[],stravaConnected:false,intakeComplete:false,planKey:'default',intake:null,skippedEx:{}};
 try{
   const d=localStorage.getItem('hf4');
   if(d){
@@ -1445,6 +1456,7 @@ if(typeof S.stravaConnected!=='boolean')S.stravaConnected=false;
 if(typeof S.planKey!=='string')S.planKey='default';
 if(S.intake!=null&&typeof S.intake!=='object')S.intake=null;
 if(S.intake!=null&&typeof S.intake==='object')normalizeIntakeShape(S.intake);
+if(typeof S.skippedEx!=='object'||S.skippedEx===null)S.skippedEx={};
 function save(opts){
   try{localStorage.setItem('hf4',JSON.stringify(S))}catch(e){}
   if(!opts||!opts.skipCloud)scheduleCloudSave();
@@ -1473,6 +1485,39 @@ function experienceSlice(arr){
   if(exp==='intermediate')return arr.slice(0,Math.max(3,Math.ceil(arr.length*0.75)));
   return arr;
 }
+
+// ── TIME LIMIT & SKIP ────────────────────────────────────────────────────────
+let todayTimeLimitMins=null;
+function setTodayTime(mins){todayTimeLimitMins=mins;buildDay();}
+function timeSlice(arr){
+  if(!todayTimeLimitMins)return arr;
+  const ratios={20:0.30,30:0.45,45:0.65,60:0.85};
+  const r=ratios[todayTimeLimitMins]||1;
+  return arr.slice(0,Math.max(2,Math.ceil(arr.length*r)));
+}
+function isSkipped(name){
+  const k=dkey();
+  return !!(S.skippedEx&&S.skippedEx[k]&&S.skippedEx[k][name]);
+}
+function skipExercise(name){
+  const k=dkey();
+  if(!S.skippedEx)S.skippedEx={};
+  if(!S.skippedEx[k])S.skippedEx[k]={};
+  S.skippedEx[k][name]=true;
+  save();buildDay();
+}
+function restoreExercise(name){
+  const k=dkey();
+  if(S.skippedEx&&S.skippedEx[k])delete S.skippedEx[k][name];
+  save();buildDay();
+}
+function filteredEx(arr){
+  return timeSlice(experienceSlice(arr)).filter(e=>{
+    if(Array.isArray(e[0]))return true; // supersets always included
+    return !isSkipped(e[0]);
+  });
+}
+
 function workoutRepBias(){
   const g=S.intakeComplete?intakeGoals(S.intake||{}):[];
   const mus=g.includes('build_muscle');
@@ -1609,7 +1654,13 @@ function scaledWeight(raw){
 function exRow(e,lbl,w,style){
   const note=scaledWeight(e[1]);
   const wt=scaledWeight(e[3]);
-  return`<div class="exr"${style?` style="${style}"`:''}><div class="exi">${lbl}</div><div><div class="exn">${e[0]}</div><div class="exno">${note}</div>${wt?`<div class="exw">${wt}</div>`:''}${e[4]?vidBtn(e[4],e[0]):''}${e[5]?vidBtn(e[5],e[0]):''}  </div><div class="exs">${reps(e,w)}</div></div>`;
+  const name=e[0];
+  const skipped=isSkipped(name);
+  const safeName=escapeHtml(JSON.stringify(name));
+  const skipBtn=skipped
+    ?`<button class="ex-skip" onclick="restoreExercise(${safeName})" title="Restore exercise">↩</button>`
+    :`<button class="ex-skip" onclick="skipExercise(${safeName})" title="Remove exercise">✕</button>`;
+  return`<div class="exr${skipped?' skipped':''}"${style?` style="${style}"`:''}><div class="exi">${lbl}</div><div><div class="exn">${name}</div><div class="exno">${note}</div>${wt?`<div class="exw">${wt}</div>`:''}${e[4]?vidBtn(e[4],name):''}${e[5]?vidBtn(e[5],name):''}</div><div class="exs">${reps(e,w)}${skipBtn}</div></div>`;
 }
 function exRows(arr,w,titleStr){
   let n=1;
@@ -1663,6 +1714,21 @@ function buildDay(){
 
   const segs=document.getElementById('segs');segs.innerHTML='';
 
+  // Time selector pills — lets user trim exercises to their available time today
+  const isLiftDay=day.type!=='run'&&day.type!=='longrun';
+  if(isLiftDay){
+    const timePillBar=document.createElement('div');
+    timePillBar.className='time-bar';
+    [{l:'Full session',v:null},{l:'20 min',v:20},{l:'30 min',v:30},{l:'45 min',v:45},{l:'60 min',v:60}].forEach(opt=>{
+      const p=document.createElement('button');
+      p.className='tpill'+(todayTimeLimitMins===opt.v?' ac':'');
+      p.textContent=opt.l;
+      p.onclick=()=>setTodayTime(opt.v);
+      timePillBar.appendChild(p);
+    });
+    segs.appendChild(timePillBar);
+  }
+
   // Injury reminder card — shown if the user reported injuries in their profile
   const injText=((S.intake||{}).injuries||'').trim();
   if(S.intakeComplete&&injText){
@@ -1679,6 +1745,12 @@ function buildDay(){
   else if(day.type==='run') dayTue(segs,w);
   else if(day.type==='longrun') daySat(segs,w);
 
+  // Dynamic time estimate — count visible exercises and update header
+  const visibleExCount=segs.querySelectorAll('.exr:not(.skipped)').length;
+  const estMins=visibleExCount>0?Math.round(visibleExCount*3.5+10):0;
+  const estEl=document.getElementById('d-est');
+  if(estEl)estEl.textContent=isLiftDay&&estMins>0?`~${estMins} min lifting`:'';
+
   const dn=!!S.done[dkey()];
   const btn=document.getElementById('cta');
   btn.textContent=dn?'Session Complete':'Mark Complete';
@@ -1690,7 +1762,7 @@ function dayMon(segs,w){
   const style=programStyle();
   if(style==='runner'){
     segs.appendChild(mkSeg('pwu','Warm-Up','Joint mobility — 5 min',strList(WU_STR.slice(0,4)),true));
-    segs.appendChild(mkSeg('plift','Light Upper Body + Core','Push-Ups · Rows · Sit-Ups · Plank — ~25 min',exRows(experienceSlice(RUN_MON_UPPER),w,'Upper Body + Core'),false));
+    segs.appendChild(mkSeg('plift','Light Upper Body + Core','Push-Ups · Rows · Sit-Ups · Plank — ~25 min',exRows(filteredEx(RUN_MON_UPPER),w,'Upper Body + Core'),false));
     segs.appendChild(mkSeg('pcd','Cool-Down','5 min static',strList(CD_STR),false));
     return;
   }
@@ -1698,10 +1770,10 @@ function dayMon(segs,w){
   const CH=loc==='home'?MON_HOME_CH:MON_CH;
   const wuLabel=loc==='home'?'Push-Up warm-up + mobility — 8 min':'Pull-ups + shoulder prep — 8 min';
   segs.appendChild(mkSeg('pwu','Warm-Up',wuLabel,exRows(WU,w,'Activation')+strList(WU_STR.slice(0,4)),true));
-  const chHtml=exRows(experienceSlice(CH),w,'Chest Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.chest_stretch,'Doorway Chest Stretch')}</div>`:'');
+  const chHtml=exRows(filteredEx(CH),w,'Chest Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.chest_stretch,'Doorway Chest Stretch')}</div>`:'');
   const chMeta=loc==='home'?'Push-Ups · Decline · Diamond · Band Press · Chair Dips — ~40 min':'Bench · Dips · Nautilus · Incline · Pec Deck — ~45 min';
   segs.appendChild(mkSeg('plift','Chest',chMeta,chHtml,false));
-  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle — ~15 min',exRows(experienceSlice(MON_CORE),w,'Core'),false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Twist · Bicycle — ~15 min',exRows(filteredEx(MON_CORE),w,'Core'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min static',strList(CD_STR),false));
   if(loc!=='home')segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
@@ -1711,7 +1783,7 @@ function dayWed(segs,w){
   const style=programStyle();
   if(style==='runner'){
     segs.appendChild(mkSeg('pwu','Warm-Up','5 min',strList(WU_STR.slice(0,4)),true));
-    segs.appendChild(mkSeg('plift','Core & Mobility','Dead Bug · Bicycle · Russian Twist · Hip Flexor — ~25 min',exRows(experienceSlice(RUN_WED_CORE),w,'Core + Mobility'),false));
+    segs.appendChild(mkSeg('plift','Core & Mobility','Dead Bug · Bicycle · Russian Twist · Hip Flexor — ~25 min',exRows(filteredEx(RUN_WED_CORE),w,'Core + Mobility'),false));
     segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
     return;
   }
@@ -1720,13 +1792,13 @@ function dayWed(segs,w){
   const BK=loc==='home'?WED_HOME_BK:WED_BK;
   const wuLabel=loc==='home'?'Arm circles + band pull-aparts — 8 min':'Pull-ups + joint prep — 8 min';
   segs.appendChild(mkSeg('pwu','Warm-Up',wuLabel,exRows(WU,w,'Activation')+strList(WU_STR.slice(0,4)),true));
-  const shHtml=exRows(experienceSlice(SH),w,'Shoulder Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.shoulders,'Shoulders Demo')}</div>`:'');
+  const shHtml=exRows(filteredEx(SH),w,'Shoulder Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.shoulders,'Shoulders Demo')}</div>`:'');
   const shMeta=loc==='home'?'Pike Push-Ups · Band OHP · Lateral · Front · Cuban — ~35 min':'OHP · Arnold · Lateral · Front · Cuban · KB Press — ~40 min';
   segs.appendChild(mkSeg('plift','Shoulders',shMeta,shHtml,false));
-  const bkHtml=exRows(experienceSlice(BK),w,'Back Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.back_inspo,'Back Inspiration')}</div>`:'');
+  const bkHtml=exRows(filteredEx(BK),w,'Back Work')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.back_inspo,'Back Inspiration')}</div>`:'');
   const bkMeta=loc==='home'?'Inverted Rows · Band Row · Superman · Reverse Angel · Band Pulldown — ~20 min':'Bent-Over Row · Seated Rows · Pulldowns · T-Bar · KB Deadlifts — ~25 min';
   segs.appendChild(mkSeg('pback','Back',bkMeta,bkHtml,false));
-  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist — ~12 min',exRows(experienceSlice(WED_CORE),w,'Core'),false));
+  segs.appendChild(mkSeg('plift','Core Finisher','Planks · Russian Twist — ~12 min',exRows(filteredEx(WED_CORE),w,'Core'),false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
   if(loc!=='home')segs.appendChild(mkSeg('psauna','Sauna','Post-session',saunaCard(),false));
 }
@@ -1743,7 +1815,7 @@ function dayThu(segs,w){
   </div>`;
   if(style==='runner'){
     segs.appendChild(mkSeg('pwu','Warm-Up','5 min',strList(WU_STR.slice(0,4)),true));
-    segs.appendChild(mkSeg('plift','Runner Strength — Lower Body','Squats · Lunges · Glute Bridge · Calves — ~30 min',exRows(experienceSlice(RUN_THU_LOWER),w,'Running Support Strength'),false));
+    segs.appendChild(mkSeg('plift','Runner Strength — Lower Body','Squats · Lunges · Glute Bridge · Calves — ~30 min',exRows(filteredEx(RUN_THU_LOWER),w,'Running Support Strength'),false));
     segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-strength — conversational pace`,z2Html,false));
     segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
     return;
@@ -1752,7 +1824,7 @@ function dayThu(segs,w){
   segs.appendChild(mkSeg('pwu','Warm-Up','Pull-ups + shoulder mobility — 8 min',
     exRows(THU_WU,w,'Activation Pull-Ups')+strList(WU_STR.slice(0,4)),true));
   const liftMeta=loc==='home'?'Incline Push-Ups · Inverted Rows · Band Curls · Dips · Plank — ~45 min':'Incline · Chins · Arnold · Curls · Skulls · Dips — ~50 min';
-  const liftHtml=exRows(experienceSlice(LF),w,'Hypertrophy + Arms')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`:'');
+  const liftHtml=exRows(filteredEx(LF),w,'Hypertrophy + Arms')+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.arms,'Arms Demo — Preacher Curls etc')}</div>`:'');
   segs.appendChild(mkSeg('plift','Upper Hypertrophy + Arms',liftMeta,liftHtml,false));
   segs.appendChild(mkSeg('prun','Zone 2 Easy Run',`${z2} min post-lifting — conversational pace`,z2Html,false));
   segs.appendChild(mkSeg('pcd','Cool-Down','5 min',strList(CD_STR),false));
@@ -1768,7 +1840,7 @@ function dayFri(segs,w){
     return;
   }
   segs.appendChild(mkSeg('pwu','Warm-Up','Joint mobility — 5 min',strList(WU_STR),true));
-  const kbSlice=experienceSlice(FRI_KB);
+  const kbSlice=filteredEx(FRI_KB);
   const kbHtml=exRows(kbSlice,w,`Full Body KB Circuit — Complete all ${kbSlice.length} exercises back-to-back, then rest 2 min between rounds`)+(loc!=='home'?`<div style="margin-top:10px">${vidBtn(VIDS.kb_circuit,'KB Circuit Demo — Full Workout')}</div>`:'');
   segs.appendChild(mkSeg('pkb','KB Circuit',`${kbSlice.length} exercises · 3–4 rounds · 2 min rest between rounds — ~30 min`,kbHtml,false));
   segs.appendChild(mkSeg('pkb','HIIT Core Finisher','3 exercises · 4 rounds · 15s rest — ~15 min',exRows(FRI_HIIT,w,'Core Cardio'),false));
