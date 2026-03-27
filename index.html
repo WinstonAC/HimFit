@@ -436,6 +436,16 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
       </select>
     </div>
     <div class="intake-field"><label>Injuries or restrictions (optional)</label><textarea class="log-input" id="in-inj" placeholder="e.g. bad shoulder — no overhead"></textarea></div>
+
+    <div class="intake-field">
+      <label>Daily workout reminder</label>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+        <input type="checkbox" id="in-notif-on" style="width:16px;height:16px;accent-color:var(--red)" onchange="toggleNotifTimeField()">
+        <span style="font-size:13px;color:var(--mut)">Remind me each day</span>
+      </div>
+      <input type="time" class="log-input" id="in-notif-time" value="07:00" style="margin-top:8px;display:none">
+      <p id="in-notif-note" style="font-size:10px;color:var(--hint);margin-top:4px;display:none">On iPhone, add this app to your Home Screen for notifications to work.</p>
+    </div>
     <p class="sub" style="margin-top:12px;font-size:10px">Not medical advice. For pregnancy or medical conditions, follow your clinician.</p>
     <div class="intake-actions">
       <button type="button" class="log-save" onclick="submitIntake()">Save profile</button>
@@ -569,6 +579,21 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <p id="overview-account-email" style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:4px"></p>
     <p class="sub" style="margin:0 0 10px;font-size:10px">Each phone or browser signs in separately. Sign out here to use another email or see the sign-in screen on this device.</p>
     <button type="button" class="log-save intake-skip overview-signout" onclick="winstonFitSignOut()">Sign out</button>
+  </div>
+
+  <div id="overview-notif-card" class="card-s" style="display:none">
+    <div class="slbl" style="margin-bottom:8px">Workout Reminders</div>
+    <div id="notif-status-msg" style="font-size:12px;color:var(--mut);margin-bottom:10px">Loading…</div>
+    <div id="notif-time-row" style="display:none;margin-bottom:10px">
+      <label style="font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--hint)">Reminder time</label>
+      <input type="time" class="log-input" id="notif-time-input" value="07:00" style="margin-top:4px;max-width:150px">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="notif-enable-btn"  class="log-save"          onclick="enablePushNotifications()"  style="display:none">Enable Reminders</button>
+      <button id="notif-disable-btn" class="log-save intake-skip" onclick="disablePushNotifications()" style="display:none">Turn Off</button>
+      <button id="notif-update-btn"  class="log-save"          onclick="updateNotifTime()"          style="display:none">Save Time</button>
+    </div>
+    <p style="font-size:10px;color:var(--hint);margin-top:8px" id="notif-ios-note" style="display:none">On iPhone, add Winston Fit to your Home Screen first for reminders to work.</p>
   </div>
 </div>
 
@@ -2213,6 +2238,12 @@ function populateIntakeForm(){
   document.getElementById('in-run').value=i.runningComfort||'ten_plus';
   document.getElementById('in-diet').value=i.diet||'omnivore';
   document.getElementById('in-meal-style').value=i.mealStyle==='salad_forward'?'salad_forward':'balanced';
+  const notifOn=document.getElementById('in-notif-on');
+  const notifTime=document.getElementById('in-notif-time');
+  notifOn.checked=!!(i.notifEnabled);
+  notifTime.value=i.notifTime||'07:00';
+  notifTime.style.display=notifOn.checked?'block':'none';
+  document.getElementById('in-notif-note').style.display=notifOn.checked?'block':'none';
   syncFertilityOption();
   setGoalChecksFromList(intakeGoals(i));
 }
@@ -2265,10 +2296,14 @@ function submitIntake(){
     runningComfort:document.getElementById('in-run').value,
     diet:document.getElementById('in-diet').value,
     mealStyle:document.getElementById('in-meal-style').value,
+    notifEnabled:document.getElementById('in-notif-on').checked,
+    notifTime:document.getElementById('in-notif-time').value||'07:00',
   };
   S.planKey=resolvePlanKey(S.intake);
   S.intakeComplete=true;
   save();
+  // If user opted in to notifications, request permission after closing form
+  if(S.intake.notifEnabled)setTimeout(()=>enablePushNotifications(),600);
   closeIntake();
   refreshProfileStrip();
   buildDay();buildPlan();buildFuel();
@@ -2507,6 +2542,7 @@ async function initHimfitCloud(){
     updateCloudSettingsUI(winstonFitAuthUser);
     updateAuthShellVisibility();
     refreshStravaOwnerUI();
+    updateNotifCard();
     if(event==='SIGNED_IN'&&session?.user){
       const merged=await pullCloudStateIntoApp();
       if(!merged)await pushStateToCloud();
@@ -2694,6 +2730,161 @@ async function pullCloudStateIntoApp(){
 }
 
 // ─────────────────────────────────────────────
+// PUSH NOTIFICATIONS
+// ─────────────────────────────────────────────
+const VAPID_PUBLIC_KEY='BGUku2wLqQyIenhuCodt4vP7GfWj30MsBqnLB1bNjTA087X65pR5Wm0F-21uj6xL7HzI9v3IG4RwGAPGjk4T97c';
+
+function toggleNotifTimeField(){
+  const on=document.getElementById('in-notif-on').checked;
+  document.getElementById('in-notif-time').style.display=on?'block':'none';
+  document.getElementById('in-notif-note').style.display=on?'block':'none';
+}
+
+function urlBase64ToUint8Array(b64){
+  const pad=b64.length%4===0?'':'='.repeat(4-b64.length%4);
+  const raw=atob((b64+pad).replace(/-/g,'+').replace(/_/g,'/'));
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+
+async function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return null;
+  try{
+    const reg=await navigator.serviceWorker.register('/sw.js',{scope:'/'});
+    await navigator.serviceWorker.ready;
+    return reg;
+  }catch(e){console.warn('SW register failed',e);return null;}
+}
+
+async function enablePushNotifications(){
+  if(!('Notification' in window)){
+    _showNotifStatus('Your browser does not support notifications.',true);return;
+  }
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){
+    _showNotifStatus('Permission denied — enable notifications in your browser settings.',true);
+    updateNotifCard();return;
+  }
+  const reg=await registerServiceWorker();
+  if(!reg){_showNotifStatus('Could not register service worker.',true);return;}
+  try{
+    const existing=await reg.pushManager.getSubscription();
+    if(existing)await existing.unsubscribe();
+    const sub=await reg.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+    const notifTime=(S.intake&&S.intake.notifTime)||
+      (document.getElementById('notif-time-input')||{value:'07:00'}).value||'07:00';
+    await savePushSubToSupabase(sub,notifTime);
+    // Update intake with notification preference
+    if(S.intake){S.intake.notifEnabled=true;S.intake.notifTime=notifTime;save();}
+    _showNotifStatus('Reminders on ✓ — you\'ll get a daily ping at '+notifTime+'.');
+  }catch(e){_showNotifStatus('Could not subscribe: '+e.message,true);}
+  updateNotifCard();
+}
+
+async function disablePushNotifications(){
+  const reg=await registerServiceWorker();
+  if(reg){
+    const sub=await reg.pushManager.getSubscription();
+    if(sub){
+      await deletePushSubFromSupabase(sub.endpoint);
+      await sub.unsubscribe();
+    }
+  }
+  if(S.intake){S.intake.notifEnabled=false;save();}
+  _showNotifStatus('Reminders turned off.');
+  updateNotifCard();
+}
+
+async function updateNotifTime(){
+  const timeEl=document.getElementById('notif-time-input');
+  if(!timeEl)return;
+  const notifTime=timeEl.value||'07:00';
+  if(S.intake){S.intake.notifTime=notifTime;save();}
+  const reg=await registerServiceWorker();
+  if(reg){
+    const sub=await reg.pushManager.getSubscription();
+    if(sub)await savePushSubToSupabase(sub,notifTime);
+  }
+  _showNotifStatus('Reminder time updated to '+notifTime+' ✓');
+}
+
+async function savePushSubToSupabase(sub,notifTime){
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
+  const j=sub.toJSON();
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+  const {error}=await winstonFitSupabase.from('winstonfit_push_subscriptions').upsert({
+    user_id:winstonFitAuthUser.id,
+    endpoint:j.endpoint,
+    p256dh:j.keys.p256dh,
+    auth:j.keys.auth,
+    notif_time:notifTime,
+    user_tz:tz,
+    updated_at:new Date().toISOString(),
+  },{onConflict:'user_id,endpoint'});
+  if(error)console.warn('Push sub save error',error);
+}
+
+async function deletePushSubFromSupabase(endpoint){
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
+  await winstonFitSupabase.from('winstonfit_push_subscriptions')
+    .delete().eq('user_id',winstonFitAuthUser.id).eq('endpoint',endpoint);
+}
+
+function _showNotifStatus(msg,isError){
+  const el=document.getElementById('notif-status-msg');
+  if(el){el.textContent=msg;el.style.color=isError?'#e06070':'var(--hint)';}
+}
+
+async function updateNotifCard(){
+  const card=document.getElementById('overview-notif-card');
+  if(!card)return;
+  // Only show to signed-in users
+  if(!winstonFitAuthUser){card.style.display='none';return;}
+  card.style.display='block';
+
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const supported='serviceWorker' in navigator&&'PushManager' in window;
+  document.getElementById('notif-ios-note').style.display=isIOS?'block':'none';
+
+  if(!supported){
+    _showNotifStatus('Push notifications are not supported in this browser.');
+    document.getElementById('notif-enable-btn').style.display='none';
+    document.getElementById('notif-disable-btn').style.display='none';
+    document.getElementById('notif-time-row').style.display='none';
+    document.getElementById('notif-update-btn').style.display='none';
+    return;
+  }
+
+  const perm=Notification.permission;
+  let isSubscribed=false;
+  try{
+    const reg=await navigator.serviceWorker.getRegistration('/');
+    if(reg){const sub=await reg.pushManager.getSubscription();isSubscribed=!!sub;}
+  }catch(_){}
+
+  const timeInput=document.getElementById('notif-time-input');
+  if(timeInput&&S.intake&&S.intake.notifTime)timeInput.value=S.intake.notifTime;
+
+  if(isSubscribed&&perm==='granted'){
+    _showNotifStatus('Reminders are on ✓');
+    document.getElementById('notif-enable-btn').style.display='none';
+    document.getElementById('notif-disable-btn').style.display='inline-block';
+    document.getElementById('notif-time-row').style.display='block';
+    document.getElementById('notif-update-btn').style.display='inline-block';
+  }else{
+    _showNotifStatus(perm==='denied'
+      ?'Notifications blocked — allow them in your browser/phone settings, then try again.'
+      :'Get a daily reminder when it\'s time to train.');
+    document.getElementById('notif-enable-btn').style.display=perm!=='denied'?'inline-block':'none';
+    document.getElementById('notif-disable-btn').style.display='none';
+    document.getElementById('notif-time-row').style.display='none';
+    document.getElementById('notif-update-btn').style.display='none';
+  }
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
 (async function runHimfitInit(){
@@ -2722,6 +2913,10 @@ async function pullCloudStateIntoApp(){
     io.classList.add('hid');
   }
   buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
+  // Register service worker early so push works even before settings are opened
+  registerServiceWorker();
+  // Populate notification card once auth is known
+  updateNotifCard();
 })();
 </script>
 </body>
