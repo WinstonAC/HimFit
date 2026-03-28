@@ -2462,9 +2462,12 @@ function winstonFitAuthSiteUrl(){
 function winstonFitFriendlyAuthError(error,context){
   const raw=(error&&error.message)?String(error.message).trim():'Something went wrong.';
   const lower=raw.toLowerCase();
-  if(context==='signin'){
-    if(lower.includes('invalid login')||lower.includes('invalid credentials')||lower==='invalid email or password'){
-      return 'That email and password don’t match. If you already have an account, check the password or use Forgot password. If you signed up with email link before passwords, use Forgot password once to set a password. New here? Use Create Account.';
+  if(context===’signin’){
+    if(lower.includes(‘email not confirmed’)||lower.includes(‘not confirmed’)){
+      return ‘Please confirm your email before signing in — check your inbox (and spam) for the confirmation link.’;
+    }
+    if(lower.includes(‘invalid login’)||lower.includes(‘invalid credentials’)||lower===’invalid email or password’){
+      return ‘That email and password don’t match. If you just signed up, check your inbox to confirm your email first. Otherwise use Forgot password to reset it, or Create Account if you’re new.’;
     }
   }
   if(context==='signup'){
@@ -2545,7 +2548,7 @@ async function initHimfitCloud(){
     updateNotifCard();
     if(event==='SIGNED_IN'&&session?.user){
       const merged=await pullCloudStateIntoApp();
-      if(!merged)await pushStateToCloud();
+      if(!merged){await pushStateToCloud();if(S.intakeComplete!==true)openIntake();}
     }
   });
   let {data:{session}}=await winstonFitSupabase.auth.getSession();
@@ -2666,7 +2669,10 @@ async function winstonFitSignInWithPassword(){
   const password=(document.getElementById('cloud-password')?.value||'').trim();
   if(!email){winstonFitSetCloudAuthStatus('Enter your email.',true);return;}
   if(!password){winstonFitSetCloudAuthStatus('Enter your password.',true);return;}
+  const btn=document.getElementById('cloud-signin-btn');
+  if(btn){btn.disabled=true;btn.textContent='Signing in\u2026';}
   const {error}=await winstonFitSupabase.auth.signInWithPassword({email,password});
+  if(btn){btn.disabled=false;btn.textContent='Sign In';}
   if(error)winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'signin'),true);
 }
 async function winstonFitSignUpWithPassword(){
@@ -2679,13 +2685,16 @@ async function winstonFitSignUpWithPassword(){
   const password=(document.getElementById('cloud-password')?.value||'').trim();
   if(!email){winstonFitSetCloudAuthStatus('Enter your email.',true);return;}
   if(!password){winstonFitSetCloudAuthStatus('Choose a password (min. length set in Supabase).',true);return;}
+  const signUpBtn=document.getElementById('cloud-signup-btn');
+  if(signUpBtn){signUpBtn.disabled=true;signUpBtn.textContent='Creating account\u2026';}
   const {data,error}=await winstonFitSupabase.auth.signUp({email,password});
+  if(signUpBtn){signUpBtn.disabled=false;signUpBtn.textContent='Create Account';}
   if(error){
     winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'signup'),true);
     return;
   }
   if(data.session)winstonFitSetCloudAuthStatus('',false);
-  else winstonFitSetCloudAuthStatus('Account created. If your project still requires email confirmation, check your inbox; otherwise try Sign In.',false);
+  else winstonFitSetCloudAuthStatus('Account created \u2014 check your inbox for a confirmation link, then come back and Sign In.',false);
 }
 async function winstonFitSignOut(){
   if(winstonFitSupabase)await winstonFitSupabase.auth.signOut();
