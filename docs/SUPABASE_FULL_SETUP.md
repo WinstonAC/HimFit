@@ -1,4 +1,4 @@
-# HimFit × Supabase — complete setup (order of operations)
+# Winston Fit × Supabase — complete setup (order of operations)
 
 Do these **in order**. Your live app URL in examples: `https://winstonac.github.io/HimFit/` (change if yours differs).
 
@@ -12,30 +12,30 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
 2. Choose region, set a database password (save it somewhere safe).
 3. Wait until the project is **healthy / ready**.
 
-### Step 2 — Create `himfit_profiles` + RLS
+### Step 2 — Create `winstonfit_profiles` + RLS
 
 1. Supabase → **SQL Editor** → **New query**.
-2. Open the repo file **`sql/supabase_himfit_profiles.sql`**, copy **all** of it (SQL only — no backticks), paste into the editor, **Run**.
-
-   That file is plain text so nothing from Markdown breaks the query.
-
+2. Open the repo file **`sql/supabase_himfit_profiles.sql`**, copy all of it, paste into the editor, **Run**.
 3. **Run** → you should see **Success** (no red error).
 
 ### Step 3 — (Optional) Confirm table exists
 
-**Table Editor** → you should see **`himfit_profiles`** (may be empty).
+**Table Editor** → you should see **`winstonfit_profiles`** (may be empty).
 
 ---
 
-## Part B — Authentication (magic link)
+## Part B — Authentication (email + password)
+
+HimFit uses **email + password** sign-in. Users create an account directly from the sign-in screen — no magic link required.
 
 ### Step 4 — Enable Email provider
 
 1. **Authentication** → **Providers** → **Email**.
 2. Enable **Email provider**.
-3. For a smooth HimFit flow, typical choices:
-   - **Confirm email**: can stay **on** (user must click link from inbox — you’re already doing that with magic link).
-   - **Secure email change** / **Secure password change**: optional for magic-link-only.
+3. Recommended settings for testers:
+   - **Confirm email**: leave **on** — users confirm via email before they can sign in (safer).
+     Turn **off** only if you want instant sign-in during testing (no confirmation email).
+   - **Secure email change** / **Secure password change**: leave at defaults.
 4. Save.
 
 ### Step 5 — Site URL & redirect URLs (critical)
@@ -45,67 +45,59 @@ Do these **in order**. Your live app URL in examples: `https://winstonac.github.
 
    `https://winstonac.github.io/HimFit/`
 
-   If this is still **`http://localhost:…`**, Supabase will put **localhost** in emails and Safari will fail on your phone. Change it to your **live** URL.
+   If this is still **`http://localhost:…`**, confirmation emails will contain localhost links and fail on phones. Change it to your **live** URL.
 
-3. **Redirect URLs** — add **each** of these (one per line):
+3. **Redirect URLs** — add each of these:
 
    - `https://winstonac.github.io/HimFit/`
-   - `https://winstonac.github.io/HimFit/**` (if Supabase allows wildcards in your dashboard)
-   - For local testing: `http://localhost:8081/` (or whatever port you use)
+   - `https://winstonac.github.io/HimFit/**` (if Supabase allows wildcards)
+   - For local testing: `http://localhost:8081/`
 
-4. In **`himfit-config.js`**, set **`HIMFIT_AUTH_REDIRECT_URL`** to that **same** live URL (see `himfit-config.example.js`). HimFit sends this to Supabase as `emailRedirectTo`. If you only relied on “current page” and once clicked **Send link** from **localhost**, the email would open **localhost** on your phone — the fixed URL prevents that.
-
-> The link in the email must match an allowed redirect, or sign-in will fail after the user taps it.
+4. In **`winston-fit-config.js`**, set **`WINSTONFIT_AUTH_REDIRECT_URL`** to that same live URL. This is used for password-reset emails so the link always opens the deployed app.
 
 ---
 
-## Part C — Branded HimFit emails (templates)
+## Part C — Email templates (confirmation + password reset)
 
-Supabase sends **different** emails from **different** templates. If your inbox shows **“Confirm your signup”** with the default gray Supabase look, that is **not** the Magic Link template — you must style **that** template too.
+Supabase sends emails for **Confirm signup** and **Reset password**. The branded HimFit templates are in the repo.
 
-**Copy-paste files (avoids broken preview / markdown):**
+**Copy-paste files:**
 
 | What | File in repo |
 |------|----------------|
-| Magic link **subject** (one line) | **`docs/email-magic-link-subject.txt`** |
-| Magic link **HTML body** | **`docs/email-magic-link-body.html`** |
+| Magic link / confirmation **subject** | **`docs/email-magic-link-subject.txt`** |
+| Magic link / confirmation **HTML body** | **`docs/email-magic-link-body.html`** |
 
-1. **Authentication** → **Email Templates** → **Magic link**.
-2. Paste **subject** from `email-magic-link-subject.txt`.
-3. Open `email-magic-link-body.html` → select all → copy → paste into the template body (use **Source** / HTML mode if available).
-4. **Save**.
+1. **Authentication** → **Email Templates** → **Confirm signup**.
+2. Paste subject from `email-magic-link-subject.txt` (or write your own: `Winston Fit — confirm your email`).
+3. Open `email-magic-link-body.html` → select all → copy → paste into the template body (use **Source/HTML mode**).
+4. **Do not remove** `{{ .ConfirmationURL }}` on the button — that is the confirmation link.
+5. **Save**.
 
-5. **Same dashboard** → **Confirm signup** (or **Confirm your email**): paste the **same** HTML body and a matching subject (e.g. `HimFit — confirm your email`). **Do not remove** `{{ .ConfirmationURL }}` on the button.
+6. Repeat for **Reset Password** template (use same HTML, update subject to `Winston Fit — reset your password`).
 
-**Do not remove** `{{ .ConfirmationURL }}` on the button link — that is required. The HimFit template uses a static footer line instead of `{{ .Email }}` so the address never shows up as raw `{{ .Email }}` if the dashboard escapes HTML or the merge fails. (You can add `{{ .Email }}` back in **Source/HTML** mode if your project substitutes it correctly.)
+**Phone vs desktop:** This repo's HTML uses tables + inline styles + 16px body for best mobile rendering. After pulling updates, re-paste into Supabase — the dashboard does not auto-sync from GitHub.
 
-**Phone vs desktop inbox:** Mobile Gmail/Apple Mail often scale or strip CSS. This repo’s `email-magic-link-body.html` uses **tables + inline styles + larger type (16px body)** so phone and desktop look closer. After pulling updates, **paste the file into Supabase again** — the dashboard does not auto-sync from GitHub.
-
-Full walkthrough for Step 3 + Step 4 together: **`docs/STEP_3_AND_4.md`**.
+Full walkthrough for Step 3 + 4 together: **`docs/STEP_3_AND_4.md`**.
 
 ---
 
-## Part D — “Full” branded **From** address (optional but luxe)
+## Part D — Branded "From" address (optional)
 
-Supabase’s default “from” address looks generic. For **`training@yourdomain.com`** (or similar):
+Supabase's default from address looks generic. For `training@yourdomain.com`:
 
-1. Use a transactional email provider (**Resend**, **SendGrid**, **Postmark**, etc.) and verify your domain.
+1. Use a transactional email provider (Resend, SendGrid, Postmark) and verify your domain.
 2. Supabase → **Project Settings** → **Authentication** → **SMTP Settings**.
-3. Enter host, port, user, password, and **Sender email** + **Sender name** (e.g. `HimFit`).
-
-Until SMTP is set, branded **design** still works in the inbox; only the **from** line stays Supabase-branded.
+3. Enter host, port, user, password, and **Sender email** + **Sender name** (e.g. `Winston Fit`).
 
 ---
 
 ## Part E — Frontend (GitHub Pages)
 
-### Why the browser needs URL + `anon` key (read this if Step 4 felt scary)
+### Why the browser needs URL + `anon` key
 
-- Supabase **already stores** your project URL and keys in the dashboard. You are **copying** the pieces the **website** needs to call Auth + your database over HTTPS.
-- The **`anon` `public` key** is **designed to ship in front-end apps**. It is **not** a private password. Access is limited by **RLS** (your policies): users can only read/write **their own** `himfit_profiles` row.
-- **Never** paste the **`service_role`** key into `himfit-config.js`, `index.html`, or GitHub — that key **bypasses RLS** and must stay server-side only.
-
-There is **no** magic way for a static GitHub Pages app to sign people in **without** the `anon` key being present in the JavaScript the browser downloads. If the repo is public and that bothers you, use a **private repo** or accept that the anon key is public by design (same as most Supabase + SPA tutorials).
+- The **`anon` `public` key** is **designed to ship in front-end apps**. It is not a private password. Access is controlled by **RLS** (your policies): users can only read/write **their own** `winstonfit_profiles` row.
+- **Never** paste the **`service_role`** key into `winston-fit-config.js`, `index.html`, or GitHub — that key bypasses RLS.
 
 ### Step 6 — API keys (copy from dashboard)
 
@@ -114,16 +106,16 @@ There is **no** magic way for a static GitHub Pages app to sign people in **with
    - **Project URL**
    - **anon public** key (NOT `service_role`)
 
-### Step 7 — `himfit-config.js` in the repo
+### Step 7 — `winston-fit-config.js` in the repo
 
-Edit **`himfit-config.js`** at the repo root:
+Edit **`winston-fit-config.js`** at the repo root:
 
 ```javascript
-window.HIMFIT_SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
-window.HIMFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
-window.HIMFIT_AUTH_REDIRECT_URL = 'https://winstonac.github.io/HimFit/';
+window.WINSTONFIT_SUPABASE_URL = 'https://YOUR-PROJECT-REF.supabase.co';
+window.WINSTONFIT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+window.WINSTONFIT_AUTH_REDIRECT_URL = 'https://winstonac.github.io/HimFit/';
 // After you sign in once: Dashboard → Authentication → Users → copy your UUID:
-window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
+window.WINSTONFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 ```
 
 3. **Commit** and **push** to **`main`**.
@@ -131,10 +123,13 @@ window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
 ### Step 8 — Smoke test
 
-1. Open the live HimFit URL (or a local static server with the same redirect URL allowlisted in Supabase).
-2. You should see the full-screen **Sign in** gate (when URL + anon key are set). Enter your email → **Send link**.
-3. Open the **HimFit**-styled email → **Enter HimFit**.
-4. You should land on the app **signed in** (session in browser). Complete or skip **profile** as usual.
+1. Open the live HimFit URL in an incognito window.
+2. You should see the full-screen **Sign in** gate.
+3. Tap **Create Account**, enter an email and password, tap **Create Account**.
+4. If email confirmation is on: check inbox → click the confirmation link → return to app and **Sign In** with the same email + password.
+5. If email confirmation is off: you are signed in immediately.
+6. The app opens and the **profile intake form** appears — fill it in.
+7. On the **Overview** tab you should see your name, days/week, and goal stats populated.
 
 ---
 
@@ -142,12 +137,15 @@ window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
 | Issue | What to check |
 |--------|----------------|
-| Email never arrives | Spam folder; Supabase **Auth** logs; rate limits |
-| Link opens app but not signed in | **Redirect URLs** and **Site URL** must match your real URL (including trailing slash) |
-| Email link opens **localhost** (e.g. `localhost:3000/?code=…`) | **Supabase → Authentication → URL configuration → Site URL** must be your **live** app URL (`https://winstonac.github.io/HimFit/`), **not** `http://localhost:3000`. Add the same URL under **Redirect URLs**. In **`himfit-config.js`**, keep **`HIMFIT_AUTH_REDIRECT_URL`** set to that live URL. Then request a **new** magic link (old emails keep the old redirect). If you use **Send link** from a dev server, either set the fixed redirect URL in config or only send links from the **deployed** site. |
-| Wrong / ugly **confirm signup** email | Supabase uses a **separate** template — copy your HimFit HTML into **Confirm signup** as well as **Magic link** (Part C) |
-| “Invalid API key” | You pasted `service_role` instead of **anon** — fix `himfit-config.js` |
-| Table errors on save | RLS policies + table name **`himfit_profiles`** exactly |
+| Confirmation email never arrives | Spam folder; Supabase **Auth** logs; rate limits |
+| "That email and password don't match" after sign-up | Email confirmation is on — confirm your email first |
+| "Please confirm your email" error | Check inbox (and spam) for the confirmation link |
+| Confirmation link opens app but user not signed in | **Redirect URLs** and **Site URL** in Supabase must match your real URL (including trailing slash) |
+| Confirmation link opens **localhost** | **Supabase → Authentication → URL configuration → Site URL** must be your live app URL, not localhost. Also set `WINSTONFIT_AUTH_REDIRECT_URL` in `winston-fit-config.js` to the live URL. Request a new confirmation email after fixing. |
+| Wrong / missing **Confirm signup** email styling | Paste HimFit HTML into the **Confirm signup** template (Part C above) |
+| "Invalid API key" | You pasted `service_role` instead of **anon** — fix `winston-fit-config.js` |
+| Table errors on save | Check RLS policies; table name must be `winstonfit_profiles` exactly |
+| Profile/intake form doesn't open after first sign-in | Check browser console for JS errors; ensure you are on the latest `main` |
 
 ---
 
@@ -155,7 +153,10 @@ window.HIMFIT_STRAVA_OWNER_USER_ID = 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx';
 
 | File | Role |
 |------|------|
-| `himfit-config.js` | URL, anon key, **`HIMFIT_AUTH_REDIRECT_URL`** (live magic-link target); optional Strava owner UUID |
-| `himfit-config.example.js` | Copy starter |
-| `index.html` | Supabase client + **Sign in** UX |
+| `winston-fit-config.js` | URL, anon key, `WINSTONFIT_AUTH_REDIRECT_URL` (password-reset redirect target); optional Strava owner UUID |
+| `winston-fit-config.example.js` | Copy starter |
+| `index.html` | Supabase client + sign-in UX (email + password) |
+| `sql/supabase_himfit_profiles.sql` | Profiles table + RLS |
+| `sql/push_subscriptions.sql` | Push notification subscriptions table + RLS |
 | `docs/ACCOUNTS_AND_SYNC.md` | Architecture notes |
+| `docs/PUSH_NOTIFICATIONS_SETUP.md` | Push notification Edge Function setup |
