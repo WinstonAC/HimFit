@@ -77,6 +77,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .phc-n{font-family:'Bebas Neue',sans-serif;font-size:19px;margin-bottom:1px}
 .phc-w{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);margin-bottom:5px}
 .phc-d{font-size:11px;color:var(--mut);line-height:1.5}
+.phc-cur{border:.5px solid var(--gold)!important;background:rgba(212,175,55,0.06)!important}
 
 /* SPLIT LIST */
 .sp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
@@ -436,6 +437,16 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
       </select>
     </div>
     <div class="intake-field"><label>Injuries or restrictions (optional)</label><textarea class="log-input" id="in-inj" placeholder="e.g. bad shoulder — no overhead"></textarea></div>
+
+    <div class="intake-field">
+      <label>Daily workout reminder</label>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+        <input type="checkbox" id="in-notif-on" style="width:16px;height:16px;accent-color:var(--red)" onchange="toggleNotifTimeField()">
+        <span style="font-size:13px;color:var(--mut)">Remind me each day</span>
+      </div>
+      <input type="time" class="log-input" id="in-notif-time" value="07:00" style="margin-top:8px;display:none">
+      <p id="in-notif-note" style="font-size:10px;color:var(--hint);margin-top:4px;display:none">On iPhone, add this app to your Home Screen for notifications to work.</p>
+    </div>
     <p class="sub" style="margin-top:12px;font-size:10px">Not medical advice. For pregnancy or medical conditions, follow your clinician.</p>
     <div class="intake-actions">
       <button type="button" class="log-save" onclick="submitIntake()">Save profile</button>
@@ -507,9 +518,9 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="h-eye">12-Week Training Program</div>
     <div class="h-name">WINSTON <em>FIT</em></div>
     <div class="h-stats">
-      <div class="hst"><span class="hst-n">5</span><span class="hst-l">Days/Wk</span></div>
-      <div class="hst"><span class="hst-n">60</span><span class="hst-l">Sessions</span></div>
-      <div class="hst"><span class="hst-n">HM</span><span class="hst-l">Goal Race</span></div>
+      <div class="hst"><span class="hst-n" id="stat-dpw">5</span><span class="hst-l">Days/Wk</span></div>
+      <div class="hst"><span class="hst-n" id="stat-sessions">60</span><span class="hst-l">Sessions</span></div>
+      <div class="hst"><span class="hst-n" id="stat-goal-n">HM</span><span class="hst-l" id="stat-goal-l">Goal Race</span></div>
     </div>
     <div class="prog-row"><span>Progress</span><span id="prog-lbl">Week 1 of 12</span></div>
     <div class="prog-tr"><div class="prog-fi" id="prog-fi" style="width:2%"></div></div>
@@ -529,14 +540,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   </div>
 
   <div class="slbl">Weekly Split</div>
-  <div class="sp-list">
-    <div class="sp-item"><div class="sp-day">Mon</div><div class="sp-foc">Chest + Core — ~70 min</div><div class="tag tl">Lift</div></div>
-    <div class="sp-item"><div class="sp-day">Tue</div><div class="sp-foc">Quality Run — 5k / 10k alternating</div><div class="tag tr">Run</div></div>
-    <div class="sp-item"><div class="sp-day">Wed</div><div class="sp-foc">Shoulders + Back + Core — ~80 min</div><div class="tag tl">Lift</div></div>
-    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Hypertrophy + Zone 2 — ~95 min</div><div class="tag tl">Lift+Run</div></div>
-    <div class="sp-item"><div class="sp-day">Fri</div><div class="sp-foc">Kettlebell Circuit — ~50 min</div><div class="tag tk">KB</div></div>
-    <div class="sp-item"><div class="sp-day">Sat</div><div class="sp-foc">Long Run — Half Marathon Build</div><div class="tag tr">Long</div></div>
-  </div>
+  <div id="overview-split-list" class="sp-list"></div>
 
   <div class="slbl">Protocols</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
@@ -569,6 +573,21 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <p id="overview-account-email" style="font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:4px"></p>
     <p class="sub" style="margin:0 0 10px;font-size:10px">Each phone or browser signs in separately. Sign out here to use another email or see the sign-in screen on this device.</p>
     <button type="button" class="log-save intake-skip overview-signout" onclick="winstonFitSignOut()">Sign out</button>
+  </div>
+
+  <div id="overview-notif-card" class="card-s" style="display:none">
+    <div class="slbl" style="margin-bottom:8px">Workout Reminders</div>
+    <div id="notif-status-msg" style="font-size:12px;color:var(--mut);margin-bottom:10px">Loading…</div>
+    <div id="notif-time-row" style="display:none;margin-bottom:10px">
+      <label style="font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--hint)">Reminder time</label>
+      <input type="time" class="log-input" id="notif-time-input" value="07:00" style="margin-top:4px;max-width:150px">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button id="notif-enable-btn"  class="log-save"          onclick="enablePushNotifications()"  style="display:none">Enable Reminders</button>
+      <button id="notif-disable-btn" class="log-save intake-skip" onclick="disablePushNotifications()" style="display:none">Turn Off</button>
+      <button id="notif-update-btn"  class="log-save"          onclick="updateNotifTime()"          style="display:none">Save Time</button>
+    </div>
+    <p style="font-size:10px;color:var(--hint);margin-top:8px" id="notif-ios-note" style="display:none">On iPhone, add Winston Fit to your Home Screen first for reminders to work.</p>
   </div>
 </div>
 
@@ -1596,6 +1615,49 @@ function updProg(){
   const total=12*dpw;
   document.getElementById('prog-fi').style.width=Math.max(2,Math.round(n/total*100))+'%';
   document.getElementById('prog-lbl').textContent=`Week ${Math.min(Math.ceil((n+1)/dpw),12)} of 12`;
+  refreshOverviewHero();
+}
+
+// ─────────────────────────────────────────────
+// OVERVIEW HERO & SPLIT
+// ─────────────────────────────────────────────
+function refreshOverviewHero(){
+  const dpw=activeDays();
+  const total=12*dpw;
+  const rc=(S.intake||{}).runningComfort||'ten_plus';
+  const goalN={not_yet:'5K',walk_run:'5K',two_k:'5K',five_k:'10K',ten_plus:'HM'}[rc]||'HM';
+  const goalL={not_yet:'Goal Race',walk_run:'Goal Race',two_k:'Goal Race',five_k:'Goal Race',ten_plus:'Goal Race'}[rc]||'Goal Race';
+  const dn=document.getElementById('stat-dpw');
+  const sn=document.getElementById('stat-sessions');
+  const gn=document.getElementById('stat-goal-n');
+  const gl=document.getElementById('stat-goal-l');
+  if(dn)dn.textContent=dpw;
+  if(sn)sn.textContent=total;
+  if(gn)gn.textContent=goalN;
+  if(gl)gl.textContent=goalL;
+  // Highlight current phase
+  const w=Math.max(1,Math.min(12,S.week||1));
+  document.querySelectorAll('.phc').forEach((el,i)=>{
+    el.classList.toggle('phc-cur',(i===0&&w<=4)||(i===1&&w>4&&w<=8)||(i===2&&w>8));
+  });
+  refreshWeeklySplit();
+}
+function refreshWeeklySplit(){
+  const el=document.getElementById('overview-split-list');
+  if(!el)return;
+  const ps=programStyle();
+  const loc=workoutLocation();
+  const isRunner=(ps==='runner');
+  const isHome=(loc==='home');
+  const days=[
+    {d:'Mon',f:isRunner?'Active Recovery — mobility + easy jog':isHome?'Light Upper Body — ~50 min':'Chest + Core — ~70 min',t:isRunner?'tr':'tl',l:isRunner?'Run':'Lift'},
+    {d:'Tue',f:'Quality Run — 5k / 10k alternating',t:'tr',l:'Run'},
+    {d:'Wed',f:isRunner?'Core & Mobility — ~40 min':isHome?'Core & Mobility — ~40 min':'Shoulders + Back + Core — ~90 min',t:isRunner?'tk':'tl',l:isRunner?'Core':'Lift'},
+    {d:'Thu',f:isRunner?'Lower Body — ~50 min':isHome?'Lower Body + Zone 2 — ~60 min':'Hypertrophy + Zone 2 — ~95 min',t:'tl',l:isRunner?'Lift':'Lift+Run'},
+    {d:'Fri',f:isRunner?'Easy Run — Zone 2':'Kettlebell Circuit — ~50 min',t:isRunner?'tr':'tk',l:isRunner?'Run':'KB'},
+    {d:'Sat',f:'Long Run — Half Marathon Build',t:'tr',l:'Long'},
+  ];
+  el.innerHTML=days.map(x=>`<div class="sp-item"><div class="sp-day">${x.d}</div><div class="sp-foc">${x.f}</div><div class="tag ${x.t}">${x.l}</div></div>`).join('');
 }
 
 // ─────────────────────────────────────────────
@@ -1689,6 +1751,8 @@ function saunaCard(){
 // DAY RENDERERS
 // ─────────────────────────────────────────────
 function buildDay(){
+  S.week=Math.max(1,Math.min(12,S.week||1));
+  S.day=Math.max(0,Math.min(activeDays()-1,S.day||0));
   const day=DAYS[S.day],w=S.week;
   document.getElementById('wind').textContent=`Week ${w} of 12`;
   document.getElementById('d-big').textContent=day.name;
@@ -2213,6 +2277,12 @@ function populateIntakeForm(){
   document.getElementById('in-run').value=i.runningComfort||'ten_plus';
   document.getElementById('in-diet').value=i.diet||'omnivore';
   document.getElementById('in-meal-style').value=i.mealStyle==='salad_forward'?'salad_forward':'balanced';
+  const notifOn=document.getElementById('in-notif-on');
+  const notifTime=document.getElementById('in-notif-time');
+  notifOn.checked=!!(i.notifEnabled);
+  notifTime.value=i.notifTime||'07:00';
+  notifTime.style.display=notifOn.checked?'block':'none';
+  document.getElementById('in-notif-note').style.display=notifOn.checked?'block':'none';
   syncFertilityOption();
   setGoalChecksFromList(intakeGoals(i));
 }
@@ -2265,10 +2335,14 @@ function submitIntake(){
     runningComfort:document.getElementById('in-run').value,
     diet:document.getElementById('in-diet').value,
     mealStyle:document.getElementById('in-meal-style').value,
+    notifEnabled:document.getElementById('in-notif-on').checked,
+    notifTime:document.getElementById('in-notif-time').value||'07:00',
   };
   S.planKey=resolvePlanKey(S.intake);
   S.intakeComplete=true;
   save();
+  // If user opted in to notifications, request permission after closing form
+  if(S.intake.notifEnabled)setTimeout(()=>enablePushNotifications(),600);
   closeIntake();
   refreshProfileStrip();
   buildDay();buildPlan();buildFuel();
@@ -2304,6 +2378,7 @@ function refreshProfileStrip(){
   const dl={omnivore:'Omnivore',vegetarian:'Vegetarian',vegan:'Vegan',pescatarian:'Pescatarian'}[i.diet]||(i.diet||'Omnivore');
   const fn=(i.firstName&&String(i.firstName).trim())?`<strong>${escapeHtml(String(i.firstName).trim())}</strong> · `:'';
   el.innerHTML=`${fn}${sx} · ${i.age||'—'}y · ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${gl} · ${dl} · Run: ${runLab} · Plan <strong>${S.planKey}</strong>`;
+  refreshOverviewHero();
 }
 
 function winstonFitStravaOwnerId(){
@@ -2427,9 +2502,12 @@ function winstonFitAuthSiteUrl(){
 function winstonFitFriendlyAuthError(error,context){
   const raw=(error&&error.message)?String(error.message).trim():'Something went wrong.';
   const lower=raw.toLowerCase();
-  if(context==='signin'){
-    if(lower.includes('invalid login')||lower.includes('invalid credentials')||lower==='invalid email or password'){
-      return 'That email and password don’t match. If you already have an account, check the password or use Forgot password. If you signed up with email link before passwords, use Forgot password once to set a password. New here? Use Create Account.';
+  if(context===’signin’){
+    if(lower.includes(‘email not confirmed’)||lower.includes(‘not confirmed’)){
+      return ‘Please confirm your email before signing in — check your inbox (and spam) for the confirmation link.’;
+    }
+    if(lower.includes(‘invalid login’)||lower.includes(‘invalid credentials’)||lower===’invalid email or password’){
+      return ‘That email and password don’t match. If you just signed up, check your inbox to confirm your email first. Otherwise use Forgot password to reset it, or Create Account if you’re new.’;
     }
   }
   if(context==='signup'){
@@ -2507,9 +2585,10 @@ async function initHimfitCloud(){
     updateCloudSettingsUI(winstonFitAuthUser);
     updateAuthShellVisibility();
     refreshStravaOwnerUI();
+    updateNotifCard();
     if(event==='SIGNED_IN'&&session?.user){
       const merged=await pullCloudStateIntoApp();
-      if(!merged)await pushStateToCloud();
+      if(!merged){await pushStateToCloud();if(S.intakeComplete!==true)openIntake();}
     }
   });
   let {data:{session}}=await winstonFitSupabase.auth.getSession();
@@ -2630,7 +2709,10 @@ async function winstonFitSignInWithPassword(){
   const password=(document.getElementById('cloud-password')?.value||'').trim();
   if(!email){winstonFitSetCloudAuthStatus('Enter your email.',true);return;}
   if(!password){winstonFitSetCloudAuthStatus('Enter your password.',true);return;}
+  const btn=document.getElementById('cloud-signin-btn');
+  if(btn){btn.disabled=true;btn.textContent='Signing in\u2026';}
   const {error}=await winstonFitSupabase.auth.signInWithPassword({email,password});
+  if(btn){btn.disabled=false;btn.textContent='Sign In';}
   if(error)winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'signin'),true);
 }
 async function winstonFitSignUpWithPassword(){
@@ -2643,13 +2725,16 @@ async function winstonFitSignUpWithPassword(){
   const password=(document.getElementById('cloud-password')?.value||'').trim();
   if(!email){winstonFitSetCloudAuthStatus('Enter your email.',true);return;}
   if(!password){winstonFitSetCloudAuthStatus('Choose a password (min. length set in Supabase).',true);return;}
+  const signUpBtn=document.getElementById('cloud-signup-btn');
+  if(signUpBtn){signUpBtn.disabled=true;signUpBtn.textContent='Creating account\u2026';}
   const {data,error}=await winstonFitSupabase.auth.signUp({email,password});
+  if(signUpBtn){signUpBtn.disabled=false;signUpBtn.textContent='Create Account';}
   if(error){
     winstonFitSetCloudAuthStatus(winstonFitFriendlyAuthError(error,'signup'),true);
     return;
   }
   if(data.session)winstonFitSetCloudAuthStatus('',false);
-  else winstonFitSetCloudAuthStatus('Account created. If your project still requires email confirmation, check your inbox; otherwise try Sign In.',false);
+  else winstonFitSetCloudAuthStatus('Account created \u2014 check your inbox for a confirmation link, then come back and Sign In.',false);
 }
 async function winstonFitSignOut(){
   if(winstonFitSupabase)await winstonFitSupabase.auth.signOut();
@@ -2694,6 +2779,162 @@ async function pullCloudStateIntoApp(){
 }
 
 // ─────────────────────────────────────────────
+// PUSH NOTIFICATIONS
+// ─────────────────────────────────────────────
+const VAPID_PUBLIC_KEY='BGUku2wLqQyIenhuCodt4vP7GfWj30MsBqnLB1bNjTA087X65pR5Wm0F-21uj6xL7HzI9v3IG4RwGAPGjk4T97c';
+
+function toggleNotifTimeField(){
+  const on=document.getElementById('in-notif-on').checked;
+  document.getElementById('in-notif-time').style.display=on?'block':'none';
+  document.getElementById('in-notif-note').style.display=on?'block':'none';
+}
+
+function urlBase64ToUint8Array(b64){
+  const pad=b64.length%4===0?'':'='.repeat(4-b64.length%4);
+  const raw=atob((b64+pad).replace(/-/g,'+').replace(/_/g,'/'));
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+
+async function registerServiceWorker(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return null;
+  try{
+    const base=location.pathname.replace(/\/index\.html$/i,'').replace(/\/?$/,'/');
+    const reg=await navigator.serviceWorker.register(base+'sw.js',{scope:base});
+    await navigator.serviceWorker.ready;
+    return reg;
+  }catch(e){console.warn('SW register failed',e);return null;}
+}
+
+async function enablePushNotifications(){
+  if(!('Notification' in window)){
+    _showNotifStatus('Your browser does not support notifications.',true);return;
+  }
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){
+    _showNotifStatus('Permission denied — enable notifications in your browser settings.',true);
+    updateNotifCard();return;
+  }
+  const reg=await registerServiceWorker();
+  if(!reg){_showNotifStatus('Could not register service worker.',true);return;}
+  try{
+    const existing=await reg.pushManager.getSubscription();
+    if(existing)await existing.unsubscribe();
+    const sub=await reg.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+    });
+    const notifTime=(S.intake&&S.intake.notifTime)||
+      (document.getElementById('notif-time-input')||{value:'07:00'}).value||'07:00';
+    await savePushSubToSupabase(sub,notifTime);
+    // Update intake with notification preference
+    if(S.intake){S.intake.notifEnabled=true;S.intake.notifTime=notifTime;save();}
+    _showNotifStatus('Reminders on ✓ — you\'ll get a daily ping at '+notifTime+'.');
+  }catch(e){_showNotifStatus('Could not subscribe: '+e.message,true);}
+  updateNotifCard();
+}
+
+async function disablePushNotifications(){
+  const reg=await registerServiceWorker();
+  if(reg){
+    const sub=await reg.pushManager.getSubscription();
+    if(sub){
+      await deletePushSubFromSupabase(sub.endpoint);
+      await sub.unsubscribe();
+    }
+  }
+  if(S.intake){S.intake.notifEnabled=false;save();}
+  _showNotifStatus('Reminders turned off.');
+  updateNotifCard();
+}
+
+async function updateNotifTime(){
+  const timeEl=document.getElementById('notif-time-input');
+  if(!timeEl)return;
+  const notifTime=timeEl.value||'07:00';
+  if(S.intake){S.intake.notifTime=notifTime;save();}
+  const reg=await registerServiceWorker();
+  if(reg){
+    const sub=await reg.pushManager.getSubscription();
+    if(sub)await savePushSubToSupabase(sub,notifTime);
+  }
+  _showNotifStatus('Reminder time updated to '+notifTime+' ✓');
+}
+
+async function savePushSubToSupabase(sub,notifTime){
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
+  const j=sub.toJSON();
+  const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+  const {error}=await winstonFitSupabase.from('winstonfit_push_subscriptions').upsert({
+    user_id:winstonFitAuthUser.id,
+    endpoint:j.endpoint,
+    p256dh:j.keys.p256dh,
+    auth:j.keys.auth,
+    notif_time:notifTime,
+    user_tz:tz,
+    updated_at:new Date().toISOString(),
+  },{onConflict:'user_id,endpoint'});
+  if(error)console.warn('Push sub save error',error);
+}
+
+async function deletePushSubFromSupabase(endpoint){
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
+  await winstonFitSupabase.from('winstonfit_push_subscriptions')
+    .delete().eq('user_id',winstonFitAuthUser.id).eq('endpoint',endpoint);
+}
+
+function _showNotifStatus(msg,isError){
+  const el=document.getElementById('notif-status-msg');
+  if(el){el.textContent=msg;el.style.color=isError?'#e06070':'var(--hint)';}
+}
+
+async function updateNotifCard(){
+  const card=document.getElementById('overview-notif-card');
+  if(!card)return;
+  // Only show to signed-in users
+  if(!winstonFitAuthUser){card.style.display='none';return;}
+  card.style.display='block';
+
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const supported='serviceWorker' in navigator&&'PushManager' in window;
+  document.getElementById('notif-ios-note').style.display=isIOS?'block':'none';
+
+  if(!supported){
+    _showNotifStatus('Push notifications are not supported in this browser.');
+    document.getElementById('notif-enable-btn').style.display='none';
+    document.getElementById('notif-disable-btn').style.display='none';
+    document.getElementById('notif-time-row').style.display='none';
+    document.getElementById('notif-update-btn').style.display='none';
+    return;
+  }
+
+  const perm=Notification.permission;
+  let isSubscribed=false;
+  try{
+    const reg=await navigator.serviceWorker.getRegistration('/');
+    if(reg){const sub=await reg.pushManager.getSubscription();isSubscribed=!!sub;}
+  }catch(_){}
+
+  const timeInput=document.getElementById('notif-time-input');
+  if(timeInput&&S.intake&&S.intake.notifTime)timeInput.value=S.intake.notifTime;
+
+  if(isSubscribed&&perm==='granted'){
+    _showNotifStatus('Reminders are on ✓');
+    document.getElementById('notif-enable-btn').style.display='none';
+    document.getElementById('notif-disable-btn').style.display='inline-block';
+    document.getElementById('notif-time-row').style.display='block';
+    document.getElementById('notif-update-btn').style.display='inline-block';
+  }else{
+    _showNotifStatus(perm==='denied'
+      ?'Notifications blocked — allow them in your browser/phone settings, then try again.'
+      :'Get a daily reminder when it\'s time to train.');
+    document.getElementById('notif-enable-btn').style.display=perm!=='denied'?'inline-block':'none';
+    document.getElementById('notif-disable-btn').style.display='none';
+    document.getElementById('notif-time-row').style.display='none';
+    document.getElementById('notif-update-btn').style.display='none';
+  }
+}
+
+// ─────────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────────
 (async function runHimfitInit(){
@@ -2722,6 +2963,10 @@ async function pullCloudStateIntoApp(){
     io.classList.add('hid');
   }
   buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
+  // Register service worker early so push works even before settings are opened
+  registerServiceWorker();
+  // Populate notification card once auth is known
+  updateNotifCard();
 })();
 </script>
 </body>
