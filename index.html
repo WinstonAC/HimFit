@@ -77,6 +77,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .phc-n{font-family:'Bebas Neue',sans-serif;font-size:19px;margin-bottom:1px}
 .phc-w{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hint);margin-bottom:5px}
 .phc-d{font-size:11px;color:var(--mut);line-height:1.5}
+.phc-cur{border:.5px solid var(--gold)!important;background:rgba(212,175,55,0.06)!important}
 
 /* SPLIT LIST */
 .sp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
@@ -517,9 +518,9 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="h-eye">12-Week Training Program</div>
     <div class="h-name">WINSTON <em>FIT</em></div>
     <div class="h-stats">
-      <div class="hst"><span class="hst-n">5</span><span class="hst-l">Days/Wk</span></div>
-      <div class="hst"><span class="hst-n">60</span><span class="hst-l">Sessions</span></div>
-      <div class="hst"><span class="hst-n">HM</span><span class="hst-l">Goal Race</span></div>
+      <div class="hst"><span class="hst-n" id="stat-dpw">5</span><span class="hst-l">Days/Wk</span></div>
+      <div class="hst"><span class="hst-n" id="stat-sessions">60</span><span class="hst-l">Sessions</span></div>
+      <div class="hst"><span class="hst-n" id="stat-goal-n">HM</span><span class="hst-l" id="stat-goal-l">Goal Race</span></div>
     </div>
     <div class="prog-row"><span>Progress</span><span id="prog-lbl">Week 1 of 12</span></div>
     <div class="prog-tr"><div class="prog-fi" id="prog-fi" style="width:2%"></div></div>
@@ -539,14 +540,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   </div>
 
   <div class="slbl">Weekly Split</div>
-  <div class="sp-list">
-    <div class="sp-item"><div class="sp-day">Mon</div><div class="sp-foc">Chest + Core — ~70 min</div><div class="tag tl">Lift</div></div>
-    <div class="sp-item"><div class="sp-day">Tue</div><div class="sp-foc">Quality Run — 5k / 10k alternating</div><div class="tag tr">Run</div></div>
-    <div class="sp-item"><div class="sp-day">Wed</div><div class="sp-foc">Shoulders + Back + Core — ~80 min</div><div class="tag tl">Lift</div></div>
-    <div class="sp-item"><div class="sp-day">Thu</div><div class="sp-foc">Hypertrophy + Zone 2 — ~95 min</div><div class="tag tl">Lift+Run</div></div>
-    <div class="sp-item"><div class="sp-day">Fri</div><div class="sp-foc">Kettlebell Circuit — ~50 min</div><div class="tag tk">KB</div></div>
-    <div class="sp-item"><div class="sp-day">Sat</div><div class="sp-foc">Long Run — Half Marathon Build</div><div class="tag tr">Long</div></div>
-  </div>
+  <div id="overview-split-list" class="sp-list"></div>
 
   <div class="slbl">Protocols</div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
@@ -1621,6 +1615,49 @@ function updProg(){
   const total=12*dpw;
   document.getElementById('prog-fi').style.width=Math.max(2,Math.round(n/total*100))+'%';
   document.getElementById('prog-lbl').textContent=`Week ${Math.min(Math.ceil((n+1)/dpw),12)} of 12`;
+  refreshOverviewHero();
+}
+
+// ─────────────────────────────────────────────
+// OVERVIEW HERO & SPLIT
+// ─────────────────────────────────────────────
+function refreshOverviewHero(){
+  const dpw=activeDays();
+  const total=12*dpw;
+  const rc=(S.intake||{}).runningComfort||'ten_plus';
+  const goalN={not_yet:'5K',walk_run:'5K',two_k:'5K',five_k:'10K',ten_plus:'HM'}[rc]||'HM';
+  const goalL={not_yet:'Goal Race',walk_run:'Goal Race',two_k:'Goal Race',five_k:'Goal Race',ten_plus:'Goal Race'}[rc]||'Goal Race';
+  const dn=document.getElementById('stat-dpw');
+  const sn=document.getElementById('stat-sessions');
+  const gn=document.getElementById('stat-goal-n');
+  const gl=document.getElementById('stat-goal-l');
+  if(dn)dn.textContent=dpw;
+  if(sn)sn.textContent=total;
+  if(gn)gn.textContent=goalN;
+  if(gl)gl.textContent=goalL;
+  // Highlight current phase
+  const w=Math.max(1,Math.min(12,S.week||1));
+  document.querySelectorAll('.phc').forEach((el,i)=>{
+    el.classList.toggle('phc-cur',(i===0&&w<=4)||(i===1&&w>4&&w<=8)||(i===2&&w>8));
+  });
+  refreshWeeklySplit();
+}
+function refreshWeeklySplit(){
+  const el=document.getElementById('overview-split-list');
+  if(!el)return;
+  const ps=programStyle();
+  const loc=workoutLocation();
+  const isRunner=(ps==='runner');
+  const isHome=(loc==='home');
+  const days=[
+    {d:'Mon',f:isRunner?'Active Recovery — mobility + easy jog':isHome?'Light Upper Body — ~50 min':'Chest + Core — ~70 min',t:isRunner?'tr':'tl',l:isRunner?'Run':'Lift'},
+    {d:'Tue',f:'Quality Run — 5k / 10k alternating',t:'tr',l:'Run'},
+    {d:'Wed',f:isRunner?'Core & Mobility — ~40 min':isHome?'Core & Mobility — ~40 min':'Shoulders + Back + Core — ~90 min',t:isRunner?'tk':'tl',l:isRunner?'Core':'Lift'},
+    {d:'Thu',f:isRunner?'Lower Body — ~50 min':isHome?'Lower Body + Zone 2 — ~60 min':'Hypertrophy + Zone 2 — ~95 min',t:'tl',l:isRunner?'Lift':'Lift+Run'},
+    {d:'Fri',f:isRunner?'Easy Run — Zone 2':'Kettlebell Circuit — ~50 min',t:isRunner?'tr':'tk',l:isRunner?'Run':'KB'},
+    {d:'Sat',f:'Long Run — Half Marathon Build',t:'tr',l:'Long'},
+  ];
+  el.innerHTML=days.map(x=>`<div class="sp-item"><div class="sp-day">${x.d}</div><div class="sp-foc">${x.f}</div><div class="tag ${x.t}">${x.l}</div></div>`).join('');
 }
 
 // ─────────────────────────────────────────────
@@ -1714,6 +1751,8 @@ function saunaCard(){
 // DAY RENDERERS
 // ─────────────────────────────────────────────
 function buildDay(){
+  S.week=Math.max(1,Math.min(12,S.week||1));
+  S.day=Math.max(0,Math.min(activeDays()-1,S.day||0));
   const day=DAYS[S.day],w=S.week;
   document.getElementById('wind').textContent=`Week ${w} of 12`;
   document.getElementById('d-big').textContent=day.name;
@@ -2339,6 +2378,7 @@ function refreshProfileStrip(){
   const dl={omnivore:'Omnivore',vegetarian:'Vegetarian',vegan:'Vegan',pescatarian:'Pescatarian'}[i.diet]||(i.diet||'Omnivore');
   const fn=(i.firstName&&String(i.firstName).trim())?`<strong>${escapeHtml(String(i.firstName).trim())}</strong> · `:'';
   el.innerHTML=`${fn}${sx} · ${i.age||'—'}y · ${formatWeightForProfile(i.weightKg)} · ${formatHeightForProfile(i.heightCm)} · ${gl} · ${dl} · Run: ${runLab} · Plan <strong>${S.planKey}</strong>`;
+  refreshOverviewHero();
 }
 
 function winstonFitStravaOwnerId(){
@@ -2758,7 +2798,8 @@ function urlBase64ToUint8Array(b64){
 async function registerServiceWorker(){
   if(!('serviceWorker' in navigator)||!('PushManager' in window))return null;
   try{
-    const reg=await navigator.serviceWorker.register('/sw.js',{scope:'/'});
+    const base=location.pathname.replace(/\/index\.html$/i,'').replace(/\/?$/,'/');
+    const reg=await navigator.serviceWorker.register(base+'sw.js',{scope:base});
     await navigator.serviceWorker.ready;
     return reg;
   }catch(e){console.warn('SW register failed',e);return null;}
