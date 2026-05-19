@@ -740,10 +740,6 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div style="font-size:11px;color:var(--mut)">Your program and data — plus broader fitness knowledge via web search</div>
   </div>
 
-  <div class="card-s" style="margin-bottom:14px;display:flex;align-items:center;gap:10px">
-    <div style="width:8px;height:8px;border-radius:50%;background:#5dbf8a;flex-shrink:0"></div>
-    <div style="font-size:11px;color:var(--mut);line-height:1.5">AI powered by Anthropic — routed securely via your Supabase account. Sign in to use.</div>
-  </div>
 
   <div class="card-s" style="margin-bottom:14px">
     <div id="coach-msgs" class="coach-msgs"></div>
@@ -3041,7 +3037,7 @@ async function updateNotifCard(){
 let _customWorkouts={};
 
 async function loadCustomWorkouts(){
-  if(!window.winstonFitSupabase||!winstonFitAuthUser)return;
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
   const{data,error}=await winstonFitSupabase
     .from('custom_workouts')
     .select('week,day,workout_json')
@@ -3053,7 +3049,7 @@ async function loadCustomWorkouts(){
 
 async function saveCustomWorkout(week,day,workout){
   _customWorkouts[`${week}-${day}`]=workout;
-  if(!window.winstonFitSupabase||!winstonFitAuthUser)return;
+  if(!winstonFitSupabase||!winstonFitAuthUser)return;
   await winstonFitSupabase.from('custom_workouts').upsert({
     user_id:winstonFitAuthUser.id,
     week,day,
@@ -3065,7 +3061,7 @@ async function saveCustomWorkout(week,day,workout){
 async function resetCustomWorkout(){
   const w=S.week,d=S.day;
   delete _customWorkouts[`${w}-${d}`];
-  if(window.winstonFitSupabase&&winstonFitAuthUser){
+  if(winstonFitSupabase&&winstonFitAuthUser){
     await winstonFitSupabase.from('custom_workouts').delete()
       .eq('user_id',winstonFitAuthUser.id).eq('week',w).eq('day',d);
   }
@@ -3116,8 +3112,8 @@ const AI_MODEL='claude-sonnet-4-20250514';
 
 async function callAI(messages,systemPrompt){
   let authHeader={};
-  if(window.winstonFitSupabase){
-    const{data:{session}}=await window.winstonFitSupabase.auth.getSession();
+  if(winstonFitSupabase){
+    const{data:{session}}=await winstonFitSupabase.auth.getSession();
     if(session?.access_token)authHeader={'Authorization':'Bearer '+session.access_token};
   }
   const allMsgs=[...messages];
@@ -3135,7 +3131,7 @@ async function callAI(messages,systemPrompt){
     });
     if(!resp.ok){
       const err=await resp.json().catch(()=>({}));
-      if(resp.status===401)throw new Error('Sign in to use AI features.');
+      if(resp.status===401)throw new Error('Session expired — sign out and back in, then try again.');
       throw new Error(err.error?.message||'API error '+resp.status);
     }
     const data=await resp.json();
