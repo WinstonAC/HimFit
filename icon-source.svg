@@ -5,14 +5,17 @@
       <stop offset="70%" stop-color="#1a0a0f"/>
       <stop offset="100%" stop-color="#120609"/>
     </linearGradient>
-    <radialGradient id="glow" cx="78%" cy="82%" r="45%">
-      <stop offset="0%" stop-color="#8B2635" stop-opacity="0.55"/>
+    <radialGradient id="glow" cx="75%" cy="80%" r="50%">
+      <stop offset="0%" stop-color="#8B2635" stop-opacity="0.5"/>
       <stop offset="100%" stop-color="#1a0a0f" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#d4a84b"/>
-      <stop offset="50%" stop-color="#c9984a"/>
       <stop offset="100%" stop-color="#a87c38"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c0303f"/>
+      <stop offset="100%" stop-color="#8B2635"/>
     </linearGradient>
   </defs>
 
@@ -20,16 +23,33 @@
   <rect width="512" height="512" rx="96" fill="url(#bg)"/>
   <rect width="512" height="512" rx="96" fill="url(#glow)"/>
 
-  <!-- H letter - bold, centered -->
-  <g font-family="'Arial Black', 'Arial Bold', sans-serif" font-weight="900" font-size="320" fill="url(#gold)" text-anchor="middle">
-    <text x="256" y="370">H</text>
-  </g>
+  <!-- W in gold -->
+  <text
+    x="134" y="345"
+    font-family="'Arial Black','Arial Bold',sans-serif"
+    font-weight="900"
+    font-size="238"
+    fill="url(#gold)"
+    text-anchor="middle">W</text>
 
-  <!-- Orbital ring - ellipse tilted around the H -->
-  <g transform="translate(256,248) rotate(-18)">
-    <!-- Back half of ring (behind H) -->
-    <ellipse cx="0" cy="0" rx="195" ry="52" fill="none" stroke="url(#gold)" stroke-width="5" stroke-dasharray="304 307" stroke-dashoffset="0" opacity="0.45"/>
-    <!-- Front half of ring (in front of H) -->
-    <ellipse cx="0" cy="0" rx="195" ry="52" fill="none" stroke="url(#gold)" stroke-width="5" stroke-dasharray="304 307" stroke-dashoffset="304"/>
+  <!-- F in red -->
+  <text
+    x="368" y="345"
+    font-family="'Arial Black','Arial Bold',sans-serif"
+    font-weight="900"
+    font-size="238"
+    fill="url(#red)"
+    text-anchor="middle">F</text>
+
+  <!-- Orbital ring in gold -->
+  <g transform="translate(256,252) rotate(-16)">
+    <!-- Back arc (behind letters, dimmer) -->
+    <ellipse cx="0" cy="0" rx="200" ry="54"
+      fill="none" stroke="url(#gold)" stroke-width="5.5"
+      stroke-dasharray="310 316" stroke-dashoffset="0" opacity="0.38"/>
+    <!-- Front arc (in front of letters) -->
+    <ellipse cx="0" cy="0" rx="200" ry="54"
+      fill="none" stroke="url(#gold)" stroke-width="5.5"
+      stroke-dasharray="310 316" stroke-dashoffset="310"/>
   </g>
 </svg>
