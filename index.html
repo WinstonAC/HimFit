@@ -3286,22 +3286,14 @@ function autoGrowTA(el){
   el.style.height=Math.min(el.scrollHeight,120)+'px';
 }
 
-function initCoachSpeech(){
+function toggleVoice(){
+  if(_coachSpeechActive&&_coachSpeechRec){_coachSpeechRec.stop();return;}
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR)return false;
+  if(!SR){appendCoachMsg('Voice input is not supported in this browser. Please type your question.','ai');return;}
   _coachSpeechRec=new SR();
   _coachSpeechRec.continuous=false;
   _coachSpeechRec.interimResults=true;
   _coachSpeechRec.lang='en-US';
-  return true;
-}
-
-function toggleVoice(){
-  if(_coachSpeechActive&&_coachSpeechRec){_coachSpeechRec.stop();return;}
-  if(!_coachSpeechRec&&!initCoachSpeech()){
-    appendCoachMsg('Voice input is not supported in this browser. Please type your question.','ai');
-    return;
-  }
   const btn=document.getElementById('coach-mic-btn');
   const inp=document.getElementById('coach-input');
   _coachSpeechActive=true;
@@ -3311,11 +3303,12 @@ function toggleVoice(){
     if(inp){inp.value=t;autoGrowTA(inp);}
     if(e.results[e.results.length-1].isFinal){
       _coachSpeechActive=false;
+      _coachSpeechRec=null;
       if(btn)btn.classList.remove('listening');
     }
   };
-  _coachSpeechRec.onerror=()=>{_coachSpeechActive=false;if(btn)btn.classList.remove('listening');};
-  _coachSpeechRec.onend=()=>{_coachSpeechActive=false;if(btn)btn.classList.remove('listening');};
+  _coachSpeechRec.onerror=()=>{_coachSpeechActive=false;_coachSpeechRec=null;if(btn)btn.classList.remove('listening');};
+  _coachSpeechRec.onend=()=>{_coachSpeechActive=false;_coachSpeechRec=null;if(btn)btn.classList.remove('listening');};
   _coachSpeechRec.start();
 }
 
@@ -3341,8 +3334,8 @@ function toggleFuelVoice(){
       if(btn)btn.classList.remove('listening');
     }
   };
-  _fuelSpeechRec.onerror=()=>{_fuelSpeechActive=false;if(btn)btn.classList.remove('listening');};
-  _fuelSpeechRec.onend=()=>{_fuelSpeechActive=false;if(btn)btn.classList.remove('listening');};
+  _fuelSpeechRec.onerror=()=>{_fuelSpeechActive=false;_fuelSpeechRec=null;if(btn)btn.classList.remove('listening');};
+  _fuelSpeechRec.onend=()=>{_fuelSpeechActive=false;_fuelSpeechRec=null;if(btn)btn.classList.remove('listening');};
   _fuelSpeechRec.start();
 }
 
