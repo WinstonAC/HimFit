@@ -310,6 +310,38 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .sw input:checked+span{background:var(--gold)}
 .sw input:checked+span::before{transform:translateX(18px)}
 #profile-strip{font-size:11px;color:var(--mut);line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
+/* AI COACH */
+.coach-msgs{display:flex;flex-direction:column;gap:10px;max-height:62vh;overflow-y:auto;min-height:80px;padding-right:2px}
+.cmsg{max-width:90%;padding:11px 14px;border-radius:var(--rad-s);font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.cmsg-user{align-self:flex-end;background:rgba(139,38,53,0.22);border:.5px solid rgba(139,38,53,0.32);color:var(--w)}
+.cmsg-ai{align-self:flex-start;background:var(--sur2);border:.5px solid var(--bdr2);color:var(--w)}
+.cmsg-ai.loading{color:var(--hint);font-style:italic}
+.coach-input-row{display:flex;gap:8px;align-items:flex-end;padding-top:12px;border-top:.5px solid var(--bdr);margin-top:10px}
+.coach-textarea{flex:1;background:var(--sur2);border:.5px solid var(--bdr2);border-radius:var(--rad-s);padding:10px 11px;font-size:13px;color:var(--w);outline:none;resize:none;min-height:40px;max-height:120px;line-height:1.5;font-family:'DM Sans',sans-serif;overflow-y:auto}
+.coach-textarea:focus{border-color:var(--gold)}
+.coach-textarea::placeholder{color:var(--hint)}
+.coach-btn{width:40px;height:40px;border-radius:var(--rad-s);border:.5px solid var(--bdr2);background:var(--sur2);color:var(--mut);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.coach-btn:active{transform:scale(.94)}
+.coach-btn.send{background:rgba(139,38,53,0.22);border-color:rgba(139,38,53,0.35);color:var(--w)}
+.coach-btn.mic.listening{background:rgba(139,38,53,0.28);border-color:var(--red);color:#e06070;animation:pulse-mic 1s ease-in-out infinite}
+.coach-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;flex-shrink:0}
+@keyframes pulse-mic{0%,100%{opacity:1}50%{opacity:.4}}
+.ai-key-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.ai-key-input{flex:1;background:var(--sur2);border:.5px solid var(--bdr2);border-radius:var(--rad-s);padding:8px 11px;font-size:13px;color:var(--w);outline:none;font-family:'DM Sans',sans-serif;min-width:0}
+.ai-key-input:focus{border-color:var(--gold)}
+.ai-key-input::placeholder{color:var(--hint)}
+.ai-key-save{flex-shrink:0;padding:8px 14px;background:var(--gold-lt);border:.5px solid var(--gold);border-radius:var(--rad-s);color:var(--gold);font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+/* AI FUEL */
+.fuel-ai-bar{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:14px;margin-bottom:10px}
+.fuel-ai-row{display:flex;gap:8px;margin-top:10px;align-items:center}
+.fuel-ai-input{flex:1;background:var(--sur2);border:.5px solid var(--bdr2);border-radius:var(--rad-s);padding:9px 11px;font-size:13px;color:var(--w);outline:none;font-family:'DM Sans',sans-serif;min-width:0}
+.fuel-ai-input:focus{border-color:var(--gold)}
+.fuel-ai-input::placeholder{color:var(--hint)}
+.fuel-ai-btn{flex-shrink:0;padding:9px 14px;background:var(--gold-lt);border:.5px solid var(--gold);border-radius:var(--rad-s);color:var(--gold);font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all .15s}
+.fuel-ai-btn:disabled{opacity:0.55;cursor:not-allowed}
+.fuel-ai-status{font-size:11px;color:var(--hint);margin-top:8px;line-height:1.5}
+.fuel-ai-status.err{color:#e06070}
+
 /* AUTH GATE — full screen before app when Supabase is on and user not signed in */
 .auth-gate{position:fixed;inset:0;z-index:450;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;box-sizing:border-box;padding:clamp(48px,10vh,100px) max(20px,env(safe-area-inset-left)) calc(32px + var(--sb)) max(20px,env(safe-area-inset-right));background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 38%,var(--bg-c) 72%,#141418 100%);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .auth-gate.hid{display:none}
@@ -506,6 +538,10 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-4 9H9c-1-3-4-5-4-9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
     Fuel
   </button>
+  <button class="bni" onclick="go('coach',this)">
+    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Coach
+  </button>
   <button class="bni" onclick="go('shop',this)">
     <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
     Shop
@@ -664,6 +700,15 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
   </div>
   <div id="fuel-macro-note" style="background:var(--gold-lt);border:.5px solid rgba(201,152,74,0.2);border-radius:var(--rad-s);padding:11px 13px;margin-bottom:16px;font-size:11px;color:var(--mut);line-height:1.6">Based on Mifflin-St Jeor BMR × 1.6 activity factor. Surplus of 250 kcal above TDEE for lean muscle gain without excess fat. Adjust carbs up on long run days, down on rest days.</div>
   <div class="slbl">Today's Meals</div>
+  <div class="fuel-ai-bar" id="fuel-ai-bar">
+    <div style="font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin-bottom:4px">AI Meal Plan</div>
+    <div style="font-size:11px;color:var(--hint);line-height:1.55">Tell it what you have in your fridge, or leave blank for suggestions. Factors in your targets, diet, and today's session.</div>
+    <div class="fuel-ai-row">
+      <input type="text" class="fuel-ai-input" id="fuel-ai-input" placeholder="e.g. I have eggs, rice, and spinach...">
+      <button type="button" class="fuel-ai-btn" id="fuel-ai-btn" onclick="generateAiFuel()">Generate</button>
+    </div>
+    <div class="fuel-ai-status" id="fuel-ai-status"></div>
+  </div>
   <div id="meal-list"></div>
   <div class="slbl">Supplements</div>
   <div class="card-s" style="margin-bottom:8px">
@@ -677,6 +722,38 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="supr"><span class="sn2">On waking</span><span class="sd">500ml immediately</span></div>
     <div class="supr"><span class="sn2">During workout + sauna</span><span class="sd">1 litre</span></div>
     <div class="supr"><span class="sn2">Across the day</span><span class="sd">3–4 litres total</span></div>
+  </div>
+</div>
+
+<!-- ── COACH ──────────────────────────────────── -->
+<div id="view-coach" class="view">
+  <div class="hero" style="padding:22px;margin-bottom:16px">
+    <div class="h-eye">AI-Powered</div>
+    <div class="h-name" style="font-size:40px;margin-bottom:6px">AI<em>COACH</em></div>
+    <div style="font-size:11px;color:var(--mut)">Your program and data — plus broader fitness knowledge via web search</div>
+  </div>
+
+  <div class="card-s" style="margin-bottom:14px">
+    <div class="slbl" style="margin-bottom:6px">Anthropic API Key</div>
+    <div style="font-size:11px;color:var(--mut);line-height:1.6;margin-bottom:2px">Stored on this device only. Used for Coach and AI Fuel. Get a key at console.anthropic.com.</div>
+    <div class="ai-key-row">
+      <input type="password" class="ai-key-input" id="coach-api-key-input" placeholder="sk-ant-api03-...">
+      <button type="button" class="ai-key-save" onclick="saveAiKey()">Save</button>
+    </div>
+    <div id="coach-key-status" style="font-size:10px;color:var(--hint);margin-top:6px"></div>
+  </div>
+
+  <div class="card-s" style="margin-bottom:14px">
+    <div id="coach-msgs" class="coach-msgs"></div>
+    <div class="coach-input-row">
+      <button type="button" class="coach-btn mic" id="coach-mic-btn" onclick="toggleVoice()" title="Voice input">
+        <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+      </button>
+      <textarea class="coach-textarea" id="coach-input" rows="1" placeholder="Ask your coach anything..." onkeydown="coachKeyDown(event)" oninput="autoGrowTA(this)"></textarea>
+      <button type="button" class="coach-btn send" id="coach-send-btn" onclick="sendCoachMsg()" title="Send">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1606,6 +1683,7 @@ function go(v,btn){
   if(v==='runs'){buildRunLog();refreshStravaOwnerUI();}
   if(v==='shop')buildShopView();
   if(v==='overview'){refreshProfileStrip();refreshStravaOwnerUI();}
+  if(v==='coach')buildCoach();
   updProg();
 }
 
@@ -2931,6 +3009,308 @@ async function updateNotifCard(){
     document.getElementById('notif-disable-btn').style.display='none';
     document.getElementById('notif-time-row').style.display='none';
     document.getElementById('notif-update-btn').style.display='none';
+  }
+}
+
+// ─────────────────────────────────────────────
+// AI — SHARED CONFIG
+// ─────────────────────────────────────────────
+const AI_ENDPOINT='https://api.anthropic.com/v1/messages';
+const AI_MODEL='claude-sonnet-4-20250514';
+
+function getAiKey(){return localStorage.getItem('hf_ai_key')||'';}
+
+function saveAiKey(){
+  const inp=document.getElementById('coach-api-key-input');
+  const k=(inp?.value||'').trim();
+  if(!k)return;
+  localStorage.setItem('hf_ai_key',k);
+  const st=document.getElementById('coach-key-status');
+  if(st){st.textContent='Key saved.';setTimeout(()=>{if(st)st.textContent='';},2000);}
+}
+
+async function callAI(messages,systemPrompt){
+  const key=getAiKey();
+  if(!key)throw new Error('No API key set. Add your Anthropic API key in the Coach tab.');
+  const allMsgs=[...messages];
+  for(let t=0;t<6;t++){
+    const resp=await fetch(AI_ENDPOINT,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true',
+      },
+      body:JSON.stringify({
+        model:AI_MODEL,
+        max_tokens:1200,
+        system:systemPrompt,
+        messages:allMsgs,
+        tools:[{type:'web_search_20250305',name:'web_search',max_uses:3}],
+      }),
+    });
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message||'API error '+resp.status);
+    }
+    const data=await resp.json();
+    allMsgs.push({role:'assistant',content:data.content});
+    if(data.stop_reason!=='tool_use'){
+      return(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    }
+    // Web search is server-side; acknowledge tool_use to continue the loop
+    const results=(data.content||[]).filter(b=>b.type==='tool_use').map(b=>({
+      type:'tool_result',tool_use_id:b.id,content:'Search complete.',
+    }));
+    allMsgs.push({role:'user',content:results});
+  }
+  return '';
+}
+
+// ─────────────────────────────────────────────
+// AI COACH
+// ─────────────────────────────────────────────
+let _coachHistory=[];
+let _coachSpeechRec=null;
+let _coachSpeechActive=false;
+
+function buildCoachSystemPrompt(){
+  const i=S.intake||{};
+  const m=calcMacros();
+  const w=S.week||1;
+  const phase=w<=4?'Build (Weeks 1–4 — form base, 2 min rest)':w<=8?'Drive (Weeks 5–8 — volume up, 90s rest)':'Peak (Weeks 9–12 — max output, 60s rest)';
+  const runs=(S.runs||[]).slice(-5).map(r=>`  ${r.date||'?'}: ${r.dist||'?'}km in ${r.time||'?'}min, RPE ${r.rpe||'?'}, HR ${r.hr||'?'}${r.note?' — '+r.note:''}`).join('\n')||'  No runs logged yet.';
+  return`You are an expert personal coach for a HimFit user. You have full context of their training program, data, and current progress.
+
+USER PROFILE:
+  Name: ${i.firstName||'Athlete'}
+  Sex: ${i.sex||'male'} | Age: ${i.age||'unknown'} | Weight: ${i.weightKg?i.weightKg+'kg':'unknown'} | Height: ${i.heightCm?i.heightCm+'cm':'unknown'}
+  Goals: ${(i.goals||['general']).join(', ')}
+  Experience: ${i.experience||'intermediate'} | Location: ${i.location||'gym'} | Program style: ${i.programStyle||'full'}
+  Diet: ${i.diet||'omnivore'} | Running comfort: ${i.runningComfort||'ten_plus'}
+  Injuries / restrictions: ${i.injuries||'none'}
+
+CURRENT PROGRAM STATUS:
+  Week ${w} of 12 | Phase: ${phase}
+  Training days per week: ${activeDays()}
+
+WEEKLY SCHEDULE:
+  Mon — Chest + Core (~70 min)
+  Tue — Quality Run
+  Wed — Shoulders + Back + Core (~80 min)
+  Thu — Hypertrophy + Zone 2 (~95 min)
+  Fri — Kettlebell Circuit (~50 min)
+  Sat — Long Run (Half Marathon Build)
+
+DAILY NUTRITION TARGETS:
+  Calories: ${m.kcal} kcal | TDEE: ${m.tdee} | ${m.adjDisplay} ${m.adjLbl}
+  Protein: ${m.protein}g | Carbs: ${m.carbs}g | Fat: ${m.fat}g
+
+RECENT RUN LOG:
+${runs}
+
+PROTOCOLS:
+  Post-strength sauna: 15–30 min at 80–90C, 750ml water after
+  Creatine: 5g monohydrate daily, no loading
+  Order: lift before running, never run hard after heavy legs
+  Sugar window: post-lift and post-run only
+
+Use web search when the user asks about research, specific techniques, or where current fitness science or external knowledge adds value.
+
+Respond in clear, direct language. No emojis. Professional coaching tone — honest, specific, practical. Keep responses concise unless depth is genuinely needed.`;
+}
+
+function appendCoachMsg(text,role){
+  const msgs=document.getElementById('coach-msgs');
+  if(!msgs)return null;
+  const div=document.createElement('div');
+  div.className='cmsg cmsg-'+(role==='user'?'user':'ai');
+  div.textContent=text;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function buildCoach(){
+  const inp=document.getElementById('coach-api-key-input');
+  if(inp&&!inp.value){const k=getAiKey();if(k)inp.value=k;}
+  const msgs=document.getElementById('coach-msgs');
+  if(msgs&&msgs.children.length===0){
+    appendCoachMsg('Ready. Ask about your program, training, technique, nutrition, or recovery. Voice input is available via the mic button.','ai');
+  }
+}
+
+async function sendCoachMsg(){
+  const inp=document.getElementById('coach-input');
+  const text=(inp?.value||'').trim();
+  if(!text)return;
+  inp.value='';
+  autoGrowTA(inp);
+  const sendBtn=document.getElementById('coach-send-btn');
+  if(sendBtn)sendBtn.disabled=true;
+  appendCoachMsg(text,'user');
+  _coachHistory.push({role:'user',content:text});
+  const loadDiv=appendCoachMsg('Thinking...','ai');
+  if(loadDiv)loadDiv.classList.add('loading');
+  try{
+    const reply=await callAI(_coachHistory,buildCoachSystemPrompt());
+    if(loadDiv){loadDiv.textContent=reply||'No response received.';loadDiv.classList.remove('loading');}
+    _coachHistory.push({role:'assistant',content:reply||''});
+    if(_coachHistory.length>20)_coachHistory=_coachHistory.slice(-20);
+  }catch(e){
+    if(loadDiv){
+      loadDiv.textContent='Error: '+e.message;
+      loadDiv.classList.remove('loading');
+      loadDiv.style.color='#e06070';
+    }
+    _coachHistory.pop();
+  }finally{
+    if(sendBtn)sendBtn.disabled=false;
+    const msgs=document.getElementById('coach-msgs');
+    if(msgs)msgs.scrollTop=msgs.scrollHeight;
+  }
+}
+
+function coachKeyDown(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCoachMsg();}
+}
+
+function autoGrowTA(el){
+  if(!el)return;
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,120)+'px';
+}
+
+function initCoachSpeech(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR)return false;
+  _coachSpeechRec=new SR();
+  _coachSpeechRec.continuous=false;
+  _coachSpeechRec.interimResults=true;
+  _coachSpeechRec.lang='en-US';
+  return true;
+}
+
+function toggleVoice(){
+  if(_coachSpeechActive&&_coachSpeechRec){_coachSpeechRec.stop();return;}
+  if(!_coachSpeechRec&&!initCoachSpeech()){
+    appendCoachMsg('Voice input is not supported in this browser. Please type your question.','ai');
+    return;
+  }
+  const btn=document.getElementById('coach-mic-btn');
+  const inp=document.getElementById('coach-input');
+  _coachSpeechActive=true;
+  if(btn)btn.classList.add('listening');
+  _coachSpeechRec.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    if(inp){inp.value=t;autoGrowTA(inp);}
+    if(e.results[e.results.length-1].isFinal){
+      _coachSpeechActive=false;
+      if(btn)btn.classList.remove('listening');
+    }
+  };
+  _coachSpeechRec.onerror=()=>{_coachSpeechActive=false;if(btn)btn.classList.remove('listening');};
+  _coachSpeechRec.onend=()=>{_coachSpeechActive=false;if(btn)btn.classList.remove('listening');};
+  _coachSpeechRec.start();
+}
+
+// ─────────────────────────────────────────────
+// AI FUEL
+// ─────────────────────────────────────────────
+function getFuelHistory(){
+  try{return JSON.parse(localStorage.getItem('hf_fuel_history')||'[]');}catch{return[];}
+}
+
+function recordFuelHistory(meals){
+  const hist=getFuelHistory();
+  const today=new Date().toISOString().slice(0,10);
+  hist.push({date:today,meals:meals.map(m=>m.n||m.t).filter(Boolean).join(', ')});
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-14);
+  const trimmed=hist.filter(h=>new Date(h.date)>=cutoff).slice(-28);
+  localStorage.setItem('hf_fuel_history',JSON.stringify(trimmed));
+}
+
+function buildFuelSystemPrompt(fridgeNote){
+  const i=S.intake||{};
+  const m=calcMacros();
+  const day=DAYS[S.day];
+  const type=day?.type||'lift';
+  const w=S.week||1;
+  const phase=w<=4?'Build':w<=8?'Drive':'Peak';
+  const dietMap={omnivore:'Omnivore (meat, fish, dairy, eggs)',pescatarian:'Pescatarian (fish, dairy, eggs — no meat)',vegetarian:'Vegetarian (dairy and eggs ok — no meat or fish)',vegan:'Vegan (plant-based only)'};
+  const sessionNote={lift:'strength day — pre-workout activation, post-workout protein + carbs important',run:'run day — light pre-run, post-run protein and carbs immediately',kb:'kettlebell circuit — moderate carbs, post-session protein within 20 min',longrun:'long run day — high carb, substantial pre-run fuel 90 min out, recovery priority post-run'};
+  const hist=getFuelHistory().slice(-14).map(h=>`  ${h.date}: ${h.meals}`).join('\n')||'  No recent history.';
+  return`You are a nutrition coach for a HimFit athlete. Generate a practical daily meal plan.
+
+USER PROFILE:
+  Weight: ${i.weightKg?i.weightKg+'kg':'unknown'} | Age: ${i.age||'unknown'}
+  Goals: ${(i.goals||['general']).join(', ')}
+  Diet: ${dietMap[i.diet||'omnivore']||i.diet||'omnivore'}
+  Meal style: ${i.mealStyle==='salad_forward'?'Salad-forward (prefers salads and veg-heavy lunches)':'Balanced plates'}
+  Injuries / restrictions: ${i.injuries||'none'}
+
+TODAY:
+  Day: ${day?.name||'Training day'} — ${type} session (${sessionNote[type]||''})
+  Week: ${w} | Phase: ${phase}
+
+DAILY TARGETS:
+  Calories: ${m.kcal} kcal | Protein: ${m.protein}g | Carbs: ${m.carbs}g | Fat: ${m.fat}g${fridgeNote?'\n\nAVAILABLE INGREDIENTS: '+fridgeNote:''}
+
+RECENT MEALS — do not repeat these:
+${hist}
+
+RULES:
+  - Respect the eating style strictly — no restricted ingredients ever
+  - Suit the session type as noted above
+  - No emojis anywhere
+  - Keep meals practical and achievable at home or a standard shop
+  - Vary from recent history
+  - Use web search if you need real recipe ideas or nutritional info
+
+Return ONLY a valid JSON array — no markdown fences, no explanation, nothing else before or after. Format:
+[{"t":"time/occasion","n":"Meal name","i":"Ingredient 1\\nIngredient 2\\nIngredient 3","note":"~Xcal · Xg protein"}]
+
+Generate 4–5 meals covering the full day in order.`;
+}
+
+async function generateAiFuel(){
+  const fridgeInput=document.getElementById('fuel-ai-input');
+  const fridgeText=(fridgeInput?.value||'').trim();
+  const btn=document.getElementById('fuel-ai-btn');
+  const status=document.getElementById('fuel-ai-status');
+
+  if(btn){btn.disabled=true;btn.textContent='Generating...';}
+  if(status){status.textContent='Generating your meal plan...';status.classList.remove('err');}
+
+  const userMsg=fridgeText
+    ?'Generate a meal plan using these available ingredients where possible: '+fridgeText
+    :'Generate a meal plan for today.';
+
+  try{
+    const raw=await callAI([{role:'user',content:userMsg}],buildFuelSystemPrompt(fridgeText));
+    const match=raw.match(/\[[\s\S]*\]/);
+    if(!match)throw new Error('Could not parse meal plan from response.');
+    const meals=JSON.parse(match[0]);
+    if(!Array.isArray(meals)||!meals.length)throw new Error('No meals returned.');
+
+    const mealHtml=meals.map(m=>{
+      const ings=parseIngs(m.i||'');
+      const ingRows=ings.map(ing=>{
+        const added=(S.shopList||[]).some(x=>x.text===ing);
+        return`<div class="ing-row"><div class="ing-name">${escapeHtml(ing)}</div><button class="ing-add${added?' added':''}" onclick="addToShop('${ing.replace(/'/g,"&#39;").replace(/"/g,"&quot;")}',this)">${added?'&#10003;':'+'}</button></div>`;
+      }).join('');
+      return`<div class="mcard"><div class="mt">${escapeHtml(m.t||'')}</div><div class="mn">${escapeHtml(m.n||'')}</div><div class="mi">${escapeHtml(m.i||'').replace(/\\n/g,'<br>').replace(/\n/g,'<br>')}</div>${m.note?`<div class="mnote">${escapeHtml(m.note)}</div>`:''}${ings.length?`<button class="mcard-expand" onclick="toggleIngList(this)">Ingredients</button><div class="ing-list" style="display:none">${ingRows}</div>`:''}</div>`;
+    }).join('');
+
+    const mealList=document.getElementById('meal-list');
+    if(mealList)mealList.innerHTML=mealHtml;
+    recordFuelHistory(meals);
+    if(status){status.textContent='Done. Tap Generate again for a new plan, or keep this one.';status.classList.remove('err');}
+  }catch(e){
+    if(status){status.textContent='Error: '+(e.message||'Check your API key in the Coach tab.');status.classList.add('err');}
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Generate';}
   }
 }
 
