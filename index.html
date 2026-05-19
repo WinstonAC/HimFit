@@ -3119,7 +3119,7 @@ async function callAI(messages,systemPrompt){
       headers:{'Content-Type':'application/json','x-proxy-secret':'himfit-wx-2026'},
       body:JSON.stringify({
         model:AI_MODEL,
-        max_tokens:1200,
+        max_tokens:2500,
         system:systemPrompt,
         messages:allMsgs,
         tools:[{type:'web_search_20250305',name:'web_search',max_uses:3}],
@@ -3204,6 +3204,7 @@ When the user asks you to create, modify, adapt, or replace a workout, propose t
 pip values: pwu=warm-up, plift=strength, pkb=kettlebell, prun=running, pcd=cool-down
 The user will see an "Apply to Today" button to save it to the app instantly.
 Only include WORKOUT_JSON when actually proposing a workout to apply. Skip it for general coaching answers.
+When including WORKOUT_JSON, keep your plain-text explanation to 3–4 sentences maximum so the full JSON block fits within the response.
 
 Use web search when the user asks about research, specific techniques, or where current fitness science or external knowledge adds value.
 
@@ -3250,7 +3251,10 @@ async function sendCoachMsg(){
       try{
         pendingWorkout=JSON.parse(wMatch[1].trim());
         displayText=reply.replace(/```WORKOUT_JSON[\s\S]*?```/,'').trim();
-      }catch(_){}
+      }catch(parseErr){
+        displayText=reply.replace(/```WORKOUT_JSON[\s\S]*?```/,'').trim()
+          +'\n\n(Workout data was malformed — ask me to try again.)';
+      }
     }
     if(loadDiv){loadDiv.textContent=displayText||'No response received.';loadDiv.classList.remove('loading');}
     if(pendingWorkout&&loadDiv){
