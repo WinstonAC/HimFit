@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="application-name" content="Winston Fit">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -19,6 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{position:fixed;width:100%;height:100%;overflow:hidden;overscroll-behavior:none}
 :root{
   --bg-a:#1a0a0f;--bg-b:#2d1520;--bg-c:#1c1c22;
   --sur:rgba(255,255,255,0.05);--sur2:rgba(255,255,255,0.08);--sur3:rgba(255,255,255,0.03);
@@ -31,8 +32,8 @@
   --rad:14px;--rad-s:9px;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
 }
-html{min-height:100%;background:var(--bg-a);overflow-x:hidden}
-body{font-family:'DM Sans',sans-serif;background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 35%,var(--bg-c) 70%,#141418 100%);background-attachment:fixed;color:var(--w);min-height:100vh;padding-bottom:calc(66px + var(--sb));-webkit-font-smoothing:antialiased;width:100%;overflow-x:hidden;margin:0;position:relative}
+html{background:var(--bg-a)}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(155deg,var(--bg-a) 0%,var(--bg-b) 35%,var(--bg-c) 70%,#141418 100%);background-attachment:fixed;color:var(--w);-webkit-font-smoothing:antialiased;margin:0}
 button,input,textarea{font-family:'DM Sans',sans-serif}
 .disp{font-family:'Bebas Neue',sans-serif;letter-spacing:.04em}
 
@@ -41,7 +42,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .view.active{display:block}
 
 /* MAIN SHELL — keeps content column centered on wide screens */
-#app-shell{width:100%;max-width:640px;margin:0 auto;box-sizing:border-box;position:relative}
+#app-shell{width:100%;max-width:640px;margin:0 auto;box-sizing:border-box;position:relative;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(66px + var(--sb))}
 
 /* BOTTOM NAV */
 .bnav{position:fixed;bottom:0;left:0;right:0;height:calc(58px + var(--sb));background:rgba(14,5,9,0.92);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-top:.5px solid var(--bdr2);display:flex;align-items:flex-start;padding:10px max(4px,env(safe-area-inset-left)) 0 max(4px,env(safe-area-inset-right));z-index:300;box-sizing:border-box;justify-content:space-between}
@@ -312,8 +313,6 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 #profile-strip{font-size:11px;color:var(--mut);line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
 /* AI COACH */
 .coach-msgs{display:flex;flex-direction:column;gap:10px;max-height:45vh;overflow-y:auto;padding-right:2px}
-.today-coach{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:13px 14px;margin-bottom:14px}
-.today-coach-hdr{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
 .cmsg{max-width:90%;padding:11px 14px;border-radius:var(--rad-s);font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .cmsg-user{align-self:flex-end;background:rgba(139,38,53,0.22);border:.5px solid rgba(139,38,53,0.32);color:var(--w)}
 .cmsg-ai{align-self:flex-start;background:var(--sur2);border:.5px solid var(--bdr2);color:var(--w)}
@@ -646,23 +645,31 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="d-meta" id="d-meta"></div>
     <div class="d-est" id="d-est"></div>
   </div>
-  <div id="segs"></div>
-  <div class="today-coach" id="today-coach">
-    <div class="today-coach-hdr">
-      <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:var(--gold);fill:none;stroke-width:1.5;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      Ask Coach — modify this workout, ask technique questions, or anything training
+  <div class="seg" id="today-coach">
+    <div class="shdr" onclick="toggleCoachPanel(this)">
+      <div class="shdr-l">
+        <div class="spip pkb"></div>
+        <div>
+          <div class="slbl2">Ask Coach</div>
+          <div class="smeta" id="coach-seg-meta">Modify workout · technique · nutrition</div>
+        </div>
+      </div>
+      <span class="schev">&#8964;</span>
     </div>
-    <div id="coach-msgs" class="coach-msgs"></div>
-    <div class="coach-input-row">
-      <button type="button" class="coach-btn mic" id="coach-mic-btn" onclick="toggleVoice()" title="Voice input">
-        <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
-      </button>
-      <textarea class="coach-textarea" id="coach-input" rows="1" placeholder="Ask your coach anything..." onkeydown="coachKeyDown(event)" oninput="autoGrowTA(this)"></textarea>
-      <button type="button" class="coach-btn send" id="coach-send-btn" onclick="sendCoachMsg()" title="Send">
-        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/></svg>
-      </button>
+    <div class="sbody" id="coach-body">
+      <div id="coach-msgs" class="coach-msgs" style="min-height:0"></div>
+      <div class="coach-input-row">
+        <button type="button" class="coach-btn mic" id="coach-mic-btn" onclick="toggleVoice()" title="Voice input">
+          <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+        </button>
+        <textarea class="coach-textarea" id="coach-input" rows="1" placeholder="Ask your coach anything..." onkeydown="coachKeyDown(event)" oninput="autoGrowTA(this)"></textarea>
+        <button type="button" class="coach-btn send" id="coach-send-btn" onclick="sendCoachMsg()" title="Send">
+          <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
   </div>
+  <div id="segs"></div>
   <div class="cta-w"><button class="cta" id="cta" onclick="toggleDone()">Mark Complete</button></div>
 </div>
 
@@ -1574,7 +1581,7 @@ function experienceSlice(arr){
 
 // ── TIME LIMIT & SKIP ────────────────────────────────────────────────────────
 let todayTimeLimitMins=null;
-function setTodayTime(mins){todayTimeLimitMins=mins;buildDay();}
+function setTodayTime(mins){todayTimeLimitMins=mins;buildDay();buildCoach();}
 function timeSlice(arr){
   if(!todayTimeLimitMins)return arr;
   const ratios={20:0.30,30:0.45,45:0.65,60:0.85};
@@ -3083,15 +3090,15 @@ async function applyWorkout(workout,btn){
 function getTodayWorkoutContext(){
   const cwKey=`${S.week}-${S.day}`;
   const cw=_customWorkouts[cwKey];
+  const timeNote=todayTimeLimitMins?`\nTime limit selected: ${todayTimeLimitMins} minutes.`:'';
   if(cw){
     const exList=(cw.segments||[]).flatMap(s=>(s.exercises||[]).map(e=>e.name)).join(', ');
-    return`Custom AI workout — "${cw.sub||'AI Generated'}"\nExercises: ${exList}`;
+    return`Custom AI workout — "${cw.sub||'AI Generated'}"\nExercises: ${exList}${timeNote}`;
   }
-  // Read exercise names from the rendered DOM
   const exEls=document.querySelectorAll('#segs .exn');
   const exNames=Array.from(exEls).map(el=>el.textContent.trim()).filter(Boolean);
   const day=DAYS[S.day];
-  return`${day?.sub||'Standard program'}\nExercises: ${exNames.length?exNames.join(', '):'(open Today tab to load exercises)'}`;
+  return`${day?.sub||'Standard program'}\nExercises: ${exNames.length?exNames.join(', '):'(open Today tab to load exercises)'}${timeNote}`;
 }
 
 // ─────────────────────────────────────────────
@@ -3211,10 +3218,28 @@ function appendCoachMsg(text,role){
   return div;
 }
 
+function toggleCoachPanel(hdr){
+  document.getElementById('coach-body').classList.toggle('op');
+  hdr.querySelector('.schev').classList.toggle('op');
+}
+
 function buildCoach(){
   const msgs=document.getElementById('coach-msgs');
+  const day=DAYS[S.day];
+  const timeMeta=document.getElementById('coach-seg-meta');
+  if(timeMeta){
+    timeMeta.textContent=todayTimeLimitMins
+      ?`${todayTimeLimitMins} min session selected · tap to modify`
+      :'Modify workout · technique · nutrition';
+  }
   if(msgs&&msgs.children.length===0){
-    appendCoachMsg("What would you like to change about today's workout? Or ask me anything — technique, nutrition, recovery.",'ai');
+    let intro=`${day?.name||'Today'}: ${day?.sub||'your workout'}.`;
+    if(todayTimeLimitMins){
+      intro+=` I see you've got ${todayTimeLimitMins} minutes — want me to trim down today's ${day?.sub||'session'} to fit that?`;
+    } else {
+      intro+=' Ask me to modify it, swap exercises, or anything about your training.';
+    }
+    appendCoachMsg(intro,'ai');
   }
 }
 
