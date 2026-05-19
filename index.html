@@ -331,6 +331,13 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .ai-key-input:focus{border-color:var(--gold)}
 .ai-key-input::placeholder{color:var(--hint)}
 .ai-key-save{flex-shrink:0;padding:8px 14px;background:var(--gold-lt);border:.5px solid var(--gold);border-radius:var(--rad-s);color:var(--gold);font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+/* AI WORKOUT */
+.ai-workout-badge{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(201,152,74,0.08);border:.5px solid rgba(201,152,74,0.25);border-radius:var(--rad-s);margin-bottom:10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--gold)}
+.ai-workout-badge button{background:none;border:none;color:var(--mut);font-size:10px;letter-spacing:.5px;cursor:pointer;text-transform:uppercase;padding:0}
+.ai-workout-badge button:hover{color:#e06070}
+.ai-apply-btn{width:100%;margin-top:8px;padding:10px;background:rgba(201,152,74,0.1);border:.5px solid rgba(201,152,74,0.35);border-radius:var(--rad-s);color:var(--gold);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.ai-apply-btn:hover{background:rgba(201,152,74,0.18)}
+.ai-apply-btn:disabled{opacity:0.5;cursor:not-allowed}
 /* AI FUEL */
 .fuel-ai-bar{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:14px;margin-bottom:10px}
 .fuel-ai-row{display:flex;gap:8px;margin-top:10px;align-items:center}
@@ -1875,6 +1882,26 @@ function buildDay(){
     segs.appendChild(injEl);
   }
 
+  // AI custom workout takes priority over hardcoded program
+  const cwKey=`${w}-${S.day}`;
+  if(_customWorkouts[cwKey]){
+    const cw=_customWorkouts[cwKey];
+    document.getElementById('d-sub').textContent=cw.sub||day.sub;
+    document.getElementById('d-meta').textContent=(cw.meta||'')+' · AI Generated';
+    const badge=document.createElement('div');
+    badge.className='ai-workout-badge';
+    badge.innerHTML=`AI Generated Workout <button onclick="resetCustomWorkout()">Reset to default</button>`;
+    segs.appendChild(badge);
+    renderAiWorkout(cw,segs);
+    const estEl=document.getElementById('d-est');
+    if(estEl)estEl.textContent=cw.meta||'';
+    const dn=!!S.done[dkey()];
+    const btn=document.getElementById('cta');
+    btn.textContent=dn?'Session Complete':'Mark Complete';
+    btn.className='cta'+(dn?' dn':'');
+    return;
+  }
+
   if(day.name==='Monday') dayMon(segs,w);
   else if(day.name==='Wednesday') dayWed(segs,w);
   else if(day.name==='Thursday') dayThu(segs,w);
@@ -2660,6 +2687,7 @@ async function initHimfitCloud(){
     refreshStravaOwnerUI();
     updateNotifCard();
     if(event==='SIGNED_IN'&&session?.user){
+      await loadCustomWorkouts();
       const merged=await pullCloudStateIntoApp();
       if(!merged){await pushStateToCloud();if(S.intakeComplete!==true)openIntake();}
     }
@@ -3008,6 +3036,79 @@ async function updateNotifCard(){
 }
 
 // ─────────────────────────────────────────────
+// CUSTOM WORKOUTS
+// ─────────────────────────────────────────────
+let _customWorkouts={};
+
+async function loadCustomWorkouts(){
+  if(!window.winstonFitSupabase||!winstonFitAuthUser)return;
+  const{data,error}=await winstonFitSupabase
+    .from('custom_workouts')
+    .select('week,day,workout_json')
+    .eq('user_id',winstonFitAuthUser.id);
+  if(error||!data)return;
+  _customWorkouts={};
+  data.forEach(r=>{_customWorkouts[`${r.week}-${r.day}`]=r.workout_json;});
+}
+
+async function saveCustomWorkout(week,day,workout){
+  _customWorkouts[`${week}-${day}`]=workout;
+  if(!window.winstonFitSupabase||!winstonFitAuthUser)return;
+  await winstonFitSupabase.from('custom_workouts').upsert({
+    user_id:winstonFitAuthUser.id,
+    week,day,
+    workout_json:workout,
+    updated_at:new Date().toISOString(),
+  },{onConflict:'user_id,week,day'});
+}
+
+async function resetCustomWorkout(){
+  const w=S.week,d=S.day;
+  delete _customWorkouts[`${w}-${d}`];
+  if(window.winstonFitSupabase&&winstonFitAuthUser){
+    await winstonFitSupabase.from('custom_workouts').delete()
+      .eq('user_id',winstonFitAuthUser.id).eq('week',w).eq('day',d);
+  }
+  buildDay();
+}
+
+function aiExRow(ex,n){
+  return`<div class="exr"><div class="exi">${n}</div><div><div class="exn">${escapeHtml(ex.name||'')}</div>${ex.note?`<div class="exno">${escapeHtml(ex.note)}</div>`:''} ${ex.weight?`<div class="exw">${escapeHtml(ex.weight)}</div>`:''}</div><div class="exs">${escapeHtml(ex.sets||'')}</div></div>`;
+}
+
+function renderAiWorkout(workout,segsEl){
+  let n=1;
+  for(const seg of(workout.segments||[])){
+    const exHtml=(seg.exercises||[]).map(ex=>aiExRow(ex,n++)).join('');
+    segsEl.appendChild(mkSeg(seg.pip||'plift',seg.label||'Exercises',seg.meta||'',exHtml,seg.open!==false));
+  }
+}
+
+async function applyWorkout(workout,btn){
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  await saveCustomWorkout(S.week,S.day,workout);
+  buildDay();
+  if(btn){btn.textContent='Applied to Today';}
+  appendCoachMsg(`Done. Your ${DAYS[S.day]?.name||'today'} workout has been updated. Open the Today tab to see it.`,'ai');
+  const msgs=document.getElementById('coach-msgs');
+  if(msgs)msgs.scrollTop=msgs.scrollHeight;
+}
+
+function getTodayWorkoutContext(){
+  const cwKey=`${S.week}-${S.day}`;
+  const cw=_customWorkouts[cwKey];
+  if(cw){
+    const exList=(cw.segments||[]).flatMap(s=>(s.exercises||[]).map(e=>e.name)).join(', ');
+    return`Custom AI workout — "${cw.sub||'AI Generated'}"\nExercises: ${exList}`;
+  }
+  // Read exercise names from the rendered DOM
+  const exEls=document.querySelectorAll('#segs .exn');
+  const exNames=Array.from(exEls).map(el=>el.textContent.trim()).filter(Boolean);
+  const day=DAYS[S.day];
+  return`${day?.sub||'Standard program'}\nExercises: ${exNames.length?exNames.join(', '):'(open Today tab to load exercises)'}`;
+}
+
+// ─────────────────────────────────────────────
 // AI — SHARED CONFIG
 // ─────────────────────────────────────────────
 const AI_ENDPOINT='https://jqomeiarmdrraausoecd.supabase.co/functions/v1/ai-proxy';
@@ -3098,6 +3199,20 @@ PROTOCOLS:
   Order: lift before running, never run hard after heavy legs
   Sugar window: post-lift and post-run only
 
+TODAY'S WORKOUT (Week ${w}, ${DAYS[S.day]?.name||''}):
+${getTodayWorkoutContext()}
+
+WORKOUT MODIFICATION:
+When the user asks you to create, modify, adapt, or replace a workout, propose the new workout in plain text first, then append the machine-readable version at the very end in this exact format:
+
+\`\`\`WORKOUT_JSON
+{"sub":"Workout Title","meta":"~X min total","segments":[{"pip":"pwu","label":"Warm-Up","meta":"5 min","exercises":[{"name":"Exercise","note":"Coaching cue","sets":"2×30s","weight":""}]},{"pip":"plift","label":"Main Work","meta":"Sets and focus","exercises":[{"name":"Exercise","note":"Coaching cue","sets":"4×8","weight":"60–80kg"}]},{"pip":"pcd","label":"Cool-Down","meta":"5 min","exercises":[{"name":"Exercise","note":"Hold steady","sets":"45s each","weight":""}]}]}
+\`\`\`
+
+pip values: pwu=warm-up, plift=strength, pkb=kettlebell, prun=running, pcd=cool-down
+The user will see an "Apply to Today" button to save it to the app instantly.
+Only include WORKOUT_JSON when actually proposing a workout to apply. Skip it for general coaching answers.
+
 Use web search when the user asks about research, specific techniques, or where current fitness science or external knowledge adds value.
 
 Respond in clear, direct language. No emojis. Professional coaching tone — honest, specific, practical. Keep responses concise unless depth is genuinely needed.`;
@@ -3135,7 +3250,24 @@ async function sendCoachMsg(){
   if(loadDiv)loadDiv.classList.add('loading');
   try{
     const reply=await callAI(_coachHistory,buildCoachSystemPrompt());
-    if(loadDiv){loadDiv.textContent=reply||'No response received.';loadDiv.classList.remove('loading');}
+    // Extract WORKOUT_JSON block if present
+    const wMatch=reply.match(/```WORKOUT_JSON\s*([\s\S]*?)```/);
+    let displayText=reply;
+    let pendingWorkout=null;
+    if(wMatch){
+      try{
+        pendingWorkout=JSON.parse(wMatch[1].trim());
+        displayText=reply.replace(/```WORKOUT_JSON[\s\S]*?```/,'').trim();
+      }catch(_){}
+    }
+    if(loadDiv){loadDiv.textContent=displayText||'No response received.';loadDiv.classList.remove('loading');}
+    if(pendingWorkout&&loadDiv){
+      const applyBtn=document.createElement('button');
+      applyBtn.className='ai-apply-btn';
+      applyBtn.textContent='Apply to Today';
+      applyBtn.onclick=()=>applyWorkout(pendingWorkout,applyBtn);
+      loadDiv.parentNode.insertBefore(applyBtn,loadDiv.nextSibling);
+    }
     _coachHistory.push({role:'assistant',content:reply||''});
     if(_coachHistory.length>20)_coachHistory=_coachHistory.slice(-20);
   }catch(e){
@@ -3322,6 +3454,7 @@ async function generateAiFuel(){
   }else{
     io.classList.add('hid');
   }
+  await loadCustomWorkouts();
   buildPlan();buildDay();buildFuel();buildRunLog();buildShopView();updProg();
   // Register service worker early so push works even before settings are opened
   registerServiceWorker();

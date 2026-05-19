@@ -69,7 +69,17 @@ Tap **Save profile** when done. You can edit it any time from **Overview → Set
 ### Fuel tab
 - Shows your **daily calorie and macro targets**.
 - Shows a **meal plan** for today's workout type.
+- Tap **Generate** in the **AI Meal Plan** bar to get a personalised meal plan from AI.
+- Optionally tell it what you have in your fridge before tapping Generate.
 - Tap **+ Add to list** on any ingredient to add it to your shopping list.
+
+### Coach tab
+- AI personal coach that knows your full program, current week/phase, run history, and nutrition targets.
+- Tap the **mic button** to speak your question (Chrome/Safari), or type and press Enter.
+- Ask it to **adapt today's workout** and it will propose a modified session in chat.
+- Tap **Apply to Today** on any workout proposal to update the Today tab instantly.
+- The modified workout syncs to your account and persists across devices.
+- Tap **Reset to default** in the Today tab to revert to the standard program.
 
 ### Runs tab
 - Log a run: enter distance, time, heart rate (optional), RPE (optional), notes.
@@ -96,6 +106,10 @@ Please check each of these and note anything that looks wrong:
 - [ ] Exercise weights feel reasonable for your bodyweight
 - [ ] Fuel macros look sensible for your stats and goals
 - [ ] Meal plan matches your eating style
+- [ ] AI Fuel — tap Generate, get a valid meal plan
+- [ ] AI Coach — ask a training question, get a sensible answer
+- [ ] AI Coach — ask to adapt today's workout, tap Apply to Today, Today tab updates
+- [ ] Reset to default restores the standard workout
 - [ ] Run log saves and displays correctly
 - [ ] Shopping list adds/removes items correctly
 - [ ] Signing out and back in restores all your data
