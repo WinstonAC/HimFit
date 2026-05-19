@@ -311,7 +311,9 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
 .sw input:checked+span::before{transform:translateX(18px)}
 #profile-strip{font-size:11px;color:var(--mut);line-height:1.5;word-break:break-word;overflow-wrap:anywhere}
 /* AI COACH */
-.coach-msgs{display:flex;flex-direction:column;gap:10px;max-height:62vh;overflow-y:auto;min-height:80px;padding-right:2px}
+.coach-msgs{display:flex;flex-direction:column;gap:10px;max-height:45vh;overflow-y:auto;padding-right:2px}
+.today-coach{background:var(--sur);border:.5px solid var(--bdr);border-radius:var(--rad-s);padding:13px 14px;margin-bottom:14px}
+.today-coach-hdr{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
 .cmsg{max-width:90%;padding:11px 14px;border-radius:var(--rad-s);font-size:13px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
 .cmsg-user{align-self:flex-end;background:rgba(139,38,53,0.22);border:.5px solid rgba(139,38,53,0.32);color:var(--w)}
 .cmsg-ai{align-self:flex-start;background:var(--sur2);border:.5px solid var(--bdr2);color:var(--w)}
@@ -545,10 +547,6 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 4-3 6-4 9H9c-1-3-4-5-4-9a7 7 0 0 1 7-7z"/><line x1="9" y1="21" x2="15" y2="21"/></svg>
     Fuel
   </button>
-  <button class="bni" onclick="go('coach',this)">
-    <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    Coach
-  </button>
   <button class="bni" onclick="go('shop',this)">
     <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
     Shop
@@ -649,6 +647,22 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="d-est" id="d-est"></div>
   </div>
   <div id="segs"></div>
+  <div class="today-coach" id="today-coach">
+    <div class="today-coach-hdr">
+      <svg viewBox="0 0 24 24" width="13" height="13" style="stroke:var(--gold);fill:none;stroke-width:1.5;flex-shrink:0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Ask Coach — modify this workout, ask technique questions, or anything training
+    </div>
+    <div id="coach-msgs" class="coach-msgs"></div>
+    <div class="coach-input-row">
+      <button type="button" class="coach-btn mic" id="coach-mic-btn" onclick="toggleVoice()" title="Voice input">
+        <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+      </button>
+      <textarea class="coach-textarea" id="coach-input" rows="1" placeholder="Ask your coach anything..." onkeydown="coachKeyDown(event)" oninput="autoGrowTA(this)"></textarea>
+      <button type="button" class="coach-btn send" id="coach-send-btn" onclick="sendCoachMsg()" title="Send">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
   <div class="cta-w"><button class="cta" id="cta" onclick="toggleDone()">Mark Complete</button></div>
 </div>
 
@@ -730,29 +744,6 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div class="supr"><span class="sn2">On waking</span><span class="sd">500ml immediately</span></div>
     <div class="supr"><span class="sn2">During workout + sauna</span><span class="sd">1 litre</span></div>
     <div class="supr"><span class="sn2">Across the day</span><span class="sd">3–4 litres total</span></div>
-  </div>
-</div>
-
-<!-- ── COACH ──────────────────────────────────── -->
-<div id="view-coach" class="view">
-  <div class="hero" style="padding:22px;margin-bottom:16px">
-    <div class="h-eye">AI-Powered</div>
-    <div class="h-name" style="font-size:40px;margin-bottom:6px">AI<em>COACH</em></div>
-    <div style="font-size:11px;color:var(--mut)">Your program and data — plus broader fitness knowledge via web search</div>
-  </div>
-
-
-  <div class="card-s" style="margin-bottom:14px">
-    <div id="coach-msgs" class="coach-msgs"></div>
-    <div class="coach-input-row">
-      <button type="button" class="coach-btn mic" id="coach-mic-btn" onclick="toggleVoice()" title="Voice input">
-        <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
-      </button>
-      <textarea class="coach-textarea" id="coach-input" rows="1" placeholder="Ask your coach anything..." onkeydown="coachKeyDown(event)" oninput="autoGrowTA(this)"></textarea>
-      <button type="button" class="coach-btn send" id="coach-send-btn" onclick="sendCoachMsg()" title="Send">
-        <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/></svg>
-      </button>
-    </div>
   </div>
 </div>
 
@@ -1676,13 +1667,12 @@ function go(v,btn){
   document.getElementById('view-'+v).classList.add('active');
   document.querySelectorAll('.bni').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  if(v==='today')buildDay();
+  if(v==='today'){buildDay();buildCoach();}
   if(v==='plan')buildPlan();
   if(v==='fuel')buildFuel();
   if(v==='runs'){buildRunLog();refreshStravaOwnerUI();}
   if(v==='shop')buildShopView();
   if(v==='overview'){refreshProfileStrip();refreshStravaOwnerUI();}
-  if(v==='coach')buildCoach();
   updProg();
 }
 
@@ -1870,16 +1860,8 @@ function buildDay(){
     segs.appendChild(timePillBar);
   }
 
-  // Injury reminder card — shown if the user reported injuries in their profile
-  const injText=((S.intake||{}).injuries||'').trim();
-  if(S.intakeComplete&&injText){
-    const injEl=document.createElement('div');
-    injEl.style.cssText='padding:10px 14px;background:rgba(255,160,50,0.08);border:1px solid rgba(255,160,50,0.25);border-radius:8px;margin-bottom:10px';
-    injEl.innerHTML=`<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,160,50,0.9);margin-bottom:4px">INJURY / LIMITATION NOTE</div><div style="font-size:12px;color:var(--mut);line-height:1.5">${escapeHtml(injText)}</div>`;
-    segs.appendChild(injEl);
-  }
-
   // AI custom workout takes priority over hardcoded program
+  const injText=((S.intake||{}).injuries||'').trim();
   const cwKey=`${w}-${S.day}`;
   if(_customWorkouts[cwKey]){
     const cw=_customWorkouts[cwKey];
@@ -1905,6 +1887,13 @@ function buildDay(){
   else if(day.type==='kb') dayFri(segs,w);
   else if(day.type==='run') dayTue(segs,w);
   else if(day.type==='longrun') daySat(segs,w);
+
+  if(S.intakeComplete&&injText){
+    const injEl=document.createElement('div');
+    injEl.style.cssText='padding:10px 14px;background:rgba(255,160,50,0.08);border:1px solid rgba(255,160,50,0.25);border-radius:8px;margin-top:10px;margin-bottom:4px';
+    injEl.innerHTML=`<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:rgba(255,160,50,0.9);margin-bottom:4px">INJURY / LIMITATION NOTE</div><div style="font-size:12px;color:var(--mut);line-height:1.5">${escapeHtml(injText)}</div>`;
+    segs.appendChild(injEl);
+  }
 
   // Dynamic time estimate — count visible exercises and update header
   const visibleExCount=segs.querySelectorAll('.exr:not(.skipped)').length;
@@ -3225,7 +3214,7 @@ function appendCoachMsg(text,role){
 function buildCoach(){
   const msgs=document.getElementById('coach-msgs');
   if(msgs&&msgs.children.length===0){
-    appendCoachMsg('Ready. Ask about your program, training, technique, nutrition, or recovery. Voice input is available via the mic button.','ai');
+    appendCoachMsg("What would you like to change about today's workout? Or ask me anything — technique, nutrition, recovery.",'ai');
   }
 }
 
