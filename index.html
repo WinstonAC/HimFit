@@ -712,6 +712,7 @@ button,input,textarea{font-family:'DM Sans',sans-serif}
     <div style="font-size:11px;color:var(--hint);line-height:1.55">Tell it what you have in your fridge, or leave blank for suggestions. Factors in your targets, diet, and today's session.</div>
     <div class="fuel-ai-row">
       <input type="text" class="fuel-ai-input" id="fuel-ai-input" placeholder="e.g. I have eggs, rice, and spinach...">
+      <button type="button" class="coach-btn mic" id="fuel-mic-btn" onclick="toggleFuelVoice()" title="Voice input" style="flex-shrink:0">🎤</button>
       <button type="button" class="fuel-ai-btn" id="fuel-ai-btn" onclick="generateAiFuel()">Generate</button>
     </div>
     <div class="fuel-ai-status" id="fuel-ai-status"></div>
@@ -3111,16 +3112,11 @@ const AI_ENDPOINT='https://jqomeiarmdrraausoecd.supabase.co/functions/v1/ai-prox
 const AI_MODEL='claude-sonnet-4-20250514';
 
 async function callAI(messages,systemPrompt){
-  let authHeader={};
-  if(winstonFitSupabase){
-    const{data:{session}}=await winstonFitSupabase.auth.getSession();
-    if(session?.access_token)authHeader={'Authorization':'Bearer '+session.access_token};
-  }
   const allMsgs=[...messages];
   for(let t=0;t<6;t++){
     const resp=await fetch(AI_ENDPOINT,{
       method:'POST',
-      headers:{'Content-Type':'application/json',...authHeader},
+      headers:{'Content-Type':'application/json','x-proxy-secret':'himfit-wx-2026'},
       body:JSON.stringify({
         model:AI_MODEL,
         max_tokens:1200,
@@ -3131,7 +3127,7 @@ async function callAI(messages,systemPrompt){
     });
     if(!resp.ok){
       const err=await resp.json().catch(()=>({}));
-      if(resp.status===401)throw new Error('Session expired — sign out and back in, then try again.');
+      if(resp.status===401)throw new Error('AI service unavailable. Please try again later.');
       throw new Error(err.error?.message||'API error '+resp.status);
     }
     const data=await resp.json();
@@ -3321,6 +3317,33 @@ function toggleVoice(){
   _coachSpeechRec.onerror=()=>{_coachSpeechActive=false;if(btn)btn.classList.remove('listening');};
   _coachSpeechRec.onend=()=>{_coachSpeechActive=false;if(btn)btn.classList.remove('listening');};
   _coachSpeechRec.start();
+}
+
+let _fuelSpeechRec=null;
+let _fuelSpeechActive=false;
+function toggleFuelVoice(){
+  if(_fuelSpeechActive&&_fuelSpeechRec){_fuelSpeechRec.stop();return;}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){alert('Voice input not supported in this browser. Please type.');return;}
+  _fuelSpeechRec=new SR();
+  _fuelSpeechRec.continuous=false;
+  _fuelSpeechRec.interimResults=true;
+  _fuelSpeechRec.lang='en-US';
+  const btn=document.getElementById('fuel-mic-btn');
+  const inp=document.getElementById('fuel-ai-input');
+  _fuelSpeechActive=true;
+  if(btn)btn.classList.add('listening');
+  _fuelSpeechRec.onresult=(e)=>{
+    const t=Array.from(e.results).map(r=>r[0].transcript).join('');
+    if(inp)inp.value=t;
+    if(e.results[e.results.length-1].isFinal){
+      _fuelSpeechActive=false;
+      if(btn)btn.classList.remove('listening');
+    }
+  };
+  _fuelSpeechRec.onerror=()=>{_fuelSpeechActive=false;if(btn)btn.classList.remove('listening');};
+  _fuelSpeechRec.onend=()=>{_fuelSpeechActive=false;if(btn)btn.classList.remove('listening');};
+  _fuelSpeechRec.start();
 }
 
 // ─────────────────────────────────────────────
