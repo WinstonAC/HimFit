@@ -3047,12 +3047,13 @@ async function loadCustomWorkouts(){
 async function saveCustomWorkout(week,day,workout){
   _customWorkouts[`${week}-${day}`]=workout;
   if(!winstonFitSupabase||!winstonFitAuthUser)return;
-  await winstonFitSupabase.from('custom_workouts').upsert({
+  const{error}=await winstonFitSupabase.from('custom_workouts').upsert({
     user_id:winstonFitAuthUser.id,
     week,day,
     workout_json:workout,
     updated_at:new Date().toISOString(),
   },{onConflict:'user_id,week,day'});
+  if(error)throw new Error(error.message);
 }
 
 async function resetCustomWorkout(){
@@ -3079,12 +3080,21 @@ function renderAiWorkout(workout,segsEl){
 
 async function applyWorkout(workout,btn){
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  await saveCustomWorkout(S.week,S.day,workout);
-  buildDay();
-  if(btn){btn.textContent='Applied to Today';}
-  appendCoachMsg(`Done. Your ${DAYS[S.day]?.name||'today'} workout has been updated. Open the Today tab to see it.`,'ai');
-  const msgs=document.getElementById('coach-msgs');
-  if(msgs)msgs.scrollTop=msgs.scrollHeight;
+  try{
+    await saveCustomWorkout(S.week,S.day,workout);
+    buildDay();
+    if(btn){btn.textContent='✓ Applied';}
+    appendCoachMsg(`Done — scroll down to see your updated ${DAYS[S.day]?.name||'today'} workout.`,'ai');
+    const msgs=document.getElementById('coach-msgs');
+    if(msgs)msgs.scrollTop=msgs.scrollHeight;
+    setTimeout(()=>{
+      const segs=document.getElementById('segs');
+      if(segs)segs.scrollIntoView({behavior:'smooth',block:'start'});
+    },200);
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='Apply to Today';}
+    appendCoachMsg('Could not save workout: '+(e.message||'unknown error')+'. Try again.','ai');
+  }
 }
 
 function getTodayWorkoutContext(){
