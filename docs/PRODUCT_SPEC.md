@@ -1,182 +1,228 @@
-# HimFit — Product Spec, MVP & Competitive Position
+# HimFit — Product Spec
 
 _Last updated: May 2026_
 
 ---
 
-## The Pitch
+## Vision
 
 **"Your AI personal trainer and nutritionist. $15/month."**
 
-Future charges $199/month for a human coach. Centr charges $120/year for pre-recorded videos. Fitbod charges $96/year and doesn't touch nutrition. MyFitnessPal handles food but not training.
+Future charges $199/month for a human coach. Centr charges $120/year for pre-recorded videos. Fitbod charges $96/year and ignores nutrition. MyFitnessPal handles food but not training. No one does both.
 
 HimFit is the only app that puts a conversational AI coach across your entire day — workout, food, recovery, race training — and costs less than a protein shake per week.
 
-**Under-promise, over-deliver.** Don't market 50 features. Market one thing: the best AI coach you've ever had.
+**Philosophy: under-promise, over-deliver.** Don't market 50 features. Market one thing: the best AI coach you've ever had.
 
 ---
 
-## The MVP Loop (must work flawlessly before anything else)
+## The MVP Loop
+
+This loop must work end-to-end in under 3 minutes, voice-first, on mobile. Nothing ships until this is flawless.
 
 ```
-Wake up → "What's my workout today?" (30 seconds)
-     ↓
-"Make it 30 min, I'm tight on time" → AI trims → Apply (60 seconds)
-     ↓
-Train → Mark complete (5 seconds)
-     ↓
-"What should I eat today?" → AI meal plan matching macros + today's session (30 seconds)
-     ↓
-Missing ingredients → auto-added to shopping list (automatic)
-     ↓
-Shop → done
+1. Open Today → see my workout
+2. "Make it 30 min, I'm tight on time" → AI trims it → Apply
+3. Train → mark complete
+4. Open Fuel → AI generates meals matching today's session + my macros
+5. Missing ingredients → auto-added to shopping list
 ```
 
-**This loop, end-to-end, in under 3 minutes, voice-first, on your phone. That's the MVP.**
+---
+
+## Architecture Direction
+
+### Hardcoded Data Strategy
+
+The current app has a hardcoded 12-week program (Winston's program) and a static 3-rotation meal plan. With the AI-first direction, this gets replaced in phases:
+
+**Keep permanently:**
+- Structural skeleton: weekly day types, DAYS array, 12-week phase framework, week/day navigation
+- Protocol cards (sauna, creatine, run order) — good static content
+- Offline fallback: if custom_workouts is empty and AI is unreachable, a minimal placeholder renders
+
+**Replace with AI (phased):**
+- Static meal rotation (3 sets × 4 diet types) → replaced by AI Fuel once Fuel Chat is solid
+- Specific exercise arrays (MON_CH, WED_CH, THU_CH, etc.) → replaced by AI-generated `custom_workouts` on profile completion
+- Weight scaling math → AI handles this in generated programs
+
+**Correct sequence:**
+```
+Phase A: Build AI full program generation → stores all weeks in custom_workouts
+Phase B: Hardcoded exercise arrays become dead code → remove
+Phase C: Static meal rotation becomes loading state → remove
+```
+Do not remove hardcoded data before AI generation is live and stable. New users need something to see on day 1.
+
+**New user first-run flow (target state):**
+```
+Complete profile → AI generates full 12-week program → stored in custom_workouts
+                → AI generates this week's meal plan → shown in Fuel
+                → Hardcoded data never shown
+```
+
+---
+
+## What's Shipped ✅
+
+| Feature | Notes |
+|---------|-------|
+| 12-week progressive strength + run program | Hardcoded — to be replaced by AI generation |
+| AI Coach in Today tab (collapsible, voice) | Working |
+| Workout modification + Apply to Today | Working — Supabase unique constraint fixed |
+| AI Fuel — generate full day meal plan | Working |
+| Voice input — Coach + Fuel | Working (mic resets correctly now) |
+| Viewport locked — native app feel | Working |
+| Coach reads time pill (20/30/45/60 min) | Working |
+| Supabase auth, profile sync, push notifications | Working |
+| Manual run log | Working |
+| Shopping list from meal ingredients | Working |
+| Weight-scaled exercises | Working — to be replaced by AI |
 
 ---
 
 ## Full Competitive Feature Matrix
 
-| Feature | HimFit | WHOOP | Fitbod | Future | MyFitnessPal | Freeletics | Nike TC | Strava | Centr | Caliber | Apple Fitness+ |
+| Feature | **HimFit** | WHOOP | Fitbod | Future | MyFitnessPal | Freeletics | Nike TC | Strava | Centr | Caliber | Apple Fitness+ |
 |---------|--------|-------|--------|--------|--------------|------------|---------|--------|-------|---------|----------------|
 | **PRICING** | | | | | | | | | | | |
-| Free tier | ✅ Full app | ❌ | Limited (3 workouts) | ❌ | ✅ Basic | ✅ Basic | ✅ Full | ✅ Basic | ❌ | ✅ Full ad-free | ❌ |
-| Monthly price | $15 (planned) | $25–40 | $16 | $199 | $7 | $8–10 | Free | $12 | $30 | Free / $17 | $10 |
-| Annual price | $120 (planned) | $199–359 | $96 | $2,388 | $80 | $80 | Free | $80 | $120 | $72 | $80 |
+| Free tier | ✅ Full app | ❌ | 3 workouts | ❌ | ✅ Basic | ✅ Basic | ✅ Full | ✅ Basic | ❌ | ✅ Full | ❌ |
+| Monthly | $15 planned | $25–40 | $16 | $199 | $7 | $8–10 | Free | $12 | $30 | Free/$17 | $10 |
+| Annual | $120 planned | $199–359 | $96 | $2,388 | $80 | $80 | Free | $80 | $120 | $72 | $80 |
 | **AI & COACHING** | | | | | | | | | | | |
-| AI workout generation | ✅ Full | ❌ | ✅ Strength only | Partial (assists human coach) | ❌ | ✅ HIIT/bodyweight | ❌ | ❌ | ❌ | ❌ | Partial (custom plans) |
-| Conversational AI coach | ✅ Full chat | Text Q&A | ❌ | Human coach | ❌ | ✅ Coach+ tier | ❌ | Text summaries only | ❌ | ❌ | Voice only (iPhone 15 Pro+) |
-| Voice interaction | ✅ Full (mic everywhere) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ Workout Buddy (15 Pro+) |
-| Human coach option | ❌ | ❌ | ❌ | ✅ $199/mo | ❌ | ❌ | ❌ | ❌ | Pre-recorded | ✅ $200/mo | Pre-recorded |
+| Conversational AI coach | ✅ Full chat | Text Q&A | ❌ | Human | ❌ | Coach+ tier | ❌ | Text summaries | ❌ | ❌ | Voice (15 Pro+ only) |
+| AI workout generation | ✅ Per day + 🔲 full program | ❌ | ✅ Strength only | Assists human | ❌ | ✅ HIIT only | ❌ | ❌ | ❌ | ❌ | Custom Plans only |
+| AI modifies live workout | ✅ Apply to Today | ❌ | ❌ | Human does this | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Voice interaction | ✅ Mic everywhere | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ 15 Pro+ only |
 | Web search in AI | ✅ | ❌ | ❌ | N/A | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Human coach | ❌ | ❌ | ❌ | ✅ $199/mo | ❌ | ❌ | Pre-recorded | ❌ | Pre-recorded | ✅ $200/mo | Pre-recorded |
 | **WORKOUT** | | | | | | | | | | | |
 | Strength training | ✅ | ❌ | ✅ Best-in-class | ✅ | ❌ | ✅ | ✅ | Limited | ✅ | ✅ | ✅ |
-| Running program | ✅ Periodized HM build | Tracking only | ❌ | Varies | Tracking only | ❌ | Limited | ✅ Best-in-class | Limited | ❌ | ❌ |
+| Running program | ✅ Periodized HM build | Tracking only | ❌ | Varies | Tracking only | ❌ | Limited | ✅ Best | Limited | ❌ | ❌ |
 | Strength + running unified | ✅ | ❌ | ❌ | Depends on coach | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Progressive overload | ✅ Auto-scaled by bodyweight | N/A | ✅ Automated | Manual | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Modify workout via AI | ✅ Apply to Today | ❌ | ❌ | Human adjusts | ❌ | Partial | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Session time picker | ✅ (20/30/45/60 min) | ❌ | Partial | Human decides | ❌ | Partial | ✅ | ❌ | ✅ | ❌ | ✅ |
-| 12-week periodized plan | ✅ | ❌ | No (session by session) | ✅ Custom | ❌ | Journeys | ❌ | ❌ | ❌ | ✅ | ✅ (Progressive Strength) |
+| 12-week periodized plan | ✅ → 🔲 AI-generated | ❌ | No | ✅ Custom | ❌ | Journeys | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Progressive overload | ✅ Auto-scaled | N/A | ✅ Automated | Manual | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Session time picker | ✅ 20/30/45/60 min | ❌ | Partial | Human | ❌ | Partial | ✅ | ❌ | ✅ | ❌ | ✅ |
+| Skip/modify exercises | ✅ | ❌ | ✅ | ✅ | ❌ | Limited | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Injury awareness | ✅ Profile + Coach | ❌ | Limited | ✅ Human | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | Exercise video demos | ✅ (needs update) | ❌ | ✅ 1,600+ HD | ❌ | ❌ | ✅ | ✅ 200+ | ❌ | ✅ 1,400+ | ✅ 600+ | ✅ 8,000+ |
-| Skip/modify individual exercises | ✅ | ❌ | ✅ | ✅ | ❌ | Limited | ❌ | ❌ | ❌ | ✅ | ❌ |
-| Injury/limitation awareness | ✅ (profile + coach) | ❌ | Limited | ✅ Human aware | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
 | **NUTRITION** | | | | | | | | | | | |
 | AI meal planning | ✅ | ❌ | ❌ | ❌ | ✅ Premium+ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Macro calculator | ✅ (Mifflin-St Jeor) | ❌ | ❌ | Depends | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
-| Meals adjusted to workout type | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Recipe database | Static rotation | ❌ | ❌ | ❌ | ✅ 20.5M foods | ✅ 330+ | Recipes on TV | ❌ | ✅ 800+ | ❌ | ❌ |
-| Recipe drop (paste URL/link) | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Diet style support | ✅ (omni/veg/vegan/pesc) | ❌ | ❌ | Depends | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Grocery/shopping list | ✅ | ❌ | ❌ | ❌ | ✅ Premium+ | ✅ | ❌ | ❌ | ✅ Auto-generated | ❌ | ❌ |
-| Auto-cart from meal plan | 🔲 Planned | ❌ | ❌ | ❌ | Partial (Walmart) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Meals matched to workout type | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Macro calculator | ✅ Mifflin-St Jeor | ❌ | ❌ | Depends | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Diet style support | ✅ omni/veg/vegan/pesc | ❌ | ❌ | Varies | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Recipe database | Static → 🔲 AI + URL drop | ❌ | ❌ | ❌ | ✅ 20.5M foods | ✅ 330+ | TV only | ❌ | ✅ 800+ | ❌ | ❌ |
+| Recipe drop (paste URL) | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Grocery/shopping list | ✅ | ❌ | ❌ | ❌ | ✅ Premium+ | ✅ | ❌ | ❌ | ✅ Auto | ❌ | ❌ |
 | Fridge inventory | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Supplement guidance | ✅ Static | ❌ | ❌ | Depends | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| **TRACKING** | | | | | | | | | | | |
-| Run logging | ✅ Manual | Auto-detect | ❌ | ✅ | Via wearable | ❌ | Separate app | ✅ Best | ❌ | ❌ | ❌ |
-| Race goal coaching | 🔲 Planned | ❌ | ❌ | ✅ Human | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Workout history | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Body weight tracking | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
-| **WEARABLES & INTEGRATIONS** | | | | | | | | | | | |
-| Apple Watch | 🔲 Via Terra API | ❌ (WHOOP only) | ✅ Log from wrist | ✅ Required | ✅ Health sync | ✅ Activity sync | ✅ | ✅ Live Segments | ❌ | ✅ | ✅ Primary device |
-| Garmin | 🔲 Via Terra API | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Whoop, Oura, Fitbit, Polar | 🔲 Via Terra API | WHOOP only | ❌ | ❌ | ✅ Most | ❌ | Polar only | ✅ 3,200+ devices | ❌ | Apple Watch only | Apple only |
-| HRV / recovery integration | 🔲 Planned (Terra) | ✅ Core feature | ❌ | ✅ Via Apple Watch | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Partial |
-| Sleep tracking | 🔲 Via Terra API | ✅ Core feature | ❌ | ✅ Via Apple Watch | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Auto-cart from meal plan | 🔲 Planned | ❌ | ❌ | ❌ | Partial (Walmart) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **WEARABLES** | | | | | | | | | | | |
+| Apple Watch | 🔲 Terra API | ❌ proprietary | ✅ Log from wrist | ✅ Required | ✅ Health sync | ✅ Sync | ✅ | ✅ Live Segments | ❌ | ✅ | ✅ Primary |
+| Garmin / Polar / Suunto | 🔲 Terra API | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ Garmin/Polar | ✅ 3,200+ | ❌ | ❌ Apple only | ❌ |
+| Whoop / Oura / Fitbit | 🔲 Terra API | WHOOP only | ❌ | ❌ | ✅ Most | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| HRV / sleep / recovery | 🔲 Terra API | ✅ Core | ❌ | ✅ Via Watch | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | Partial |
+| Wearable-agnostic | 🔲 Terra (any device) | ❌ WHOOP only | ❌ | ❌ Apple only | Partial | ❌ | Partial | ✅ | ❌ | ❌ Apple only | ❌ Apple only |
 | **PLATFORM & UX** | | | | | | | | | | | |
-| iOS | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Android | ✅ (PWA) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| iOS | ✅ PWA | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Android | ✅ PWA | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Web | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ | ✅ | Likely | ❌ |
-| Offline support | ✅ Full (localStorage) | Limited | ✅ | ❌ | ❌ | Partial | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Native app (App Store) | ❌ (PWA only) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Push notifications | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Native App Store | ❌ PWA only (for now) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Offline support | ✅ Full | Limited | ✅ | ❌ | ❌ | Partial | ❌ | ❌ | ❌ | ❌ | ❌ |
 | No shame / streak mechanics | ✅ | ❌ | ❌ | ✅ | ❌ Streaks | ❌ Streaks | ❌ | ❌ Streaks | ❌ | ✅ | ❌ |
-| **UNIQUE TO HIMFIT** | | | | | | | | | | | |
-| Strength + periodized run program unified | ✅ | ❌ | ❌ | Varies | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| AI coach modifies live workout (Apply to Today) | ✅ | ❌ | ❌ | Human does this | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Meals AI-matched to today's session type | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Recipe drop from any URL | 🔲 Planned | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
 ## Where HimFit Wins
 
-**1. The only unified coach** — workout + food + shopping in one AI. Every competitor is siloed.
+**1. The only unified AI coach** — workout + food + shopping in one conversation. Every competitor is siloed.
 
-**2. Voice-first everywhere** — mic on Coach and Fuel. Apple Fitness+ has voice but only on iPhone 15 Pro+. No one else does it.
+**2. AI that rewrites your actual workout** — not just recommendations. Coach modifies today's session, you tap Apply, it's saved. No other app does this.
 
-**3. Strength + running periodized together** — Fitbod is strength-only. Strava is runs-only. Centr and Freeletics don't touch running seriously. HimFit builds your half-marathon while keeping you strong.
+**3. Meals matched to your workout type** — leg day shifts your macros, long run day changes your carb split. No competitor does this.
 
-**4. AI that touches your actual workout** — not just recommendations. The Coach rewrites today's session, you tap Apply, it's done. No other app does this.
+**4. Voice-first everywhere** — mic on Coach and Fuel. Apple Fitness+ has voice but only on iPhone 15 Pro+. No one else.
 
-**5. Meals matched to workout type** — if it's leg day, the AI knows. If it's a long run day, the macro split shifts. No competitor does this.
+**5. Strength + running periodized together** — Fitbod is strength only. Strava is runs only. HimFit builds your half-marathon while keeping you strong.
 
-**6. Offline-first** — works fully without internet. Fitbod does offline. Everyone else doesn't.
+**6. Wearable-agnostic via Terra API** — one integration covers Apple Watch, Garmin, Whoop, Oura, Fitbit, Polar. No hardware lock-in.
 
-**7. No wearable required, but wearable-ready** — Terra API brings in Apple Watch, Garmin, Whoop, Oura, Fitbit. WHOOP locks you to WHOOP. Apple Fitness+ locks you to Apple Watch.
+**7. Offline-first** — works fully without internet. Almost no competitor does this.
+
+**8. Transparent AI** — Coach explains its reasoning. No black box.
 
 ---
 
 ## Where Competitors Win (be honest)
 
-| Gap | Who does it better | What we do about it |
-|----|-------------------|---------------------|
-| Exercise video library | Fitbod (1,600+), Apple Fitness+ (8,000+) | Fix video links, consider GIF library |
-| Food database size | MyFitnessPal (20.5M foods) | Not our angle — we do AI meal plans, not logging |
-| Run tracking depth | Strava (50+ sports, GPS, social) | Integrate Strava per-user as data source |
-| Wearable depth (HRV, sleep) | WHOOP | Terra API integration |
-| Human coaching | Future, Caliber | Not our model — we're AI-first |
-| Social / community | Strava, Freeletics | Not MVP — shareable workout card later |
-| Native App Store presence | Everyone | PWA is fine for now; App Store later |
+| Gap | Who's better | Our response |
+|----|-------------|--------------|
+| Exercise video library | Fitbod (1,600+), Apple Fitness+ (8,000+) | Fix video links; consider GIF library |
+| Food database | MyFitnessPal (20.5M foods) | Not our angle — AI meal plans, not logging |
+| Run tracking depth | Strava (50+ sports, GPS, social) | Strava per-user integration as data source |
+| Wearable biometrics | WHOOP | Terra API covers this |
+| Human coaching | Future ($199/mo), Caliber ($200/mo) | Not our model — AI-first |
+| App Store presence | Everyone | PWA now; native app post product-market-fit |
+| Social / community | Strava, Freeletics | Not MVP — shareable card later |
 
 ---
 
-## Premium Positioning Strategy
+## Pricing Strategy
 
-**Price point: $15/month or $120/year**
+**$15/month or $120/year — one tier, everything included**
 
-- Below Future ($199/mo) by 93%
-- Same as Strava ($80/yr) but dramatically more capability
-- Above Freeletics ($80/yr) — justified by unified AI coach
-- Matches Centr ($120/yr) — beats it on AI and personalization
+| | HimFit | Future | Centr | Strava | Freeletics | Fitbod |
+|--|--------|--------|-------|--------|------------|--------|
+| Price/year | $120 | $2,388 | $120 | $80 | $80 | $96 |
+| AI workout gen | ✅ | Assisted | ❌ | ❌ | ✅ | ✅ |
+| AI nutrition | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Unified coach | ✅ | Human | ❌ | ❌ | ❌ | ❌ |
 
-**What "premium" means for HimFit:**
+**What premium means for HimFit:**
 - No ads, ever
-- No paywalled features — one tier, everything included
-- No shame mechanics, no streaks, no guilt notifications
-- The AI explains its reasoning — transparent, not a black box
-- Response time that feels instant
+- No paywalled features — one tier, everything in
+- No streaks, no shame, no guilt notifications
+- AI explains its reasoning
+- Feels instant
 
-**What we DON'T say:**
-- "1,600 exercises" — we have good exercises, not a database
-- "50 sport types" — we do strength + running, and we do it better than anyone
-- "AI-powered" as a buzzword — we show it working, we don't sell it
-
-**The 3-word pitch:** *"Your AI coach."*
+**The 3-word pitch: "Your AI coach."**
 
 ---
 
-## Backlog — Build Order
+## Full Backlog
 
-### Now (complete the core loop)
-- [ ] Fix Apply to Today reliably on all devices
-- [ ] Fuel Chat + Recipe Drop (paste URL or describe dish → meal saved → cart populated)
-- [ ] Fridge inventory in Shop tab
-- [ ] Auto-cart: cross-reference meal ingredients vs fridge
-- [ ] Race goal + pace targets in Runs + Coach
+### 🔴 Now — Complete the Core Loop
 
-### Next Sprint
-- [ ] Terra API wearable connection (Apple Watch, Garmin, Whoop, Oura)
-- [ ] HRV / sleep data → Coach adjusts today's intensity
-- [ ] AI full 12-week program generation (Overview/Plan tab)
-- [ ] Recipe Cookbook (save + browse saved recipes)
+| # | Feature | Notes |
+|---|---------|-------|
+| 1 | Fridge/pantry inventory | Shop tab, two sections: Fridge + Shopping List. Stored in `S.fridge[]` |
+| 2 | Fuel Chat — open conversation on Fuel tab | Same style as Today Coach. Handles recipe requests, macro questions |
+| 3 | Recipe drop via URL or description | Paste Instagram link or "David Chang ramen" → AI parses → MEAL_JSON → saves to day plan |
+| 4 | Auto-cart: diff meal plan vs fridge | Items you have → "✓ In fridge". Items you need → auto-added to cart |
+| 5 | Race goal in profile | Goal race type, target time, race date |
+| 6 | Personal Bests in Runs tab | Log PRs; "Race" checkbox on run entries |
+| 7 | Pace targets from race goal | Tuesday quality runs + Saturday long runs get specific paces |
 
-### Later
-- [ ] Strava per-user (replace hardcoded athlete ID)
-- [ ] Exercise video overhaul
-- [ ] Supplement recommendations personalised to goals
-- [ ] Shareable workout summary card (social)
-- [ ] App Store native app (post-product-market-fit)
+### 🟡 Next Sprint — AI Program + Wearables
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 8 | AI full 12-week program generation | "Generate my program" on profile save. Stores all weeks in `custom_workouts`. Replaces hardcoded arrays |
+| 9 | Remove hardcoded exercise data | After #8 is stable. Keep structural skeleton (DAYS array, phase logic) |
+| 10 | Terra API wearable connection | OAuth flow in Settings. Covers Apple Watch, Garmin, Whoop, Oura, Fitbit, Polar |
+| 11 | HRV/sleep → Coach intensity adjustment | Low HRV → Coach suggests recovery session instead of heavy lifting |
+| 12 | Wearable data in Coach system prompt | Last 7 days of HRV, sleep, active calories fed to Coach context |
+| 13 | Remove static meal rotation | After Fuel Chat is solid. Replace with AI Fuel as the default |
+
+### 🟢 Later — Growth & Polish
+
+| # | Feature | Notes |
+|---|---------|-------|
+| 14 | Recipe Cookbook | Save recipes; Supabase `saved_recipes` table; Coach references them |
+| 15 | Strava per-user | Replace hardcoded athlete ID with `S.intake.stravaId` |
+| 16 | Exercise video overhaul | Audit + fix all broken links. ~50–100 entries |
+| 17 | Personalised supplements | Based on goals, not static |
+| 18 | Shareable workout card | Social proof; share today's session as an image |
+| 19 | Native App Store app | Post product-market-fit |
 
 ---
 
@@ -187,15 +233,32 @@ Shop → done
 | Codebase | `index.html` — single file, ~3,500 lines, vanilla JS |
 | Hosting | GitHub Pages → `winstonac/himfit`, `main` branch |
 | Auth + DB | Supabase `jqomeiarmdrraausoecd` |
-| AI | Claude Sonnet via `ai-proxy` Edge Function |
+| AI | Claude `claude-sonnet-4-20250514` via `ai-proxy` Edge Function |
+| AI auth | `x-proxy-secret: himfit-wx-2026` header |
 | Wearables (planned) | Terra API — aggregates Apple Watch, Garmin, Whoop, Oura, Fitbit, Polar |
-| State | `S` object → `localStorage hf4` → `himfit_profiles` on Supabase |
+| State | `S` object → `localStorage hf4` → synced to `himfit_profiles` |
 
 ### Supabase Tables
+
 | Table | Status | Purpose |
 |-------|--------|---------|
-| `himfit_profiles` | ✅ Live | Full app state |
-| `custom_workouts` | ✅ Live | AI workout overrides |
-| `push_subscriptions` | ✅ Live | Reminders |
+| `himfit_profiles` | ✅ Live | Full app state (includes `S.fridge[]` when built) |
+| `custom_workouts` | ✅ Live | AI workout overrides per week/day |
+| `push_subscriptions` | ✅ Live | Workout reminders |
 | `saved_recipes` | 🔲 Planned | Cookbook |
 | `wearable_snapshots` | 🔲 Planned | Daily HRV, sleep, HR from Terra |
+
+---
+
+## For Cursor / Any Editor
+
+The entire app is one file: `index.html`. No build step, no framework.
+
+Key patterns to understand before editing:
+- `S` = global state object. `save()` writes to localStorage + schedules Supabase sync
+- `buildDay()` = renders the Today workout. Checks `_customWorkouts` first, falls back to hardcoded
+- `callAI(messages, systemPrompt)` = shared AI call. Returns text. Handles `tool_use` loop for web search
+- `WORKOUT_JSON` protocol: AI embeds JSON in a code block → app parses → shows Apply button
+- `MEAL_JSON` protocol: same pattern, planned for food
+- `winstonFitSupabase` = Supabase client (let-scoped, not on window)
+- `winstonFitAuthUser` = current Supabase user object
