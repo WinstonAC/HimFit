@@ -30,6 +30,79 @@ This loop must work end-to-end in under 3 minutes, voice-first, on mobile. Nothi
 
 ---
 
+## Aesthetic Goal — Voice-First Body Vision
+
+### What it is
+
+A user should be able to say — at any point, by voice or text — exactly what they want their body to look like. Not abstract fitness goals. Real, specific, honest language:
+
+> "I'm getting a dad bod. I want my shit to be tight."
+> "I want to look like I cut for 3 weeks."
+> "I want to be lean but not skinny — athletic, shoulders look big in a shirt."
+> "I want to lose the gut but keep the muscle."
+> "Beach in 6 weeks. Make it happen."
+
+The AI understands this language. No dropdown needed. No "select your goal: weight loss / muscle gain / endurance." That's what every other app does. This is a conversation.
+
+### Where it lives
+
+**Profile (captured once, updated anytime):**
+- Aesthetic goal field: free text + voice input
+- Displayed back as a card: _"Your goal: Look tight and athletic — lean with visible shoulders in 6 weeks"_
+- Editable anytime. Change your goal → Coach and Fuel automatically re-orient
+
+**Coach (every session):**
+- Coach system prompt always includes the aesthetic goal verbatim
+- If no goal is set, Coach proactively asks: _"Before we get into today's session — what do you want your body to look like? Give it to me straight."_
+- User speaks it → Coach confirms interpretation → saved to profile
+
+**Fuel (every meal plan):**
+- Aesthetic goal drives caloric strategy: cut, lean bulk, maintenance, aggressive cut
+- Goal timeframe ("3 weeks", "6 weeks", "beach in June") informs how aggressive the deficit/surplus should be
+- Fuel AI calls it out explicitly: _"You're 4 weeks from your goal. Today's meals are set at a 400 cal deficit with high protein to protect muscle."_
+
+### What the AI does with it
+
+The aesthetic goal isn't just stored — it changes every recommendation:
+
+| Goal | Workout impact | Nutrition impact |
+|------|---------------|-----------------|
+| "Tight and lean, 3 weeks" | More cardio, HIIT finishers, keep strength volume | Aggressive deficit, very high protein, lower carbs |
+| "Dad bod → athletic" | Core work, functional strength, steady cardio base | Moderate deficit, balanced macros |
+| "Lean bulk, shoulders + chest" | Heavy compound push + pull, less cardio | Slight surplus, protein-forward, timed carbs |
+| "Beach body, 6 weeks" | Full body circuits, cardio uptick each week | Progressive deficit, drop water-weight foods last week |
+| "Just be strong, don't care about looks" | Pure strength programming, no cardio tax | Maintenance or slight surplus |
+
+### Profile intake fields added
+
+```
+aestheticGoal: string        // "I want to look tight and athletic"
+goalTimeframe: string        // "6 weeks" / "before June" / "ongoing"
+goalConfirmedAt: timestamp   // when AI last confirmed the goal interpretation
+```
+
+These get added to the existing profile object and synced via Supabase.
+
+### UX flow
+
+```
+Profile setup → "What do you want your body to look like?" 
+             → mic button prominent → user speaks freely
+             → AI confirms: "Got it — lean and athletic with visible shoulders in 6 weeks. 
+                             I'll run your workouts and meals toward that."
+             → Saved → visible as a goal card on Overview tab
+
+Any time later → tap goal card → "Update my goal" → voice again
+```
+
+### Why this is different
+
+Every fitness app reduces this to a button: _Lose Weight / Build Muscle / Improve Fitness_. That's lazy. It doesn't capture what people actually want. A man who says "I'm getting a dad bod, I want my shit to be tight" has a completely different plan than a man who says "I want to look like I cut for 3 weeks." Both might select "Lose Weight" in a dropdown.
+
+Capturing the real goal in real language — and letting the AI interpret it — is a differentiator no one has built.
+
+---
+
 ## Architecture Direction
 
 ### Hardcoded Data Strategy
@@ -194,13 +267,14 @@ Complete profile → AI generates full 12-week program → stored in custom_work
 
 | # | Feature | Notes |
 |---|---------|-------|
-| 1 | Fridge/pantry inventory | Shop tab, two sections: Fridge + Shopping List. Stored in `S.fridge[]` |
-| 2 | Fuel Chat — open conversation on Fuel tab | Same style as Today Coach. Handles recipe requests, macro questions |
-| 3 | Recipe drop via URL or description | Paste Instagram link or "David Chang ramen" → AI parses → MEAL_JSON → saves to day plan |
-| 4 | Auto-cart: diff meal plan vs fridge | Items you have → "✓ In fridge". Items you need → auto-added to cart |
-| 5 | Race goal in profile | Goal race type, target time, race date |
-| 6 | Personal Bests in Runs tab | Log PRs; "Race" checkbox on run entries |
-| 7 | Pace targets from race goal | Tuesday quality runs + Saturday long runs get specific paces |
+| 1 | **Aesthetic goal — voice body vision** | Free-text + voice field in profile: "I want to look tight in 6 weeks." AI confirms + saves. Feeds Coach + Fuel system prompts. See full spec above. |
+| 2 | Fridge/pantry inventory | Shop tab, two sections: Fridge + Shopping List. Stored in `S.fridge[]` |
+| 3 | Fuel Chat — open conversation on Fuel tab | Same style as Today Coach. Handles recipe requests, macro questions |
+| 4 | Recipe drop via URL or description | Paste Instagram link or "David Chang ramen" → AI parses → MEAL_JSON → saves to day plan |
+| 5 | Auto-cart: diff meal plan vs fridge | Items you have → "✓ In fridge". Items you need → auto-added to cart |
+| 6 | Race goal in profile | Goal race type, target time, race date |
+| 7 | Personal Bests in Runs tab | Log PRs; "Race" checkbox on run entries |
+| 8 | Pace targets from race goal | Tuesday quality runs + Saturday long runs get specific paces |
 
 ### 🟡 Next Sprint — AI Program + Wearables
 
